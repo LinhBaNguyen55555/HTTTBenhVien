@@ -1,0 +1,30 @@
+@model IEnumerable<HTTTBenhVien.Models.WebMenu>
+
+<ul class="navmenu">
+    @foreach (var menu in Model)
+    {
+        var hasChildren = menu.InverseParent != null && menu.InverseParent.Any();
+        <li class="@(hasChildren ? "dropdown" : "")">
+            <a href="@menu.MenuUrl" class="@(hasChildren ? "dropdown-toggle" : "")" @(hasChildren ? "data-bs-toggle=\"dropdown\"" : "")>
+                @menu.MenuName
+                @if (hasChildren)
+                {
+                    <span class="dropdown-indicator"></span>
+                }
+            </a>
+            @if (hasChildren)
+            {
+                <ul class="dropdown-menu">
+                    @foreach (var child in menu.InverseParent.OrderBy(c => c.DisplayOrder))
+                    {
+                        <li>
+                            <a href="@child.MenuUrl">
+                                @child.MenuName
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+        </li>
+    }
+</ul>

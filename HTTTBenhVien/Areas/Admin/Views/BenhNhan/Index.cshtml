@@ -1,0 +1,97 @@
+@model IEnumerable<HTTTBenhVien.Models.Patient>
+@{
+    ViewData["Title"] = "Quản lý bệnh nhân";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+    <a href="@Url.Action("Create")" class="btn btn-primary btn-sm shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Thêm bệnh nhân mới
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-1"></i> @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sách bệnh nhân (@ViewBag.Total)</h6>
+        <form method="get" class="form-inline">
+            <input type="text" name="search" class="form-control form-control-sm mr-2" placeholder="Tìm tên, SĐT, mã BN..." value="@ViewBag.Search" style="width:200px;">
+            <select name="gender" class="form-control form-control-sm mr-2">
+                <option value="">Tất cả giới tính</option>
+                <option value="Nam" selected="@(ViewBag.Gender == "Nam")">Nam</option>
+                <option value="Nữ" selected="@(ViewBag.Gender == "Nữ")">Nữ</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-search"></i></button>
+            <a href="@Url.Action("Index")" class="btn btn-sm btn-secondary ml-1"><i class="fas fa-redo"></i></a>
+        </form>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã BN</th>
+                        <th>Họ tên</th>
+                        <th>Giới tính</th>
+                        <th>Ngày sinh</th>
+                        <th>SĐT</th>
+                        <th>Địa chỉ</th>
+                        <th>Mã BHYT</th>
+                        <th width="120">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int i = 1;
+                        foreach (var p in Model)
+                        {
+                            <tr>
+                                <td>@i</td>
+                                <td><code>@p.PatientCode</code></td>
+                                <td><strong>@p.FullName</strong></td>
+                                <td>@p.Gender</td>
+                                <td>@p.Dob?.ToString("dd/MM/yyyy")</td>
+                                <td>@p.Phone</td>
+                                <td class="text-truncate" style="max-width:150px;">@p.Address</td>
+                                <td><code>@p.BhytCode</code></td>
+                                <td>
+                                    <a href="@Url.Action("Details", new { id = p.PatientId })" class="btn btn-info btn-sm" title="Xem"><i class="fas fa-eye fa-xs"></i></a>
+                                    <a href="@Url.Action("Edit", new { id = p.PatientId })" class="btn btn-warning btn-sm" title="Sửa"><i class="fas fa-edit fa-xs"></i></a>
+                                    <a href="@Url.Action("Delete", new { id = p.PatientId })" class="btn btn-danger btn-sm" title="Xóa" onclick="return confirm('Xóa bệnh nhân này?')"><i class="fas fa-trash fa-xs"></i></a>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                        if (!Model.Any())
+                        {
+                            <tr><td colspan="9" class="text-center text-muted py-4">Không có dữ liệu</td></tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav>
+                <ul class="pagination justify-content-center mt-3">
+                    @for (int p = 1; p <= (int)ViewBag.TotalPages; p++)
+                    {
+                        <li class="page-item @(p == (int)ViewBag.Page ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = p, search = ViewBag.Search, gender = ViewBag.Gender })">@p</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+</div>

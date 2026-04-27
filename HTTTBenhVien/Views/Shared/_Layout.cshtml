@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>@ViewData["Title"] - VinhuniHIS</title>
+    <meta name="description" content="Hệ thống Quản lý Thông tin Bệnh viện - Chăm sóc sức khỏe chuyên nghiệp">
+    <meta name="keywords" content="bệnh viện, khám bệnh, đặt lịch khám, bác sĩ, chuyên khoa">
+
+    <link href="~/assets/img/favicon.png" rel="icon">
+    <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="~/assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="~/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+    <link href="~/assets/css/main.css" rel="stylesheet">
+    <link href="~/assets/css/_news_article.css" rel="stylesheet">
+</head>
+
+<body class="index-page">
+
+    <header id="header" class="header fixed-top">
+        <div class="topbar d-flex align-items-center dark-background">
+            <div class="container d-flex justify-content-center justify-content-md-between">
+                <div class="contact-info d-flex align-items-center">
+                    <i class="bi bi-envelope d-flex align-items-center">
+                        <a href="mailto:benhvien@httt.vn">benhvien@httt.vn</a>
+                    </i>
+                    <i class="bi bi-phone d-flex align-items-center ms-4">
+                        <span>Hotline: 1900 1234</span>
+                    </i>
+                    <i class="bi bi-clock d-flex align-items-center ms-4">
+                        <span>Giờ làm việc: 7:00 - 17:00</span>
+                    </i>
+                </div>
+                <div class="social-links d-none d-md-flex align-items-center">
+                    <a href="#!" class="facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#!" class="instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#!" class="youtube"><i class="bi bi-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="branding d-flex align-items-center">
+            <div class="container position-relative d-flex align-items-center justify-content-between">
+                <a href="~/" class="logo d-flex align-items-center">
+                    <i class="fas fa-hospital-alt me-2 text-primary fs-4"></i>
+                    <h1 class="sitename">VinhuniHIS</h1>
+                </a>
+
+                <nav id="navmenu" class="navmenu">
+                    @await Component.InvokeAsync("MainMenu")
+                    <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    @RenderBody()
+
+    <footer id="footer" class="footer-16 footer position-relative">
+        <div class="container">
+            <div class="footer-main" data-aos="fade-up" data-aos-delay="100">
+                <div class="row align-items-start">
+                    <div class="col-lg-4">
+                        <div class="brand-section">
+                            <a href="~/" class="logo d-flex align-items-center mb-4">
+                                <i class="fas fa-hospital-alt me-2 text-primary"></i>
+                                <span class="sitename">VinhuniHIS</span>
+                            </a>
+                            <p class="brand-description">
+                                Bệnh viện Đại học Vinh - Nơi chăm sóc sức khỏe chuyên nghiệp với đội ngũ bác sĩ giàu kinh nghiệm và trang thiết bị hiện đại.
+                            </p>
+                            <div class="contact-info mt-4">
+                                <div class="contact-item">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <span>Số 192 Đường Lê Duẩn, phường Trường Vinh, tỉnh Nghệ An</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="bi bi-telephone"></i>
+                                    <span>Hotline: 1900 1234</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="bi bi-envelope"></i>
+                                    <span>benhvien@httt.vn</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-8">
+                        <div class="footer-nav-wrapper">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="nav-column">
+                                        <h6>Chuyên khoa</h6>
+                                        <nav class="footer-nav">
+                                            <a href="@Url.Action("Index", "ChuyenKhoa")">Khoa Nội tổng hợp</a>
+                                            <a href="@Url.Action("Index", "ChuyenKhoa")">Khoa Ngoại</a>
+                                            <a href="@Url.Action("Index", "ChuyenKhoa")">Khoa Sản</a>
+                                            <a href="@Url.Action("Index", "ChuyenKhoa")">Khoa Nhi</a>
+                                            <a href="@Url.Action("Index", "ChuyenKhoa")">Khoa Tim mạch</a>
+                                        </nav>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <div class="nav-column">
+                                        <h6>Dịch vụ</h6>
+                                        <nav class="footer-nav">
+                                            <a href="@Url.Action("Index", "DatLich")">Đặt lịch khám</a>
+                                            <a href="@Url.Action("Index", "ChuyenKhoa")">Khám tổng quát</a>
+                                            <a href="@Url.Action("Index", "TinTuc")">Tin tức y khoa</a>
+                                            <a href="@Url.Action("Index", "BacSi")">Đội ngũ bác sĩ</a>
+                                            <a href="@Url.Action("Index", "LienHe")">Liên hệ</a>
+                                        </nav>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <div class="nav-column">
+                                        <h6>Liên kết nhanh</h6>
+                                        <nav class="footer-nav">
+                                            <a href="@Url.Action("Index", "GioiThieu")">Giới thiệu</a>
+                                            <a href="@Url.Action("Index", "ChuyenKhoa")">Chuyên khoa</a>
+                                            <a href="@Url.Action("Index", "DatLich")">Đặt lịch khám</a>
+                                            <a href="@Url.Action("Index", "TinTuc")">Tin tức</a>
+                                            <a href="@Url.Action("Index", "LienHe")">Liên hệ</a>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="bottom-content" data-aos="fade-up" data-aos-delay="300">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <div class="copyright">
+                                <p>&copy; @DateTime.Now.Year <span class="sitename">VinhuniHIS</span>. Tất cả quyền được bảo lưu.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="legal-links">
+                                <a href="@Url.Action("Privacy", "Home")">Chính sách bảo mật</a>
+                                <a href="@Url.Action("Index", "LienHe")">Liên hệ</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <a href="#!" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
+
+    <div id="preloader"></div>
+
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/vendor/php-email-form/validate.js"></script>
+    <script src="~/assets/vendor/aos/aos.js"></script>
+    <script src="~/assets/vendor/glightbox/js/glightbox.min.js"></script>
+    <script src="~/assets/vendor/purecounter/purecounter_vanilla.js"></script>
+    <script src="~/assets/vendor/swiper/swiper-bundle.min.js"></script>
+    <script src="~/assets/js/main.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,91 @@
+@{
+    ViewData["Title"] = "Lịch sử hình thành";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+
+    <section id="history" class="about section">
+        <div class="container" data-aos="fade-up">
+            <div class="section-title">
+                <h2>Lịch sử hình thành</h2>
+                <p>Hành trình xây dựng và phát triển VinhuniHIS</p>
+            </div>
+
+            <div class="row align-items-center mb-5">
+                <div class="col-lg-6">
+                    <img src="https://placehold.co/600x400?text=Lịch+sử+hình+thành" alt="Lịch sử hình thành" class="img-fluid rounded shadow">
+                </div>
+                <div class="col-lg-6">
+                    <p class="lead">Bệnh viện được thành lập với sứ mệnh mang đến dịch vụ y tế chất lượng cao cho người dân, trở thành địa chỉ khám chữa bệnh đáng tin cậy trong khu vực.</p>
+                    <p>Qua hơn 15 năm hoạt động, bệnh viện không ngừng phát triển từ quy mô nhỏ đến hệ thống y tế hiện đại với đầy đủ các chuyên khoa.</p>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">2010</div>
+                    <div class="timeline-content">
+                        <h4>Thành lập bệnh viện</h4>
+                        <p>Bệnh viện chính thức được thành lập với quy mô 50 giường bệnh, phục vụ nhu cầu khám chữa bệnh cho người dân.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-date">2013</div>
+                    <div class="timeline-content">
+                        <h4>Mở rộng quy mô</h4>
+                        <p>Nâng cấp lên 100 giường bệnh, thành lập 5 khoa chuyên môn và đội ngũ y bác sĩ được tăng cường.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-date">2016</div>
+                    <div class="timeline-content">
+                        <h4>Đạt chuẩn Bệnh viện hạng II</h4>
+                        <p>Hoàn thành các tiêu chí đánh giá, được công nhận đạt chuẩn Bệnh viện hạng II theo quy định của Bộ Y tế.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-date">2019</div>
+                    <div class="timeline-content">
+                        <h4>Ứng dụng công nghệ thông tin</h4>
+                        <p>Triển khai hệ thống quản lý bệnh viện HIS, áp dụng bệnh án điện tử và đặt lịch khám trực tuyến.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-date">2022</div>
+                    <div class="timeline-content">
+                        <h4>Nâng cấp cơ sở vật chất</h4>
+                        <p>Đầu tư xây dựng khu nhà mới với trang thiết bị hiện đại, nâng công suất lên 200 giường bệnh.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-date">2025</div>
+                    <div class="timeline-content">
+                        <h4>Phát triển toàn diện</h4>
+                        <p>Hệ thống y tế hoàn chỉnh với 12 khoa chuyên môn, phục vụ hơn 50.000 bệnh nhân mỗi năm.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h3>Tầm nhìn & Sứ mệnh</h3>
+                    <p>Tìm hiểu về mục tiêu và giá trị cốt lõi của bệnh viện.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="@Url.Action("TamNhinSuMenh", "GioiThieu")" class="btn btn-light btn-lg">Xem thêm</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>

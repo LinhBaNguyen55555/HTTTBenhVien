@@ -1,0 +1,127 @@
+@model HTTTBenhVien.Models.Appointment
+@{
+    ViewData["Title"] = "Đặt lịch khám";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+
+    <section class="section">
+        <div class="container" data-aos="fade-up">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="section-title">
+                        <h2>Đặt lịch khám online</h2>
+                        <p>Điền thông tin bên dưới để đặt lịch khám tại bệnh viện</p>
+                    </div>
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        </div>
+                    }
+
+                    <div class="card shadow-sm">
+                        <div class="card-body p-4">
+                            <form method="post" asp-action="Index">
+                                @Html.AntiForgeryToken()
+
+                                <h5 class="mb-3"><i class="fas fa-user me-2 text-primary"></i> Thông tin bệnh nhân</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Họ tên bệnh nhân <span class="text-danger">*</span></label>
+                                            <input type="text" asp-for="Patient.FullName" class="form-control" placeholder="Nhập họ tên đầy đủ" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                            <input type="tel" asp-for="Patient.Phone" class="form-control" placeholder="0xxx xxx xxx" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h5 class="mb-3 mt-4"><i class="fas fa-calendar me-2 text-primary"></i> Thông tin lịch khám</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Chuyên khoa <span class="text-danger">*</span></label>
+                                            <select id="deptSelect" class="form-select" required>
+                                                <option value="">-- Chọn chuyên khoa --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Bác sĩ <span class="text-danger">*</span></label>
+                                            <select asp-for="DoctorId" id="doctorSelect" class="form-select" required>
+                                                <option value="">-- Chọn bác sĩ --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Ngày khám <span class="text-danger">*</span></label>
+                                            <input type="date" asp-for="AppDate" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Giờ khám <span class="text-danger">*</span></label>
+                                            <select asp-for="TimeSlot" class="form-select" required>
+                                                <option value="">-- Chọn giờ --</option>
+                                                <option value="07:00">07:00 - 08:00</option>
+                                                <option value="08:00">08:00 - 09:00</option>
+                                                <option value="09:00">09:00 - 10:00</option>
+                                                <option value="10:00">10:00 - 11:00</option>
+                                                <option value="11:00">11:00 - 12:00</option>
+                                                <option value="13:00">13:00 - 14:00</option>
+                                                <option value="14:00">14:00 - 15:00</option>
+                                                <option value="15:00">15:00 - 16:00</option>
+                                                <option value="16:00">16:00 - 17:00</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Lý do khám</label>
+                                    <textarea asp-for="Reason" class="form-control" rows="3" placeholder="Mô tả triệu chứng hoặc lý do khám..."></textarea>
+                                </div>
+
+                                @if (TempData["Error"] != null)
+                                {
+                                    <div class="alert alert-danger">@TempData["Error"]</div>
+                                }
+
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="fas fa-calendar-check me-2"></i> Xác nhận đặt lịch
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Lưu ý:</strong> Sau khi đặt lịch, nhân viên bệnh viện sẽ liên hệ xác nhận trong vòng 30 phút. Nếu chưa nhận được cuộc gọi, vui lòng gọi hotline <strong>1900 1234</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<style>
+    .section-title h2 {
+        margin-top: 68px;
+    }
+</style>

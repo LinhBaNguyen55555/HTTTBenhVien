@@ -1,0 +1,527 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<main class="main">
+
+    <section id="hero" class="hero section">
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-content">
+                        <div class="trust-badges mb-4" data-aos="fade-right" data-aos-delay="200">
+                            <div class="badge-item">
+                                <i class="bi bi-shield-check"></i>
+                                <span>ISO 9001:2015</span>
+                            </div>
+                            <div class="badge-item">
+                                <i class="bi bi-clock"></i>
+                                <span>Cấp cứu 24/7</span>
+                            </div>
+                            <div class="badge-item">
+                                <i class="bi bi-star-fill"></i>
+                                <span>4.9/5 Đánh giá</span>
+                            </div>
+                        </div>
+
+                        <h1 data-aos="fade-right" data-aos-delay="300">
+                            Chăm sóc sức khỏe<br><span class="highlight">tận tâm</span> với<br>chất lượng hàng đầu
+                        </h1>
+
+                        <p class="hero-description" data-aos="fade-right" data-aos-delay="400">
+                             Bệnh viện Đại học Vinh - Nơi quy tụ đội ngũ bác sĩ chuyên khoa giỏi, trang thiết bị hiện đại, mang đến dịch vụ y tế chất lượng cao cho mọi người.
+                        </p>
+
+                        <div class="hero-stats mb-4" data-aos="fade-right" data-aos-delay="500">
+                            <div class="stat-item">
+                                <h3><span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="2" class="purecounter"></span>+</h3>
+                                <p>Năm kinh nghiệm</p>
+                            </div>
+                            <div class="stat-item">
+                                <h3><span data-purecounter-start="0" data-purecounter-end="50000" data-purecounter-duration="2" class="purecounter"></span>+</h3>
+                                <p>Bệnh nhân khám</p>
+                            </div>
+                            <div class="stat-item">
+                                <h3><span data-purecounter-start="0" data-purecounter-end="50" data-purecounter-duration="2" class="purecounter"></span>+</h3>
+                                <p>Bác sĩ chuyên khoa</p>
+                            </div>
+                        </div>
+
+                        <div class="hero-actions" data-aos="fade-right" data-aos-delay="600">
+                            <a href="@Url.Action("Index", "DatLich")" class="btn btn-primary">Đặt lịch khám ngay</a>
+                            <a href="@Url.Action("Index", "ChuyenKhoa")" class="btn btn-outline glightbox">
+                                <i class="bi bi-arrow-right-circle me-2"></i>
+                                Tìm hiểu dịch vụ
+                            </a>
+                        </div>
+
+                        <div class="emergency-contact" data-aos="fade-right" data-aos-delay="700">
+                            <div class="emergency-icon">
+                                <i class="bi bi-telephone-fill"></i>
+                            </div>
+                            <div class="emergency-info">
+                                <small>Hotline cấp cứu</small>
+                                <strong>1900 1234</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="hero-visual" data-aos="fade-left" data-aos-delay="400">
+                        <div class="main-image">
+                            <img src="~/assets/img/health/staff-10.webp" alt="Cơ sở y tế hiện đại" class="img-fluid">
+                            <div class="floating-card appointment-card">
+                                <div class="card-icon">
+                                    <i class="bi bi-calendar-check"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h6>Lịch khám tiếp theo</h6>
+                                    <p>Hôm nay</p>
+                                    <small>Đang cập nhật...</small>
+                                </div>
+                            </div>
+                            <div class="floating-card rating-card">
+                                <div class="card-content">
+                                    <div class="rating-stars">
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                    </div>
+                                    <h6>4.9/5</h6>
+                                    <small>10000+ đánh giá</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="background-elements">
+                            <div class="element element-1"></div>
+                            <div class="element element-2"></div>
+                            <div class="element element-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="home-about" class="home-about section">
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-right" data-aos-delay="200">
+                    <div class="about-content">
+                        <h2 class="section-heading">Chăm sóc tận tâm, Y học tiên tiến</h2>
+                        <p class="lead-text">
+                            Với hơn 15 năm hoạt động, chúng tôi cam kết mang đến dịch vụ y tế chất lượng cao, kết hợp công nghệ hiện đại với sự thân thiện trong từng trải nghiệm của bệnh nhân.
+                        </p>
+                        <p>
+                            Đội ngũ bác sĩ đa chuyên khoa làm việc tập thể để đảm bảo mỗi bệnh nhân đều nhận được sự chăm sóc toàn diện, phù hợp với nhu cầu riêng biệt của từng người.
+                        </p>
+
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-number purecounter" data-purecounter-start="0" data-purecounter-end="50000" data-purecounter-duration="1"></div>
+                                <div class="stat-label">Bệnh nhân được điều trị</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number purecounter" data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1"></div>
+                                <div class="stat-label">Năm kinh nghiệm</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number purecounter" data-purecounter-start="0" data-purecounter-end="50" data-purecounter-duration="1"></div>
+                                <div class="stat-label">Bác sĩ chuyên khoa</div>
+                            </div>
+                        </div>
+
+                        <div class="cta-section">
+                            <a href="@Url.Action("Index", "GioiThieu")" class="btn-primary">Tìm hiểu về chúng tôi</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6" data-aos="fade-left" data-aos-delay="300">
+                    <div class="about-visual">
+                        <div class="main-image">
+                            <img src="~/assets/img/health/facilities-9.webp" alt="Cơ sở y tế hiện đại" class="img-fluid">
+                        </div>
+                        <div class="floating-card">
+                            <div class="card-content">
+                                <div class="icon"><i class="bi bi-heart-pulse"></i></div>
+                                <div class="card-text">
+                                    <h4>Cấp cứu 24/7</h4>
+                                    <p>Luôn sẵn sàng khi bạn cần</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="experience-badge">
+                            <div class="badge-content">
+                                <span class="years">15+</span>
+                                <span class="text">Năm chăm sóc sức khỏe</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="featured-departments" class="featured-departments section">
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="container section-title" data-aos="fade-up">
+                <h2 class="section-title-main">Chuyên khoa nổi bật</h2>
+                <p class="section-subtitle">Hệ thống đa chuyên khoa với đội ngũ bác sĩ giàu kinh nghiệm, trang thiết bị hiện đại</p>
+            </div>
+
+            <div class="departments-showcase">
+                @{
+                    var specialties = new[] {
+                        new {
+                            Img = "cardiology-1.webp",
+                            Icon = "bi-heart-pulse",
+                            Title = "Khoa Tim mạch",
+                            Desc = "Chẩn đoán và điều trị các bệnh lý tim mạch với trang thiết bị hiện đại nhất",
+                            Tags = new[] { "Phẫu thuật tim mạch", "Can thiệp mạch vành", "Siêu âm tim" },
+                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 5 }),
+                            Color = "#dc3545",
+                            LightColor = "#ffe8ea",
+                            Delay = "100"
+                        },
+                        new {
+                            Img = "neurology-4.webp",
+                            Icon = "bi-cpu",
+                            Title = "Khoa Thần kinh",
+                            Desc = "Chuyên điều trị các bệnh lý thần kinh, đột quỵ, động kinh với công nghệ tiên tiến",
+                            Tags = new[] { "Điều trị đột quỵ", "Phẫu thuật thần kinh", "Phục hồi chức năng" },
+                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 6 }),
+                            Color = "#6f42c1",
+                            LightColor = "#f3e8ff",
+                            Delay = "200"
+                        },
+                        new {
+                            Img = "staff-5.webp",
+                            Icon = "bi-activity",
+                            Title = "Khoa Ngoại tổng hợp",
+                            Desc = "Phẫu thuật tổng quát, nội soi, chấn thương chỉnh hình với kỹ thuật hiện đại",
+                            Tags = new[] { "Phẫu thuật ống tiêu hóa", "Can thiệp đa chấn thương", "Thay khớp nhân tạo" },
+                            Link = Url.Action("Index", "ChuyenKhoa"),
+                            Color = "#0d6efd",
+                            LightColor = "#e8f0ff",
+                            Delay = "300"
+                        },
+                        new {
+                            Img = "pediatrics-4.webp",
+                            Icon = "bi-people",
+                            Title = "Khoa Nhi",
+                            Desc = "Chăm sóc sức khỏe trẻ em từ sơ sinh đến 15 tuổi với không gian thân thiện",
+                            Tags = new[] { "Hồi sức sơ sinh", "Nhi khoa tổng quát", "Dinh dưỡng nhi" },
+                            Link = Url.Action("Index", "ChuyenKhoa"),
+                            Color = "#fd7e14",
+                            LightColor = "#fff4e6",
+                            Delay = "400"
+                        },
+                        new {
+                            Img = "maternal-2.webp",
+                            Icon = "bi-heart",
+                            Title = "Khoa Sản",
+                            Desc = "Theo dõi thai kỳ, sinh con an toàn, chăm sóc sau sinh với đội ngũ bác sĩ giàu kinh nghiệm",
+                            Tags = new[] { "Thai sản cao cấp", "Sinh con không đau", "Can thiệp sản phụ khoa" },
+                            Link = Url.Action("Index", "ChuyenKhoa"),
+                            Color = "#e83e8c",
+                            LightColor = "#ffe8f4",
+                            Delay = "500"
+                        },
+                        new {
+                            Img = "laboratory-3.webp",
+                            Icon = "bi-microscope",
+                            Title = "Khoa Xét nghiệm",
+                            Desc = "Xét nghiệm máu, sinh hóa, vi sinh với kết quả nhanh chóng, chính xác",
+                            Tags = new[] { "Xét nghiệm máu", "Sinh hóa máu", "Vi sinh - Cấy vi khuẩn" },
+                            Link = Url.Action("Index", "ChuyenKhoa"),
+                            Color = "#20c997",
+                            LightColor = "#e8faf5",
+                            Delay = "600"
+                        }
+                    };
+                }
+
+                <div class="dept-grid">
+                    @foreach (var spec in specialties)
+                    {
+                        <div class="dept-card" data-aos="fade-up" data-aos-delay="@spec.Delay">
+                            <div class="dept-card-inner">
+                                <div class="dept-image-wrap">
+                                    <img src="~/assets/img/health/@spec.Img" alt="@spec.Title" loading="lazy">
+                                    <div class="dept-image-overlay"></div>
+                                    <div class="dept-icon-badge" style="background: @spec.LightColor; color: @spec.Color;">
+                                        <i class="bi @spec.Icon"></i>
+                                    </div>
+                                </div>
+                                <div class="dept-card-body">
+                                    <h3 class="dept-title">@spec.Title</h3>
+                                    <p class="dept-desc">@spec.Desc</p>
+                                    <div class="dept-tags">
+                                        @foreach (var tag in spec.Tags)
+                                        {
+                                            <span class="dept-tag" style="background: @spec.LightColor; color: @spec.Color;">@tag</span>
+                                        }
+                                    </div>
+                                    <a href="@spec.Link" class="dept-cta" style="color: @spec.Color;">
+                                        Tìm hiểu thêm <i class="bi bi-arrow-right-short"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="dept-cta-section" data-aos="fade-up" data-aos-delay="400">
+                <div class="cta-card">
+                    <div class="cta-left">
+                        <div class="cta-icon-wrap">
+                            <i class="bi bi-hospital"></i>
+                        </div>
+                        <div class="cta-text">
+                            <h3>Xem tất cả chuyên khoa của bệnh viện</h3>
+                            <p>Khám phá danh sách đầy đủ các khoa, phòng ban và dịch vụ y tế của chúng tôi</p>
+                        </div>
+                    </div>
+                    <div class="cta-right">
+                        <a href="@Url.Action("Index", "ChuyenKhoa")" class="cta-btn">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                            Danh sách chuyên khoa
+                        </a>
+                        <a href="@Url.Action("Index", "DatLich")" class="cta-btn cta-btn-secondary">
+                            <i class="bi bi-calendar-check"></i>
+                            Đặt lịch khám
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="featured-services" class="featured-services section">
+        <div class="container section-title" data-aos="fade-up">
+            <h2>Dịch vụ y tế</h2>
+            <p>Đa dạng các dịch vụ khám và điều trị với chất lượng cao</p>
+        </div>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="row g-0">
+                <div class="col-lg-8" data-aos="fade-right" data-aos-delay="200">
+                    <div class="featured-service-main">
+                        <div class="service-image-wrapper">
+                            <img src="~/assets/img/health/consultation-4.webp" alt="Dịch vụ y tế chất lượng cao" class="img-fluid" loading="lazy">
+                            <div class="service-overlay">
+                                <div class="service-badge">
+                                    <i class="bi bi-heart-pulse"></i>
+                                    <span>Đặt lịch khám</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="service-details">
+                            <h2>Dịch vụ y tế toàn diện</h2>
+                            <p>Khám, chẩn đoán và điều trị với đội ngũ bác sĩ chuyên khoa giỏi, trang thiết bị hiện đại theo tiêu chuẩn quốc tế.</p>
+                            <a href="@Url.Action("Index", "DatLich")" class="main-cta">Đặt lịch khám ngay</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4" data-aos="fade-left" data-aos-delay="300">
+                    <div class="services-sidebar">
+                        <div class="service-item" data-aos="fade-up" data-aos-delay="400">
+                            <div class="service-icon-wrapper"><i class="bi bi-capsule"></i></div>
+                            <div class="service-info">
+                                <h4>Dược - Khoa dược</h4>
+                                <p>Cung cấp thuốc chất lượng, tư vấn sử dụng thuốc an toàn, hiệu quả cho bệnh nhân.</p>
+                                <a href="@Url.Action("Index", "ChuyenKhoa")" class="service-link">Tìm hiểu thêm</a>
+                            </div>
+                        </div>
+                        <div class="service-item" data-aos="fade-up" data-aos-delay="500">
+                            <div class="service-icon-wrapper"><i class="bi bi-microscope"></i></div>
+                            <div class="service-info">
+                                <h4>Xét nghiệm - Y sinh học phân tử</h4>
+                                <p>Xét nghiệm máu, sinh hóa, vi sinh chuyên sâu với kết quả nhanh chóng, chính xác.</p>
+                                <a href="@Url.Action("Index", "ChuyenKhoa")" class="service-link">Tìm hiểu thêm</a>
+                            </div>
+                        </div>
+                        <div class="service-item" data-aos="fade-up" data-aos-delay="600">
+                            <div class="service-icon-wrapper"><i class="bi bi-activity"></i></div>
+                            <div class="service-info">
+                                <h4>Chẩn đoán hình ảnh</h4>
+                                <p>X-quang, CT Scanner, MRI, siêu âm với hình ảnh sắc nét, hỗ trợ chẩn đoán chính xác.</p>
+                                <a href="@Url.Action("Index", "ChuyenKhoa")" class="service-link">Tìm hiểu thêm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="find-a-doctor" class="find-a-doctor section">
+        <div class="container section-title" data-aos="fade-up">
+            <h2>Đội ngũ bác sĩ</h2>
+            <p>Gặp gỡ đội ngũ bác sĩ chuyên khoa giàu kinh nghiệm của chúng tôi</p>
+        </div>
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="doctors-grid">
+                @{
+                    var doctors = ViewBag.FeaturedDoctors as List<HTTTBenhVien.Models.Employee>;
+                    if (doctors != null && doctors.Any())
+                    {
+                        foreach (var doctor in doctors)
+                        {
+                            <div class="doctor-profile">
+                                <div class="profile-header">
+                                    <div class="doctor-avatar">
+                                        @await Component.InvokeAsync("DoctorAvatar", new { imageName = doctor.AvatarUrl, fullName = doctor.FullName })
+                                        <span class="status-indicator available"></span>
+                                    </div>
+                                    <div class="doctor-details">
+                                        <h4>@doctor.FullName</h4>
+                                        <span class="specialty-tag">@doctor.Specialty</span>
+                                        <div class="experience-info">
+                                            <i class="fas fa-hospital"></i>
+                                            <span>@doctor.Dept?.DeptName</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rating-section">
+                                    <div class="stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <span class="rating-score">4.8</span>
+                                    <span class="review-count">(128 đánh giá)</span>
+                                </div>
+
+                                <div class="profile-contact">
+                                    @if (!string.IsNullOrEmpty(doctor.Phone))
+                                    {
+                                        <div class="contact-item">
+                                            <i class="fas fa-phone-alt"></i>
+                                            <span>@doctor.Phone</span>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(doctor.Email))
+                                    {
+                                        <div class="contact-item">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>@doctor.Email</span>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="action-buttons">
+                                    <a href="@Url.Action("Details", "BacSi", new { id = doctor.EmpId })" class="btn btn-secondary">
+                                        <i class="fas fa-user-md"></i> Xem chi tiết
+                                    </a>
+                                    <a href="@Url.Action("Index", "DatLich", new { doctorId = doctor.EmpId })" class="btn btn-primary">
+                                        <i class="fas fa-calendar-check"></i> Đặt lịch khám
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center">
+                            <p class="text-muted">Hiện chưa có thông tin bác sĩ.</p>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="@Url.Action("Index", "BacSi")" class="btn-view-all">
+                    Xem tất cả bác sĩ <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="call-to-action" class="call-to-action section light-background">
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="hero-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="content-wrapper" data-aos="fade-up" data-aos-delay="200">
+                            <h1>Chăm sóc sức khỏe, Mọi ngày</h1>
+                            <p>Đặt lịch khám trực tuyến dễ dàng, nhanh chóng. Đội ngũ bác sĩ tận tâm, trang thiết bị hiện đại, quy trình khám bệnh chuyên nghiệp.</p>
+                            <div class="cta-wrapper">
+                                <a href="@Url.Action("Index", "DatLich")" class="primary-cta">
+                                    <span>Đặt lịch khám</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                                <a href="@Url.Action("Index", "ChuyenKhoa")" class="secondary-cta">
+                                    <span>Tìm hiểu dịch vụ</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="image-container" data-aos="fade-left" data-aos-delay="300">
+                            <img src="~/assets/img/health/facilities-9.webp" alt="Chăm sóc sức khỏe" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-section">
+                <div class="row g-0">
+                    <div class="col-lg-4">
+                        <div class="feature-block" data-aos="fade-up" data-aos-delay="200">
+                            <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
+                            <h3>Công nghệ tiên tiến</h3>
+                            <p>Trang thiết bị y tế hiện đại theo tiêu chuẩn quốc tế, đảm bảo chẩn đoán chính xác.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="feature-block" data-aos="fade-up" data-aos-delay="300">
+                            <div class="feature-icon"><i class="bi bi-clock"></i></div>
+                            <h3>Luôn sẵn sàng 24/7</h3>
+                            <p>Khoa cấp cứu hoạt động liên tục, sẵn sàng xử lý mọi tình huống khẩn cấp.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="feature-block" data-aos="fade-up" data-aos-delay="400">
+                            <div class="feature-icon"><i class="bi bi-people"></i></div>
+                            <h3>Đội ngũ chuyên nghiệp</h3>
+                            <p>Bác sĩ, điều dưỡng được đào tạo bài bản, tận tâm với nghề, yêu thương bệnh nhân.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-block">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="contact-content" data-aos="fade-up" data-aos-delay="200">
+                            <h2>Bạn cần hỗ trợ y tế?</h2>
+                            <p>Liên hệ hotline 1900 1234 hoặc đặt lịch khám trực tuyến để được tư vấn và hỗ trợ nhanh nhất.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="contact-actions" data-aos="fade-up" data-aos-delay="300">
+                            <a href="tel:19001234" class="emergency-call">
+                                <i class="bi bi-telephone"></i>
+                                <span>1900 1234</span>
+                            </a>
+                            <a href="@Url.Action("Index", "LienHe")" class="contact-link">GỬI TIN NHẮN</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>

@@ -1,0 +1,493 @@
+@model HTTTBenhVien.Models.ChuyenKhoaViewModel
+@{
+    ViewData["Title"] = "Chuyên khoa";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+
+    <section class="section">
+        <div class="container" data-aos="fade-up">
+            <div class="section-title">
+                <h2>Hệ thống chuyên khoa</h2>
+                <p>Bệnh viện Đại học Vinh có đa dạng các chuyên khoa với đội ngũ bác sĩ chuyên nghiệp, trang thiết bị hiện đại</p>
+            </div>
+
+            @* ===== Khoa Cấp Cứu — nổi bật đầu trang ===== *@
+            @if (Model.KhoaCapCuu.Where(d => string.Equals(d.DeptType?.Trim(), "Cấp cứu", StringComparison.OrdinalIgnoreCase)).Any())
+            {
+                foreach (var capCuu in Model.KhoaCapCuu)
+                {
+                    <div class="emergency-banner">
+                        <div class="emergency-banner-icon">
+                            <i class="fas fa-ambulance"></i>
+                        </div>
+                        <div class="emergency-banner-content">
+                            <span class="emergency-badge">Cấp cứu</span>
+                            <h2>@capCuu.DeptName</h2>
+                            <p><i class="fas fa-map-marker-alt me-1"></i> @capCuu.Location &nbsp;|&nbsp; <i class="fas fa-clock me-1"></i> Hoạt động 24/7</p>
+                        </div>
+                        <a href="tel:19001234" class="emergency-call-btn">
+                            <i class="fas fa-phone-alt me-2"></i>Gọi cấp cứu
+                        </a>
+                    </div>
+                }
+            }
+
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-6">
+                    <div class="dept-type-card lam-sang">
+                        <div class="dept-type-header">
+                            <div class="dept-type-icon">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <div>
+                                <h3>Khối Lâm sàng</h3>
+                                <p>Khám, chẩn đoán và điều trị trực tiếp cho bệnh nhân</p>
+                            </div>
+                        </div>
+                        <div class="dept-type-count">@Model.KhoaLamSang.Count chuyên khoa</div>
+                        <div class="dept-grid">
+                            @{
+                                int i = 0;
+                                var lsIcons = new[] { "fa-heartbeat", "fa-brain", "fa-bone", "fa-baby", "fa-heart", "fa-user-md", "fa-ambulance", "fa-procedures" };
+                                foreach (var dept in Model.KhoaLamSang.Where(d => string.Equals(d.DeptType?.Trim(), "Lâm sàng", StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    var icon = lsIcons[i % lsIcons.Length];
+                                    <div class="dept-item">
+                                        <div class="dept-icon">
+                                            <i class="fas @icon"></i>
+                                        </div>
+                                        <div class="dept-info">
+                                            <h5>@dept.DeptName</h5>
+                                            <span><i class="fas fa-map-marker-alt me-1"></i>@dept.Location</span>
+                                        </div>
+                                        <a href="@Url.Action("Details", "ChuyenKhoa", new { id = dept.DeptId })" class="dept-btn">
+                                            <span>Đặt lịch</span>
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                    i++;
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="dept-type-card can-lam-sang">
+                        <div class="dept-type-header">
+                            <div class="dept-type-icon">
+                                <i class="fas fa-microscope"></i>
+                            </div>
+                            <div>
+                                <h3>Khối Cận lâm sàng</h3>
+                                <p>Hỗ trợ chẩn đoán bệnh lý qua xét nghiệm, hình ảnh và dược</p>
+                            </div>
+                        </div>
+                        <div class="dept-type-count">@Model.KhoaCanLamSang.Count chuyên khoa</div>
+                        <div class="dept-grid">
+                            @{
+                                int j = 0;
+                                var clsIcons = new[] { "fa-flask", "fa-x-ray", "fa-pills", "fa-diagnoses" };
+                                foreach (var dept in Model.KhoaCanLamSang.Where(d => string.Equals(d.DeptType?.Trim(), "Cận lâm sàng", StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    var icon = clsIcons[j % clsIcons.Length];
+                                    <div class="dept-item">
+                                        <div class="dept-icon">
+                                            <i class="fas @icon"></i>
+                                        </div>
+                                        <div class="dept-info">
+                                            <h5>@dept.DeptName</h5>
+                                            <span><i class="fas fa-map-marker-alt me-1"></i>@dept.Location</span>
+                                        </div>
+                                        <a href="@Url.Action("Details", "ChuyenKhoa", new { id = dept.DeptId })" class="dept-btn dept-btn-detail">
+                                            <span>Xem chi tiết</span>
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                    j++;
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<section class="cta-section-fixed">
+    <div class="container">
+        <div class="text-center">
+            <h3>Không biết nên khám ở khoa nào?</h3>
+            <p>Gọi hotline <strong>1900 1234</strong> để được tư vấn miễn phí từ đội ngũ CSKH của chúng tôi.</p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap mt-3">
+                <a href="tel:19001234" class="btn btn-light btn-lg">
+                    <i class="fas fa-phone-alt me-2"></i>Gọi tư vấn
+                </a>
+                <a href="@Url.Action("Index", "DatLich")" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-calendar-check me-2"></i>Đặt lịch khám
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .section-title h2{
+        margin-top: 68px;
+    }
+
+    /* ===== Emergency Banner ===== */
+    .emergency-banner {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border-radius: 18px;
+        padding: 28px 32px;
+        margin-bottom: 32px;
+        color: #fff;
+        box-shadow: 0 6px 24px rgba(220, 53, 69, 0.35);
+        flex-wrap: wrap;
+    }
+
+    .emergency-banner-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+
+    .emergency-banner-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .emergency-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.25);
+        border: 1px solid rgba(255,255,255,0.4);
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }
+
+    .emergency-banner-content h2 {
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0 0 4px;
+        color: #fff;
+    }
+
+    .emergency-banner-content p {
+        font-size: 14px;
+        color: rgba(255,255,255,0.85);
+        margin: 0;
+    }
+
+    .emergency-call-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: 12px;
+        background: #fff;
+        color: #dc3545;
+        font-size: 15px;
+        font-weight: 700;
+        text-decoration: none;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+        animation: pulse-emergency 2s infinite;
+    }
+
+    .emergency-call-btn:hover {
+        background: #f8f8f8;
+        color: #c82333;
+        transform: scale(1.03);
+    }
+
+    @@keyframes pulse-emergency {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.5); }
+        50% { box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+    }
+
+    @@media (max-width: 576px) {
+        .emergency-banner {
+            flex-direction: column;
+            text-align: center;
+            padding: 24px 20px;
+        }
+        .emergency-call-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    .dept-type-card {
+        border-radius: 16px;
+        padding: 32px;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .dept-type-card.lam-sang {
+        background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
+        border: 1px solid #b3d9f7;
+    }
+
+    .dept-type-card.can-lam-sang {
+        background: linear-gradient(135deg, #e8f8f0 0%, #f0fff7 100%);
+        border: 1px solid #a3e0c3;
+    }
+
+    .dept-type-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .dept-type-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    .lam-sang .dept-type-icon {
+        background: linear-gradient(135deg, #0d6efd, #3d8bfd);
+        color: #fff;
+    }
+
+    .can-lam-sang .dept-type-icon {
+        background: linear-gradient(135deg, #198754, #20c997);
+        color: #fff;
+    }
+
+    .dept-type-header h3 {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        color: #333;
+    }
+
+    .dept-type-header p {
+        font-size: 13px;
+        color: #777;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    .dept-type-count {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #999;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .dept-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .dept-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        transition: all 0.25s ease;
+        border: 1px solid transparent;
+    }
+
+    .dept-item:hover {
+        background: rgba(255,255,255,0.95);
+        transform: translateX(4px);
+    }
+
+    .lam-sang .dept-item:hover {
+        border-color: #0d6efd33;
+        box-shadow: 0 2px 12px rgba(13,110,253,0.1);
+    }
+
+    .can-lam-sang .dept-item:hover {
+        border-color: #19875433;
+        box-shadow: 0 2px 12px rgba(25,135,84,0.1);
+    }
+
+    .dept-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .lam-sang .dept-icon {
+        background: #e8f0ff;
+        color: #0d6efd;
+    }
+
+    .can-lam-sang .dept-icon {
+        background: #e8f7ef;
+        color: #198754;
+    }
+
+    .dept-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .dept-info h5 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 2px;
+        color: #222;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .dept-info span {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .dept-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        flex-shrink: 0;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .dept-btn:hover {
+        transform: translateX(4px);
+    }
+
+    .lam-sang .dept-btn {
+        background: #0d6efd;
+        color: #fff;
+    }
+
+    .lam-sang .dept-btn:hover {
+        background: #0b5ed7;
+        box-shadow: 0 4px 12px rgba(13,110,253,0.3);
+    }
+
+    .can-lam-sang .dept-btn {
+        background: #6c757d;
+        color: #fff;
+    }
+
+    .can-lam-sang .dept-btn:hover {
+        background: #5a6268;
+        box-shadow: 0 4px 12px rgba(108,117,125,0.3);
+    }
+
+    .dept-btn-detail {
+        background: #6c757d !important;
+        color: #fff !important;
+    }
+
+    .dept-btn-detail:hover {
+        background: #5a6268 !important;
+        box-shadow: 0 4px 12px rgba(108,117,125,0.3);
+    }
+
+    /* === Floating CTA section === */
+    .cta-section-fixed {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1050;
+        background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+        padding: 20px 0;
+        box-shadow: 0 -4px 24px rgba(13,110,253,0.35);
+        animation: slideUp 0.4s ease-out;
+    }
+
+    .cta-section-fixed h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        color: #fff;
+    }
+
+    .cta-section-fixed p {
+        font-size: 14px;
+        color: rgba(255,255,255,0.85);
+        margin: 0;
+    }
+
+    .cta-section-fixed .btn-light {
+        background: #fff;
+        color: #0d6efd;
+        font-weight: 700;
+        border: none;
+    }
+
+    .cta-section-fixed .btn-light:hover {
+        background: #f0f0f0;
+        color: #0b5ed7;
+    }
+
+    .cta-section-fixed .btn-outline-light {
+        border-color: rgba(255,255,255,0.7);
+        color: #fff;
+    }
+
+    .cta-section-fixed .btn-outline-light:hover {
+        background: rgba(255,255,255,0.15);
+        border-color: #fff;
+        color: #fff;
+    }
+
+    /* Prevent content from being hidden behind fixed bar */
+    .main {
+        padding-bottom: 100px;
+    }
+
+    @@keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+</style>

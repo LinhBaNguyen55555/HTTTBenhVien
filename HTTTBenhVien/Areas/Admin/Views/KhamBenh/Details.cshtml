@@ -1,0 +1,152 @@
+@model HTTTBenhVien.Models.MedicalRecord
+@{
+    ViewData["Title"] = "Hồ sơ bệnh án #" + Model.RecordId;
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Hồ sơ bệnh án #@Model.RecordId</h1>
+    <div>
+        <a href="@Url.Action("Edit", new { id = Model.RecordId })" class="btn btn-warning btn-sm">
+            <i class="fas fa-edit"></i> Sửa
+        </a>
+        <a href="@Url.Action("Index", "ThanhToan", new { area = "Admin", recordId = Model.RecordId })" class="btn btn-success btn-sm">
+            <i class="fas fa-money-bill"></i> Thanh toán
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin bệnh nhân</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Tên:</strong> @Model.Patient?.FullName</p>
+                <p class="mb-1"><strong>Mã BN:</strong> <code>@Model.Patient?.PatientCode</code></p>
+                <p class="mb-1"><strong>Giới tính:</strong> @Model.Patient?.Gender</p>
+                <p class="mb-1"><strong>Năm sinh:</strong> @Model.Patient?.Dob?.ToString("yyyy")</p>
+                <p class="mb-1"><strong>SĐT:</strong> @Model.Patient?.Phone</p>
+                <p class="mb-0"><strong>BHYT:</strong> @(string.IsNullOrEmpty(Model.Patient?.BhytCode) ? "Không" : Model.Patient.BhytCode)</p>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin khám</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Ngày khám:</strong> @Model.VisitDate?.ToString("dd/MM/yyyy HH:mm")</p>
+                <p class="mb-1"><strong>Bác sĩ:</strong> @Model.Doctor?.FullName</p>
+                <p class="mb-1"><strong>Khoa:</strong> @Model.Doctor?.Dept?.DeptName</p>
+                <p class="mb-1"><strong>Loại khám:</strong> @(Model.RecordType == "NgoaiTru" ? "Ngoại trú" : Model.RecordType == "NoiTru" ? "Nội trú" : Model.RecordType == "CapCuu" ? "Cấp cứu" : Model.RecordType)</p>
+                <p class="mb-1"><strong>ICD:</strong> <code>@Model.IcdCode</code> - @Model.IcdCodeNavigation?.DiseaseName</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-stethoscope mr-1"></i> Kết quả khám</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="text-muted small font-weight-bold text-uppercase">Triệu chứng</label>
+                    <p>@Model.Symptoms</p>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small font-weight-bold text-uppercase">Chẩn đoán</label>
+                    <p>@Model.Diagnosis</p>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="mb-3">
+                        <label class="text-muted small font-weight-bold text-uppercase">Ghi chú</label>
+                        <p>@Model.Notes</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (Model.Prescriptions != null && Model.Prescriptions.Any())
+        {
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-pills mr-1"></i> Đơn thuốc</h6>
+                </div>
+                <div class="card-body">
+                    @foreach (var pre in Model.Prescriptions)
+                    {
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr><th>STT</th><th>Tên thuốc</th><th>Số lượng</th><th>Liều dùng</th></tr>
+                            </thead>
+                            <tbody>
+                                @{ int j = 1; }
+                                @foreach (var pd in pre.PrescriptionDetails)
+                                {
+                                    <tr>
+                                        <td>@j</td>
+                                        <td>@pd.Medicine?.MedicineName</td>
+                                        <td>@pd.Quantity @pd.Medicine?.Unit</td>
+                                        <td>@pd.Dosage</td>
+                                    </tr>
+                                    j++;
+                                }
+                            </tbody>
+                        </table>
+                        if (!string.IsNullOrEmpty(pre.Note))
+                        {
+                            <p class="small text-muted mb-0"><strong>Ghi chú:</strong> @pre.Note</p>
+                        }
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.RecordServices != null && Model.RecordServices.Any())
+        {
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-flask mr-1"></i> Dịch vụ cận lâm sàng</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-bordered">
+                        <thead class="thead-light">
+                            <tr><th>STT</th><th>Tên dịch vụ</th><th>Giá</th><th>Trạng thái</th></tr>
+                        </thead>
+                        <tbody>
+                            @{ int k = 1; }
+                            @foreach (var rs in Model.RecordServices)
+                            {
+                                var statusClass = rs.Status switch
+                                {
+                                    "ChoNhanMau" => "badge-secondary",
+                                    "DangXetNghiem" => "badge-warning",
+                                    "DaCoKQ" => "badge-success",
+                                    _ => "badge-secondary"
+                                };
+                                var statusText = rs.Status switch
+                                {
+                                    "ChoNhanMau" => "Chờ nhận mẫu",
+                                    "DangXetNghiem" => "Đang xét nghiệm",
+                                    "DaCoKQ" => "Đã có kết quả",
+                                    _ => rs.Status
+                                };
+                                <tr>
+                                    <td>@k</td>
+                                    <td>@rs.Service?.ServiceName</td>
+                                    <td>@rs.Service?.BasePrice.ToString("N0") đ</td>
+                                    <td><span class="badge @statusClass">@statusText</span></td>
+                                </tr>
+                                k++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>

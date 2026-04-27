@@ -1,0 +1,124 @@
+@model HTTTBenhVien.Areas.Admin.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Tạo tài khoản mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin tài khoản</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="Register">
+                        @Html.AntiForgeryToken()
+
+                        <h6 class="text-primary border-bottom pb-2 mb-3"><i class="fas fa-user-circle mr-1"></i> Thông tin đăng nhập</h6>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Tên đăng nhập <span class="text-danger">*</span></label>
+                                    <input type="text" asp-for="Username" class="form-control" required />
+                                    <span asp-validation-for="Username" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Vai trò <span class="text-danger">*</span></label>
+                                    <select asp-for="RoleName" class="form-control" required>
+                                        <option value="">-- Chọn vai trò --</option>
+                                        <option value="Admin">Admin - Quản trị hệ thống</option>
+                                        <option value="BacSi">Bác sĩ</option>
+                                        <option value="LeTan">Lễ tân</option>
+                                        <option value="KeToan">Kế toán</option>
+                                        <option value="DuocSi">Dược sĩ</option>
+                                    </select>
+                                    <span asp-validation-for="RoleName" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary border-bottom pb-2 mb-3 mt-4"><i class="fas fa-id-card mr-1"></i> Thông tin nhân viên</h6>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Họ tên <span class="text-danger">*</span></label>
+                                    <input type="text" asp-for="FullName" class="form-control" required />
+                                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Khoa / Phòng ban</label>
+                                    <select asp-for="DeptId" class="form-control" asp-items="@(ViewBag.Departments as SelectList)">
+                                        <option value="">-- Chọn khoa --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Email</label>
+                                    <input type="email" asp-for="Email" class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Số điện thoại</label>
+                                    <input type="text" asp-for="Phone" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">Chức danh</label>
+                            <input type="text" asp-for="JobTitle" class="form-control" placeholder="VD: Bác sĩ chuyên khoa I, Điều dưỡng trưởng..." />
+                        </div>
+
+                        <div class="text-right mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Tạo tài khoản
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-info-circle mr-1"></i> Hướng dẫn</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2">Mật khẩu mặc định sau khi tạo:</p>
+                    <code class="d-block p-2 bg-light rounded mb-3 text-center" style="font-size:14px;">123456</code>
+                    <p class="small text-muted">Nhân viên nên đổi mật khẩu ngay sau khi đăng nhập lần đầu.</p>
+                    <hr />
+                    <p class="small text-muted mb-1"><strong>Vai trò:</strong></p>
+                    <ul class="small text-muted pl-3">
+                        <li><strong>Admin:</strong> Toàn quyền hệ thống</li>
+                        <li><strong>Bác sĩ:</strong> Khám bệnh, kê đơn</li>
+                        <li><strong>Lễ tân:</strong> Tiếp nhận, đặt lịch</li>
+                        <li><strong>Kế toán:</strong> Thanh toán, hóa đơn</li>
+                        <li><strong>Dược sĩ:</strong> Quản lý kho dược</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

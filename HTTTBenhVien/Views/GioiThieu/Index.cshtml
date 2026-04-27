@@ -1,0 +1,115 @@
+@{
+    ViewData["Title"] = "Giới thiệu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+
+    <section id="about" class="about section">
+        <div class="container" data-aos="fade-up">
+            <div class="section-title">
+                <h2>Giới thiệu về VinhuniHIS</h2>
+                <p>Hơn 15 năm chăm sóc sức khỏe cộng đồng</p>
+            </div>
+
+            <div class="row align-items-center mb-5">
+                <div class="col-lg-6">
+                    <h3>Tầm nhìn</h3>
+                    <p class="lead">Trở thành hệ thống y tế hàng đầu Việt Nam, mang đến dịch vụ chăm sóc sức khỏe toàn diện với chất lượng quốc tế.</p>
+                    <h3 class="mt-4">Sứ mệnh</h3>
+                    <p>Cung cấp dịch vụ y tế chất lượng cao, an toàn và hiệu quả cho mọi đối tượng. Xây dựng môi trường y tế chuyên nghiệp, thân thiện nơi bệnh nhân được tôn trọng và quan tâm.</p>
+                </div>
+                <div class="col-lg-6">
+                    <h3>Giá trị cốt lõi</h3>
+                    <ul class="values-list">
+                        <li><i class="bi bi-check-circle-fill text-primary me-2"></i> <strong>An toàn bệnh nhân</strong> - Luôn đặt sự an toàn và lợi ích của bệnh nhân lên hàng đầu</li>
+                        <li><i class="bi bi-check-circle-fill text-primary me-2"></i> <strong>Chất lượng</strong> - Không ngừng nâng cao chất lượng dịch vụ y tế</li>
+                        <li><i class="bi bi-check-circle-fill text-primary me-2"></i> <strong>Tận tâm</strong> - Đội ngũ y bác sĩ tận tâm với nghề, yêu thương bệnh nhân</li>
+                        <li><i class="bi bi-check-circle-fill text-primary me-2"></i> <strong>Chính trực</strong> - Hành xử trung thực, minh bạch trong mọi hoàn cảnh</li>
+                        <li><i class="bi bi-check-circle-fill text-primary me-2"></i> <strong>Hợp tác</strong> - Làm việc theo tinh thần đồng đội, phối hợp liên khoa hiệu quả</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-box">
+                        <i class="fas fa-hospital-alt fa-2x mb-3"></i>
+                        <h2><span class="purecounter" data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1">15</span>+</h2>
+                        <p>Năm hoạt động</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-box">
+                        <i class="fas fa-user-md fa-2x mb-3"></i>
+                        <h2><span class="purecounter" data-purecounter-start="0" data-purecounter-end="50" data-purecounter-duration="1">50</span>+</h2>
+                        <p>Bác sĩ chuyên khoa</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-box">
+                        <i class="fas fa-procedures fa-2x mb-3"></i>
+                        <h2><span class="purecounter" data-purecounter-start="0" data-purecounter-end="200" data-purecounter-duration="1">200</span>+</h2>
+                        <p>Giường bệnh</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-box">
+                        <i class="fas fa-users fa-2x mb-3"></i>
+                        <h2><span class="purecounter" data-purecounter-start="0" data-purecounter-end="50000" data-purecounter-duration="1">50000</span>+</h2>
+                        <p>Bệnh nhân</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="departments" class="departments section">
+        <div class="container" data-aos="fade-up">
+            <div class="section-title">
+                <h2>Hệ thống chuyên khoa</h2>
+                <p>12 khoa lâm sàng và cận lâm sàng</p>
+            </div>
+
+            <div class="row g-4">
+                @{
+                    var departments = ViewBag.Departments as List<HTTTBenhVien.Models.Department>;
+                    if (departments != null)
+                    {
+                        foreach (var dept in departments)
+                        {
+                            <div class="col-lg-4 col-md-6">
+                                <div class="dept-card">
+                                    <i class="fas fa-stethoscope mb-3"></i>
+                                    <h4>@dept.DeptName</h4>
+                                    <p>@dept.Location</p>
+                                    <span class="badge bg-primary">@dept.DeptType</span>
+                                    <a href="@Url.Action("Details", "ChuyenKhoa", new { id = dept.DeptId })" class="mt-3 d-inline-block">Xem chi tiết <i class="bi bi-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h3>Bạn cần đặt lịch khám?</h3>
+                    <p>Đặt lịch khám trực tuyến dễ dàng, nhanh chóng. Đội ngũ bác sĩ sẵn sàng tư vấn và khám cho bạn.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="@Url.Action("Index", "DatLich")" class="btn btn-light btn-lg">Đặt lịch khám ngay</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>

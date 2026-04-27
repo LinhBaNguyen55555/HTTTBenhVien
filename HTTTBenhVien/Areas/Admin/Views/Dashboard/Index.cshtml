@@ -1,0 +1,346 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var stats = ViewBag.Stats;
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-chart-pie text-primary mr-2"></i>Dashboard
+        </h1>
+        <span class="text-muted small">
+            <i class="far fa-calendar-alt mr-1"></i>
+            @DateTime.Now.ToString("dddd, dd/MM/yyyy", new System.Globalization.CultureInfo("vi-VN"))
+        </span>
+    </div>
+    <div class="d-none d-sm-block text-right">
+        <small class="text-muted d-block">Chào mừng bạn quay trở lại</small>
+        <span class="font-weight-bold text-primary">@User.Identity?.Name</span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card primary">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon primary mr-3">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@stats.TotalPatients</div>
+                    <div class="stat-label">Tổng bệnh nhân</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="@Url.Action("Index", "BenhNhan")" class="small text-primary"><i class="fas fa-arrow-right mr-1"></i>Quản lý bệnh nhân</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card success">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon success mr-3">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@stats.TodayAppointments</div>
+                    <div class="stat-label">Lịch hẹn hôm nay</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="@Url.Action("Index", "LichKham")" class="small text-success"><i class="fas fa-arrow-right mr-1"></i>Xem lịch hẹn</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card warning">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon warning mr-3">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@stats.PendingAppointments</div>
+                    <div class="stat-label">Lịch chưa xử lý</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="@Url.Action("Index", "TiepNhan")" class="small text-warning"><i class="fas fa-arrow-right mr-1"></i>Tiếp nhận ngay</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card info">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon info mr-3">
+                    <i class="fas fa-file-medical"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@stats.TodayMedicalRecords</div>
+                    <div class="stat-label">Hồ sơ khám hôm nay</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="@Url.Action("Index", "HoSoBenhAn")" class="small text-info"><i class="fas fa-arrow-right mr-1"></i>Xem hồ sơ</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card danger">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon danger mr-3">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@stats.LowStockMedicines</div>
+                    <div class="stat-label">Thuốc sắp hết</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="@Url.Action("Index", "KhoDuoc")" class="small text-danger"><i class="fas fa-arrow-right mr-1"></i>Kiểm tra kho</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card success">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon success mr-3">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@stats.TodayRevenue.ToString("N0")</div>
+                    <div class="stat-label">Doanh thu hôm nay (đ)</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="@Url.Action("Index", "ThanhToan")" class="small text-success"><i class="fas fa-arrow-right mr-1"></i>Xem thanh toán</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card primary">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon primary mr-3">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@stats.TotalEmployees</div>
+                    <div class="stat-label">Tổng nhân viên</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="@Url.Action("Index", "NhanVien")" class="small text-primary"><i class="fas fa-arrow-right mr-1"></i>Quản lý nhân sự</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card info">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon info mr-3">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@stats.TotalArticles</div>
+                    <div class="stat-label">Bài viết</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="@Url.Action("Index", "BaiViet")" class="small text-info"><i class="fas fa-arrow-right mr-1"></i>Quản lý bài viết</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, #175cdd, #2e86c1); color: white;">
+                <div class="d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-white">
+                        <i class="fas fa-calendar-check mr-1"></i> Lịch hẹn khám hôm nay
+                    </h6>
+                    <a href="@Url.Action("Index", "LichKham")" class="btn btn-light btn-sm">
+                        Xem tất cả <i class="fas fa-arrow-right fa-xs"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Bệnh nhân</th>
+                                <th>Bác sĩ</th>
+                                <th>Giờ khám</th>
+                                <th>Lý do</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var appointments = ViewBag.RecentAppointments as List<HTTTBenhVien.Models.Appointment>;
+                                if (appointments != null && appointments.Count > 0)
+                                {
+                                    foreach (var appt in appointments)
+                                    {
+                                        var statusClass = appt.Status switch
+                                        {
+                                            "New" => "badge-secondary",
+                                            "DaXacNhan" => "badge-info",
+                                            "DangKham" => "badge-primary",
+                                            "HoanThanh" => "badge-success",
+                                            "Huy" => "badge-danger",
+                                            _ => "badge-secondary"
+                                        };
+                                        var statusText = appt.Status switch
+                                        {
+                                            "New" => "Mới",
+                                            "DaXacNhan" => "Đã xác nhận",
+                                            "DangKham" => "Đang khám",
+                                            "HoanThanh" => "Hoàn thành",
+                                            "Huy" => "Hủy",
+                                            _ => appt.Status
+                                        };
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-2" style="width:28px;height:28px;font-size:11px;font-weight:700;">
+                                                        @(appt.Patient?.FullName?.Length > 0 ? appt.Patient.FullName[0].ToString().ToUpper() : "B")
+                                                    </div>
+                                                    <strong style="font-size:13px;">@appt.Patient?.FullName</strong>
+                                                </div>
+                                            </td>
+                                            <td style="font-size:13px;">@appt.Doctor?.FullName</td>
+                                            <td style="font-size:13px;">@appt.AppDate?.ToString("HH:mm")</td>
+                                            <td class="text-truncate" style="max-width:120px; font-size:12px;" title="@appt.Reason">@appt.Reason</td>
+                                            <td><span class="badge @statusClass">@statusText</span></td>
+                                            <td>
+                                                @if (appt.Status == "DaXacNhan")
+                                                {
+                                                    <a href="@Url.Action("Confirm", "TiepNhan", new { id = appt.AppId })" class="btn btn-success btn-sm py-1 px-2" title="Bắt đầu khám">
+                                                        <i class="fas fa-play fa-xs"></i>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">
+                                            <i class="fas fa-calendar-times fa-2x mb-2 d-block text-secondary"></i>
+                                            Không có lịch hẹn nào hôm nay
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, #1cc88a, #17a673); color: white;">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-user-plus mr-1"></i> Bệnh nhân mới nhất
+                </h6>
+            </div>
+            <div class="card-body">
+                @{
+                    var recentPatients = ViewBag.RecentPatients as List<HTTTBenhVien.Models.Patient>;
+                    if (recentPatients != null && recentPatients.Count > 0)
+                    {
+                        foreach (var patient in recentPatients)
+                        {
+                            <div class="d-flex align-items-center py-2 border-bottom">
+                                <div class="user-avatar avatar-primary mr-3" style="width:36px;height:36px;font-size:13px;">
+                                    @(patient.FullName?.Length > 0 ? patient.FullName[0].ToString().ToUpper() : "B")
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong class="d-block" style="font-size:13px;">@patient.FullName</strong>
+                                    <small class="text-muted">@patient.Phone · @(patient.Dob?.ToString("dd/MM/yyyy") ?? "—")</small>
+                                </div>
+                                <a href="@Url.Action("Details", "BenhNhan", new { id = patient.PatientId })" class="btn btn-outline-primary btn-sm py-1 px-2" title="Chi tiết">
+                                    <i class="fas fa-eye fa-xs"></i>
+                                </a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-users fa-2x mb-2 d-block text-secondary"></i>
+                            <small>Chưa có bệnh nhân nào</small>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, #f6c23e, #dda20a); color: white;">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> Cảnh báo hệ thống
+                </h6>
+            </div>
+            <div class="card-body">
+                @{
+                    var hasWarning = false;
+                    if (stats.LowStockMedicines > 0)
+                    {
+                        hasWarning = true;
+                        <a href="@Url.Action("Index", "KhoDuoc")" class="d-flex align-items-center text-decoration-none mb-2 p-2 rounded" style="background:#fff3cd;">
+                            <div class="user-avatar avatar-danger mr-2" style="width:28px;height:28px;font-size:11px;"><i class="fas fa-pills"></i></div>
+                            <div>
+                                <strong class="d-block" style="font-size:12px;color:#856404;">@stats.LowStockMedicines thuốc sắp hết hàng</strong>
+                                <small style="color:#856404;">Cần nhập kho gấp</small>
+                            </div>
+                        </a>
+                    }
+                    if (stats.PendingAppointments > 0)
+                    {
+                        hasWarning = true;
+                        <a href="@Url.Action("Index", "TiepNhan")" class="d-flex align-items-center text-decoration-none mb-2 p-2 rounded" style="background:#fff3cd;">
+                            <div class="user-avatar avatar-warning mr-2" style="width:28px;height:28px;font-size:11px;"><i class="fas fa-clock"></i></div>
+                            <div>
+                                <strong class="d-block" style="font-size:12px;color:#856404;">@stats.PendingAppointments lịch hẹn chưa xử lý</strong>
+                                <small style="color:#856404;">Cần tiếp nhận sớm</small>
+                            </div>
+                        </a>
+                    }
+                    if (stats.UnreadContacts > 0)
+                    {
+                        hasWarning = true;
+                        <a href="@Url.Action("Index", "LienHe")" class="d-flex align-items-center text-decoration-none mb-2 p-2 rounded" style="background:#d1ecf1;">
+                            <div class="user-avatar avatar-info mr-2" style="width:28px;height:28px;font-size:11px;"><i class="fas fa-envelope"></i></div>
+                            <div>
+                                <strong class="d-block" style="font-size:12px;color:#0c5460;">@stats.UnreadContacts liên hệ chưa đọc</strong>
+                                <small style="color:#0c5460;">Cần phản hồi khách hàng</small>
+                            </div>
+                        </a>
+                    }
+                    if (!hasWarning)
+                    {
+                        <div class="text-center text-success py-3">
+                            <i class="fas fa-check-circle fa-3x mb-2 d-block"></i>
+                            <strong>Tất cả hoạt động ổn định!</strong>
+                            <div class="small text-muted mt-1">Không có cảnh báo nào</div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

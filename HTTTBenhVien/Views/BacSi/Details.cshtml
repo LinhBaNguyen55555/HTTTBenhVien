@@ -1,0 +1,75 @@
+@model HTTTBenhVien.Models.Employee
+@{
+    ViewData["Title"] = "Bs. " + Model.FullName;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+
+    <section class="section">
+        <div class="container" data-aos="fade-up">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="doctor-profile-card">
+                        <div class="text-center mb-4">
+                                @await Component.InvokeAsync("DoctorAvatar", new { imageName = Model.AvatarUrl, fullName = Model.FullName, cssClass = "rounded-circle" })
+                        </div>
+                        <h3 class="text-center mb-1">@Model.FullName</h3>
+                        <p class="text-center text-muted mb-1">@Model.Specialty</p>
+                        <p class="text-center"><span class="badge bg-primary">@Model.JobTitle</span></p>
+
+                        <hr>
+                        <div class="doctor-details">
+                            <p><i class="fas fa-hospital text-primary me-2"></i> @Model.Dept?.DeptName</p>
+                            <p><i class="fas fa-phone text-primary me-2"></i> @Model.Phone</p>
+                            <p><i class="fas fa-envelope text-primary me-2"></i> @Model.Email</p>
+                        </div>
+
+                        <a href="@Url.Action("Index", "DatLich")" class="btn btn-primary w-100 mt-3">
+                            <i class="fas fa-calendar-check me-1"></i> Đặt lịch khám
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <h3>Giới thiệu</h3>
+                    <p>@Model.FullName là @(Model.JobTitle?.ToLower()) chuyên về @(Model.Specialty?.ToLower()) tại @Model.Dept?.DeptName. Với sự tận tâm và chuyên môn cao, bác sĩ luôn đặt sức khỏe của bệnh nhân lên hàng đầu.</p>
+
+                    <h3 class="mt-4">Chuyên môn</h3>
+                    <ul class="expertise-list">
+                        <li><i class="bi bi-check-circle-fill text-primary me-2"></i> Chuyên @(Model.Specialty)</li>
+                        <li><i class="bi bi-check-circle-fill text-primary me-2"></i> @(Model.JobTitle) với nhiều năm kinh nghiệm</li>
+                        <li><i class="bi bi-check-circle-fill text-primary me-2"></i> Tham gia nhiều chương trình đào tạo trong và ngoài nước</li>
+                    </ul>
+
+                    <h3 class="mt-4">Giờ làm việc</h3>
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Ngày trong tuần</th>
+                                <th>Giờ làm việc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Thứ Hai - Thứ Sáu</td><td>07:00 - 17:00</td></tr>
+                            <tr><td>Thứ Bảy</td><td>07:00 - 12:00</td></tr>
+                            <tr><td>Chủ Nhật</td><td>Nghỉ</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Lưu ý:</strong> Lịch khám có thể thay đổi theo từng tuần. Vui lòng liên hệ hotline <strong>1900 1234</strong> để xác nhận trước khi đến khám.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<style>
+    .section{
+        margin-top: 125px;
+    }
+</style>

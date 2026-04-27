@@ -1,0 +1,932 @@
+@model HTTTBenhVien.Models.Department
+@{
+    ViewData["Title"] = Model.DeptName;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    bool isLamSang = string.Equals(Model.DeptType?.Trim(), "Lâm sàng", StringComparison.OrdinalIgnoreCase);
+    bool isCapCuu = string.Equals(Model.DeptType?.Trim(), "Cấp cứu", StringComparison.OrdinalIgnoreCase);
+    bool isCanLamSang = string.Equals(Model.DeptType?.Trim(), "Cận lâm sàng", StringComparison.OrdinalIgnoreCase);
+    string cardClass = isLamSang ? "clinical-card" : isCapCuu ? "emergency-card" : "paraclinical-card";
+    string accentClass = isLamSang ? "accent-blue" : isCapCuu ? "accent-red" : "accent-green";
+    string primaryBtn = isLamSang ? "btn-primary" : isCapCuu ? "btn-danger" : "btn-success";
+    string primaryIcon = isLamSang ? "fa-stethoscope" : isCapCuu ? "fa-ambulance" : "fa-microscope";
+    string badgeClass = isLamSang ? "bg-primary" : isCapCuu ? "bg-danger" : "bg-success";
+    string heroBg = isLamSang ? "linear-gradient(135deg, #0d6efd, #3d8bfd)" : isCapCuu ? "linear-gradient(135deg, #dc3545, #ff6b6b)" : "linear-gradient(135deg, #198754, #20c997)";
+    string iconBg = isLamSang ? "#e8f0ff" : isCapCuu ? "#ffe8e8" : "#e8f7ef";
+    string iconColor = isLamSang ? "#0d6efd" : isCapCuu ? "#dc3545" : "#198754";
+}
+
+<main class="main">
+
+    @* ===== Hero Banner ===== *@
+    <section class="dept-hero" style="background: @heroBg;">
+        <div class="container">
+            <div class="dept-hero-inner">
+                <div class="dept-hero-icon">
+                    <i class="fas @primaryIcon"></i>
+                </div>
+                <div class="dept-hero-content">
+                    <span class="badge @badgeClass mb-2">@Model.DeptType</span>
+                    <h1>@Model.DeptName</h1>
+                    <div class="dept-hero-meta">
+                        <span><i class="fas fa-map-marker-alt me-1"></i> @Model.Location</span>
+                        <span><i class="fas fa-clock ms-3 me-1"></i> Giờ làm việc: 7:00 - 17:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <section class="section">
+        <div class="container">
+            <div class="row">
+
+                @* ===== Left Content ===== *@
+                <div class="col-lg-8">
+                    <div class="@cardClass dept-detail-card mb-4">
+
+                        @* About Section *@
+                        <div class="dept-block">
+                            <div class="dept-block-icon" style="background: @iconBg; color: @iconColor;">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="dept-block-body">
+                                <h2 class="dept-block-title">Giới thiệu khoa</h2>
+                                @if (isCapCuu)
+                                {
+                                    <p>Khoa <strong>@Model.DeptName</strong> của Bệnh viện Đại học Vinh hoạt động <strong>24/7</strong>, tiếp nhận và xử lý mọi tình huống cấp cứu với đội ngũ bác sĩ và điều dưỡng được đào tạo chuyên nghiệp, luôn sẵn sàng can thiệp nhanh chóng, chính xác để cứu sống bệnh nhân.</p>
+                                    <p>Với trang thiết bị hiện đại và quy trình cấp cứu chuẩn quốc tế, khoa đảm bảo thời gian phản ứng nhanh nhất, tối ưu cơ hội điều trị cho người bệnh trong những trường hợp nguy kịch.</p>
+                                }
+                                else if (isLamSang)
+                                {
+                                    <p>Khoa <strong>@Model.DeptName</strong> là một trong những khoa lâm sàng quan trọng của Bệnh viện Đại học Vinh, với đội ngũ bác sĩ chuyên khoa giàu kinh nghiệm và trang thiết bị hiện đại. Chúng tôi cam kết mang đến dịch vụ khám và điều trị chất lượng cao nhất cho bệnh nhân.</p>
+                                    <p>Bác sĩ tại khoa được đào tạo chuyên sâu, thường xuyên cập nhật các phương pháp điều trị mới nhất, hợp tác với các trung tâm y khoa lớn trong và ngoài nước.</p>
+                                }
+                                else if (Model.DeptName?.Trim().IndexOf("Xét", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                                         Model.DeptName?.Trim().IndexOf("nghiệm", StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    iconBg = "#e8f4fd"; iconColor = "#0d6efd";
+                                }
+                                {
+                                    <p>Khoa <strong>@Model.DeptName</strong> là khoa cận lâm sàng trọng điểm của Bệnh viện Đại học Vinh, được trang bị hệ thống máy móc hiện đại bậc nhất khu vực. Khoa cung cấp đầy đủ các dịch vụ chẩn đoán hình ảnh từ cơ bản đến chuyên sâu, phục vụ nhu cầu khám chữa bệnh của người dân Nghệ An và các tỉnh lân cận.</p>
+                                    <p>Đội ngũ kỹ thuật viên và bác sĩ chuyên khoa tại khoa được đào tạo bài bản, có chứng chỉ hành nghề và thường xuyên cập nhật các kỹ thuật mới nhất từ các trung tâm lớn trong nước cũng như quốc tế.</p>
+                                }
+                                else
+                                {
+                                    <p>Khoa <strong>@Model.DeptName</strong> là khoa cận lâm sàng, đóng vai trò quan trọng trong hệ thống chẩn đoán và hỗ trợ điều trị của Bệnh viện Đại học Vinh. Với đội ngũ kỹ thuật viên chuyên nghiệp và máy móc hiện đại, khoa cung cấp các kết quả xét nghiệm, chẩn đoán hình ảnh chính xác và nhanh chóng.</p>
+                                    <p>Kết quả từ khoa cận lâm sàng là cơ sở quan trọng giúp các bác sĩ lâm sàng đưa ra chẩn đoán và phác đồ điều trị hiệu quả cho bệnh nhân.</p>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="dept-divider"></div>
+
+                        @* Services Section *@
+                        <div class="dept-block">
+                            <div class="dept-block-icon" style="background: @iconBg; color: @iconColor;">
+                                <i class="fas fa-list-check"></i>
+                            </div>
+                            <div class="dept-block-body">
+                                <h2 class="dept-block-title">Dịch vụ chính</h2>
+                                <div class="service-grid">
+                                    @if (isCapCuu)
+                                    {
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #ffe8e8; color: #dc3545;">
+                                                <i class="fas fa-heartbeat"></i>
+                                            </div>
+                                            <h5>Cấp cứu tim mạch</h5>
+                                            <p>Xử lý nhồi máu cơ tim, đột quỵ trong thời gian vàng</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #ffe8e8; color: #dc3545;">
+                                                <i class="fas fa-brain"></i>
+                                            </div>
+                                            <h5>Cấp cứu thần kinh</h5>
+                                            <p>Đột quỵ não, chấn thương sọ não với đội ngũ chuyên khoa thần kinh</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #ffe8e8; color: #dc3545;">
+                                                <i class="fas fa-bone"></i>
+                                            </div>
+                                            <h5>Cấp cứu chấn thương</h5>
+                                            <p>Gãy xương, vết thương hở, tai nạn giao thông</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #ffe8e8; color: #dc3545;">
+                                                <i class="fas fa-procedures"></i>
+                                            </div>
+                                            <h5>Hồi sức tích cực</h5>
+                                            <p>Theo dõi và hồi sức bệnh nhân nặng 24/7</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #ffe8e8; color: #dc3545;">
+                                                <i class="fas fa-ambulance"></i>
+                                            </div>
+                                            <h5>Vận chuyển cấp cứu</h5>
+                                            <p>Xe cấp cứu trang bị đầy đủ, sẵn sàng 24/7</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #ffe8e8; color: #dc3545;">
+                                                <i class="fas fa-user-md"></i>
+                                            </div>
+                                            <h5>Tư vấn chuyên khoa</h5>
+                                            <p>Bác sĩ chuyên khoa tất cả các lĩnh vực túc trực</p>
+                                        </div>
+                                    }
+                                    else if (isLamSang)
+                                    {
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f0ff; color: #0d6efd;">
+                                                <i class="fas fa-stethoscope"></i>
+                                            </div>
+                                            <h5>Khám chuyên khoa</h5>
+                                            <p>Khám và tư vấn chuyên sâu với bác sĩ giàu kinh nghiệm</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f0ff; color: #0d6efd;">
+                                                <i class="fas fa-pills"></i>
+                                            </div>
+                                            <h5>Chẩn đoán & Điều trị</h5>
+                                            <p>Phác đồ điều trị cá nhân hóa cho từng bệnh nhân</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f0ff; color: #0d6efd;">
+                                                <i class="fas fa-notes-medical"></i>
+                                            </div>
+                                            <h5>Theo dõi tái khám</h5>
+                                            <p>Hệ thống nhắc lịch tái khám định kỳ thông minh</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f0ff; color: #0d6efd;">
+                                                <i class="fas fa-user-md"></i>
+                                            </div>
+                                            <h5>Tư vấn dinh dưỡng</h5>
+                                            <p>Chế độ dinh dưỡng phù hợp cho quá trình hồi phục</p>
+                                        </div>
+                                    }
+                                    else if (Model.DeptName?.Trim().IndexOf("Xét", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                                             Model.DeptName?.Trim().IndexOf("nghiệm", StringComparison.OrdinalIgnoreCase) >= 0)
+                                    {
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f4fd; color: #0d6efd;">
+                                                <i class="fas fa-vial"></i>
+                                            </div>
+                                            <h5>Xét nghiệm Máu</h5>
+                                            <p>Công thức máu 32 chỉ số, sinh hóa, đông máu</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f4fd; color: #0d6efd;">
+                                                <i class="fas fa-flask"></i>
+                                            </div>
+                                            <h5>Xét nghiệm Sinh hóa</h5>
+                                            <p>Men gan, đường huyết, mỡ máu, chức năng thận</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f4fd; color: #0d6efd;">
+                                                <i class="fas fa-droplet"></i>
+                                            </div>
+                                            <h5>Xét nghiệm Nước tiểu</h5>
+                                            <p>Tổng phân tích nước tiểu 10 thông số</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f4fd; color: #0d6efd;">
+                                                <i class="fas fa-microscope"></i>
+                                            </div>
+                                            <h5>Xét nghiệm Vi sinh</h5>
+                                            <p>Cấy vi khuẩn, kháng sinh đồ chính xác</p>
+                                        </div>
+                                    }
+                                    else if (Model.DeptName?.Trim().IndexOf("Chẩn", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                                             Model.DeptName?.Trim().IndexOf("hình", StringComparison.OrdinalIgnoreCase) >= 0)
+                                    {
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-wave-square"></i>
+                                            </div>
+                                            <h5>Chụp cắt lớp vi tính (CT Scan)</h5>
+                                            <p>Phát hiện u, chấn thương, bệnh lý nội tạng nhanh chóng</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-magnifying-glass-plus"></i>
+                                            </div>
+                                            <h5>Chụp cộng hưởng từ (MRI)</h5>
+                                            <p>Hình ảnh sắc nét não, cột sống, khớp không bức xạ</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-tv"></i>
+                                            </div>
+                                            <h5>Siêu âm 4D & Doppler</h5>
+                                            <p>Siêu âm bụng, tim thai, mạch máu với hình ảnh thời gian thực</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-x-ray"></i>
+                                            </div>
+                                            <h5>X-quang kỹ thuật số</h5>
+                                            <p>Chụp X-quang ngực, xương khớp với bức xạ thấp</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-stethoscope"></i>
+                                            </div>
+                                            <h5>Nội soi chẩn đoán</h5>
+                                            <p>Nội soi dạ dày, đại tràng, phế quản với hình ảnh HD</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-heart-pulse"></i>
+                                            </div>
+                                            <h5>Điện tim & Điện não đồ</h5>
+                                            <p>Ghi nhịp tim, đánh giá chức năng thần kinh chính xác</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-flask"></i>
+                                            </div>
+                                            <h5>Xét nghiệm máu</h5>
+                                            <p>Xét nghiệm sinh hóa, hematology, miễn dịch</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-x-ray"></i>
+                                            </div>
+                                            <h5>Chẩn đoán hình ảnh</h5>
+                                            <p>X-quang, CT scan, MRI, siêu âm chính xác</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-pills"></i>
+                                            </div>
+                                            <h5>Dược lâm sàng</h5>
+                                            <p>Tư vấn thuốc an toàn, theo dõi tương tác thuốc</p>
+                                        </div>
+                                        <div class="service-card">
+                                            <div class="service-icon-wrap" style="background: #e8f7ef; color: #198754;">
+                                                <i class="fas fa-file-medical"></i>
+                                            </div>
+                                            <h5>Kết quả nhanh</h5>
+                                            <p>Báo cáo chi tiết, gửi kết quả qua tin nhắn</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Doctor Team Section *@
+                        @if (Model.Employees != null && Model.Employees.Any())
+                        {
+                            var doctors = Model.Employees.Where(e => e.JobTitle != null && (e.JobTitle.Contains("Bác sĩ") || e.JobTitle.Contains("Dược") || e.JobTitle.Contains("Kỹ thuật"))).ToList();
+                            if (doctors.Any())
+                            {
+                                <div class="dept-divider"></div>
+                                <div class="dept-block">
+                                    <div class="dept-block-icon" style="background: @iconBg; color: @iconColor;">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                    <div class="dept-block-body">
+                                        <h2 class="dept-block-title">Đội ngũ chuyên gia</h2>
+                                        <div class="doctor-team-grid">
+                                            @foreach (var doc in doctors)
+                                            {
+                                                <div class="doctor-team-card">
+                                                    <div class="doctor-team-avatar">
+                                                        @(doc.FullName?.Length > 0 ? doc.FullName.Substring(0, 1).ToUpper() : "?")
+                                                    </div>
+                                                    <div class="doctor-team-info">
+                                                        <h5>@doc.FullName</h5>
+                                                        <span class="doctor-team-title">@doc.JobTitle</span>
+                                                        @if (!string.IsNullOrEmpty(doc.Specialty))
+                                                        {
+                                                            <span class="doctor-team-spec">@doc.Specialty</span>
+                                                        }
+                                                    </div>
+                                                    <a href="@Url.Action("Index", "DatLich")" class="doctor-book-btn @primaryBtn @((isLamSang || isCanLamSang) ? "" : "d-none")">
+                                                        <i class="fas fa-calendar-check"></i> Đặt khám
+                                                    </a>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        @* Related Services *@
+                        @if (ViewBag.Services != null)
+                        {
+                            <div class="dept-divider"></div>
+                            <div class="dept-block">
+                                <div class="dept-block-icon" style="background: @iconBg; color: @iconColor;">
+                                    <i class="fas fa-concierge-bell"></i>
+                                </div>
+                                <div class="dept-block-body">
+                                    <h2 class="dept-block-title">@ViewBag.ServiceSectionTitle</h2>
+                                    <div class="related-services">
+                                        @foreach (var svc in (List<HTTTBenhVien.Models.MedicalService>)ViewBag.Services)
+                                        {
+                                            <div class="related-service-item">
+                                                <div class="related-service-left">
+                                                    <i class="fas fa-circle-notch" style="color: @iconColor; font-size: 8px;"></i>
+                                                    <div>
+                                                        <strong>@svc.ServiceName</strong>
+                                                        @if (!string.IsNullOrEmpty(svc.Description))
+                                                        {
+                                                            <span>@svc.Description</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <span class="related-service-price">@svc.BasePrice.ToString("N0") đ</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @* ===== Right Sidebar ===== *@
+                <div class="col-lg-4">
+                    <div class="dept-sidebar">
+
+                        @* Booking Card — only for Lâm sàng *@
+                        @if (isLamSang || isCanLamSang)
+                        {
+                            <div class="sidebar-card booking-action-card">
+                                <h5 class="sidebar-card-title">
+                                    <i class="fas fa-calendar-check me-2" style="color: @iconColor;"></i>Đặt lịch khám
+                                </h5>
+                                <p class="text-muted small mb-3">Đặt lịch khám online nhanh chóng, không chờ đợi</p>
+                                <a href="@Url.Action("Index", "DatLich", new { khoa = Model.DeptId })" class="btn @primaryBtn w-100 py-2 fw-bold">
+                                    <i class="fas fa-calendar-plus me-2"></i>Đặt lịch khám
+                                </a>
+                            </div>
+                        }
+
+                        @* Emergency Card — only for Cấp cứu *@
+                        @if (isCapCuu)
+                        {
+                            <div class="sidebar-card booking-action-card">
+                                <div class="emergency-hotline">
+                                    <div class="hotline-icon">
+                                        <i class="fas fa-phone-alt"></i>
+                                    </div>
+                                    <div class="hotline-info">
+                                        <span class="hotline-label">Cấp cứu 24/7</span>
+                                        <strong class="hotline-number">1900 1234</strong>
+                                    </div>
+                                </div>
+                                <div class="hotline-note">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    Gọi ngay khi cần cấp cứu!
+                                </div>
+                                <a href="tel:19001234" class="btn btn-danger w-100 py-2 fw-bold">
+                                    <i class="fas fa-phone-alt me-2"></i>Gọi cấp cứu
+                                </a>
+                            </div>
+                        }
+
+                        @* Department Info Card *@
+                        <div class="sidebar-card dept-info-card">
+                            <h5 class="sidebar-card-title">
+                                <i class="fas fa-hospital me-2" style="color: @iconColor;"></i>Thông tin khoa
+                            </h5>
+                            <div class="dept-info-list">
+                                <div class="dept-info-row">
+                                    <div class="dept-info-icon" style="background: @iconBg; color: @iconColor;">
+                                        <i class="fas fa-door-open"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Vị trí</small>
+                                        <strong>@Model.Location</strong>
+                                    </div>
+                                </div>
+                                <div class="dept-info-row">
+                                    <div class="dept-info-icon" style="background: @iconBg; color: @iconColor;">
+                                        <i class="fas fa-layer-group"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Loại khoa</small>
+                                        <strong>@Model.DeptType</strong>
+                                    </div>
+                                </div>
+                                <div class="dept-info-row">
+                                    <div class="dept-info-icon" style="background: @iconBg; color: @iconColor;">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Giờ làm việc</small>
+                                        <strong>@(isCapCuu ? "24/7" : "7:00 - 17:00")</strong>
+                                    </div>
+                                </div>
+                                <div class="dept-info-row">
+                                    <div class="dept-info-icon" style="background: @iconBg; color: @iconColor;">
+                                        <i class="fas fa-phone-alt"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Hotline</small>
+                                        <strong>1900 1234</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Back Button *@
+                        <a href="@Url.Action("Index", "ChuyenKhoa")" class="btn btn-outline-secondary w-100 mt-3">
+                            <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách chuyên khoa
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<style>
+    /* Override header background so the hero doesn't show through */
+    #header { background-color: #ffffff !important; }
+    #header .branding { background-color: #ffffff; }
+
+    /* ===== Hero Section ===== */
+    .dept-hero {
+        padding: 120px 0 48px;
+        margin-top: 0;
+        color: #fff;
+    }
+
+    .dept-hero-inner {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .dept-hero-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        flex-shrink: 0;
+    }
+
+    .dept-hero-content h1 {
+        font-size: 32px;
+        font-weight: 800;
+        margin: 4px 0 8px;
+        color: #fff;
+        line-height: 1.2;
+    }
+
+    .dept-hero-meta {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        font-size: 14px;
+        color: rgba(255,255,255,0.85);
+        flex-wrap: wrap;
+    }
+
+    /* ===== Breadcrumb ===== */
+    .breadcrumb-nav {
+        padding: 14px 0 0;
+    }
+
+    .breadcrumb-nav .breadcrumb {
+        background: none;
+        padding: 0;
+        margin: 0;
+        font-size: 13px;
+    }
+
+    .breadcrumb-nav .breadcrumb-item a {
+        color: #888;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-nav .breadcrumb-item a:hover {
+        color: #333;
+    }
+
+    .breadcrumb-nav .breadcrumb-item.active {
+        color: #555;
+    }
+
+    .breadcrumb-nav .breadcrumb-item + .breadcrumb-item::before {
+        color: #ccc;
+    }
+
+    /* ===== Department Detail Card ===== */
+    .dept-detail-card {
+        border-radius: 20px;
+        padding: 0;
+        border: none;
+        background: #fff;
+        overflow: hidden;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+
+    .clinical-card .dept-block-icon { background: #e8f0ff; color: #0d6efd; }
+    .emergency-card .dept-block-icon { background: #ffe8e8; color: #dc3545; }
+    .paraclinical-card .dept-block-icon { background: #e8f7ef; color: #198754; }
+
+    .dept-block {
+        display: flex;
+        gap: 20px;
+        padding: 32px 36px;
+    }
+
+    .dept-block + .dept-block {
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .dept-block-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .dept-block-body {
+        flex: 1;
+    }
+
+    .dept-block-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0 0 16px;
+    }
+
+    .dept-block-body p {
+        color: #555;
+        line-height: 1.8;
+        font-size: 15px;
+        margin-bottom: 12px;
+    }
+
+    .dept-block-body p:last-child {
+        margin-bottom: 0;
+    }
+
+    .dept-divider {
+        height: 1px;
+        background: linear-gradient(to right, transparent, #e9ecef 20%, #e9ecef 80%, transparent);
+    }
+
+    /* ===== Service Grid ===== */
+    .service-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    .service-card {
+        padding: 20px;
+        border-radius: 14px;
+        border: 1px solid #f0f0f0;
+        background: #fafafa;
+        transition: all 0.25s ease;
+    }
+
+    .service-card:hover {
+        border-color: #e0e0e0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    .service-icon-wrap {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+
+    .service-card h5 {
+        font-size: 14px;
+        font-weight: 700;
+        color: #222;
+        margin: 0 0 6px;
+    }
+
+    .service-card p {
+        font-size: 12px;
+        color: #888;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* ===== Doctor Team ===== */
+    .doctor-team-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .doctor-team-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        border-radius: 14px;
+        background: #f8f9fa;
+        border: 1px solid #f0f0f0;
+        transition: all 0.2s ease;
+    }
+
+    .doctor-team-card:hover {
+        border-color: #e0e0e0;
+        background: #fff;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+
+    .doctor-team-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0d6efd, #3d8bfd);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .doctor-team-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .doctor-team-info h5 {
+        font-size: 15px;
+        font-weight: 700;
+        color: #222;
+        margin: 0 0 2px;
+    }
+
+    .doctor-team-title {
+        font-size: 12px;
+        color: #0d6efd;
+        font-weight: 500;
+        display: block;
+    }
+
+    .doctor-team-spec {
+        font-size: 11px;
+        color: #999;
+        display: block;
+    }
+
+    .doctor-book-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: none;
+        color: #fff;
+    }
+
+    .doctor-book-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        color: #fff;
+    }
+
+    /* ===== Related Services ===== */
+    .related-services {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .related-service-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        background: #fafafa;
+        border: 1px solid #f0f0f0;
+    }
+
+    .related-service-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .related-service-left i {
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+
+    .related-service-left div {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .related-service-left strong {
+        font-size: 14px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .related-service-left span {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .related-service-price {
+        font-size: 14px;
+        font-weight: 700;
+        color: #dc3545;
+        white-space: nowrap;
+    }
+
+    /* ===== Sidebar ===== */
+    .dept-sidebar {
+        position: sticky;
+        top: 110px;
+    }
+
+    .sidebar-card {
+        background: #fff;
+        border-radius: 18px;
+        padding: 24px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        margin-bottom: 16px;
+    }
+
+    .sidebar-card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0 0 12px;
+        display: flex;
+        align-items: center;
+    }
+
+    .sidebar-card p {
+        font-size: 13px;
+        color: #888;
+    }
+
+    /* Booking Action Card */
+    .emergency-hotline {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px;
+        background: #fff5f5;
+        border-radius: 12px;
+        border: 1px solid #ffcccc;
+        margin-bottom: 10px;
+    }
+
+    .hotline-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #dc3545;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+        animation: pulse-ring 2s infinite;
+    }
+
+    .hotline-info {
+        flex: 1;
+    }
+
+    .hotline-label {
+        font-size: 12px;
+        color: #dc3545;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+    }
+
+    .hotline-number {
+        font-size: 22px;
+        font-weight: 800;
+        color: #dc3545;
+        display: block;
+        letter-spacing: 1px;
+    }
+
+    .hotline-note {
+        font-size: 12px;
+        color: #dc3545;
+        font-weight: 600;
+        text-align: center;
+        background: #fff0f0;
+        padding: 6px 12px;
+        border-radius: 8px;
+    }
+
+    @@keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+
+    /* Dept Info List */
+    .dept-info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .dept-info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .dept-info-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .dept-info-row small {
+        font-size: 11px;
+    }
+
+    .dept-info-row strong {
+        font-size: 13px;
+        color: #333;
+    }
+
+    /* ===== Responsive ===== */
+    @@media (max-width: 991px) {
+        .service-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .dept-hero-content h1 {
+            font-size: 24px;
+        }
+        .dept-sidebar {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .service-grid {
+            grid-template-columns: 1fr;
+        }
+        .dept-block {
+            padding: 24px 20px;
+            flex-direction: column;
+        }
+        .dept-hero {
+            padding: 40px 0 36px;
+        }
+        .dept-hero-inner {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>

@@ -1,0 +1,228 @@
+@model IEnumerable<HTTTBenhVien.Models.Article>
+@{
+    ViewData["Title"] = "Tin tức y khoa";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var total = (int)(ViewBag.Total ?? 0);
+    var page = (int)(ViewBag.Page ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var activeCategory = ViewBag.ActiveCategory as string ?? "all";
+    var categories = new[] { "all", "Sức khỏe", "Tim mạch", "Thần kinh", "Nhi khoa", "Dinh dưỡng", "Công nghệ y tế", "Tin tức bệnh viện" };
+}
+
+<main class="main">
+
+    <section class="news-section section">
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="news-header">
+                <div class="news-header-left">
+                    <h1 class="news-main-title">Tin tức y khoa</h1>
+                    <p class="news-subtitle">Cập nhật những tin tức, kiến thức y khoa mới nhất từ các chuyên gia hàng đầu</p>
+                </div>
+                <div class="news-header-right">
+                    <div class="news-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">@total</span>
+                            <span class="stat-label">Bài viết</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">Chuyên mục</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="news-filter-bar" data-aos="fade-up" data-aos-delay="200">
+                <div class="filter-tabs">
+                    @foreach (var cat in categories)
+                    {
+                        var displayName = cat == "all" ? "Tất cả" : cat;
+                        var isActive = activeCategory == cat;
+                        <a href="@Url.Action("Index", new { category = cat == "all" ? "" : cat, page = 1 })"
+                           class="filter-tab @(isActive ? "active" : "")">
+                            @displayName
+                        </a>
+                    }
+                </div>
+                <div class="filter-search">
+                    <form method="get" action="@Url.Action("Index")">
+                        <input type="text" name="search" value="@ViewBag.Search" placeholder="Tìm kiếm bài viết..." class="search-input">
+                        <button type="submit" class="search-btn"><i class="bi bi-search"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            @{
+                var featured = Model.Take(1).ToList();
+                var rest = Model.Skip(1).ToList();
+            }
+
+            @if (featured.Any())
+            {
+                <div class="featured-article" data-aos="fade-up" data-aos-delay="300">
+                    @foreach (var article in featured)
+                    {
+                        <div class="featured-card">
+                            <div class="featured-image">
+                                @if (!string.IsNullOrEmpty(article.ThumbnailUrl))
+                                {
+                                    <img src="@article.ThumbnailUrl" alt="@article.Title">
+                                }
+                                else
+                                {
+                                    <div class="featured-placeholder">
+                                        <i class="bi bi-newspaper"></i>
+                                    </div>
+                                }
+                                <span class="featured-badge">
+                                    <i class="bi bi-star-fill"></i> Nổi bật
+                                </span>
+                            </div>
+                            <div class="featured-content">
+                                <div class="article-category-tag" style="background: var(--accent-color); color: #fff;">
+                                    @article.Category
+                                </div>
+                                <h2 class="featured-title">
+                                    <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })">@article.Title</a>
+                                </h2>
+                                <p class="featured-summary">@article.Summary</p>
+                                <div class="article-meta">
+                                    @if (article.Author != null)
+                                    {
+                                        <span class="meta-author"><i class="bi bi-person"></i> @article.Author.FullName</span>
+                                    }
+                                    <span class="meta-date"><i class="bi bi-calendar3"></i> @(article.PublishDate?.ToString("dd MMM yyyy") ?? "")</span>
+                                    <span class="meta-views"><i class="bi bi-eye"></i> @(article.ViewCount ?? 0) lượt xem</span>
+                                </div>
+                                <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })" class="btn-read-featured">
+                                    Đọc bài viết <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (rest.Any())
+            {
+                <div class="articles-grid" data-aos="fade-up" data-aos-delay="400">
+                    @foreach (var article in rest)
+                    {
+                        <div class="article-card">
+                            <div class="article-image-wrap">
+                                @if (!string.IsNullOrEmpty(article.ThumbnailUrl))
+                                {
+                                    <img src="@article.ThumbnailUrl" alt="@article.Title" loading="lazy">
+                                }
+                                else
+                                {
+                                    <div class="article-placeholder">
+                                        <i class="bi bi-newspaper"></i>
+                                    </div>
+                                }
+                                <div class="article-overlay">
+                                    <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })" class="overlay-read">
+                                        <i class="bi bi-book"></i> Đọc ngay
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="article-card-body">
+                                <div class="article-category-small">@article.Category</div>
+                                <h3 class="article-card-title">
+                                    <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })">@article.Title</a>
+                                </h3>
+                                <p class="article-card-summary">@article.Summary</p>
+                                <div class="article-card-footer">
+                                    <div class="article-meta-small">
+                                        <span><i class="bi bi-calendar3"></i> @(article.PublishDate?.ToString("dd/MM/yyyy") ?? "")</span>
+                                        <span><i class="bi bi-eye"></i> @(article.ViewCount ?? 0)</span>
+                                    </div>
+                                    <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })" class="card-read-more">
+                                        Xem thêm <i class="bi bi-arrow-right-short"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state" data-aos="fade-up">
+                    <div class="empty-icon"><i class="bi bi-search"></i></div>
+                    <h3>Không tìm thấy bài viết</h3>
+                    <p>Không có bài viết nào phù hợp với từ khóa hoặc danh mục bạn chọn.</p>
+                    <a href="@Url.Action("Index")" class="btn-reset">Xem tất cả bài viết</a>
+                </div>
+            }
+
+            @if (totalPages > 1)
+            {
+                <div class="pagination-wrapper" data-aos="fade-up" data-aos-delay="500">
+                    <nav class="pagination-nav">
+                        <ul class="pagination-list">
+                            @if (page > 1)
+                            {
+                                <li>
+                                    <a href="@Url.Action("Index", new { page = page - 1, category = ViewBag.ActiveCategory, search = ViewBag.Search })" class="page-btn">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                            }
+
+                            @{
+                                int startPage = Math.Max(1, page - 2);
+                                int endPage = Math.Min(totalPages, page + 2);
+
+                                if (startPage > 1)
+                                {
+                                    <li><a href="@Url.Action("Index", new { page = 1, category = ViewBag.ActiveCategory, search = ViewBag.Search })" class="page-num">1</a></li>
+                                    if (startPage > 2)
+                                    {
+                                        <li><span class="page-ellipsis">...</span></li>
+                                    }
+                                }
+
+                                for (int p = startPage; p <= endPage; p++)
+                                {
+                                    if (p == page)
+                                    {
+                                        <li><span class="page-num active">@p</span></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a href="@Url.Action("Index", new { page = p, category = ViewBag.ActiveCategory, search = ViewBag.Search })" class="page-num">@p</a></li>
+                                    }
+                                }
+
+                                if (endPage < totalPages)
+                                {
+                                    if (endPage < totalPages - 1)
+                                    {
+                                        <li><span class="page-ellipsis">...</span></li>
+                                    }
+                                    <li><a href="@Url.Action("Index", new { page = totalPages, category = ViewBag.ActiveCategory, search = ViewBag.Search })" class="page-num">@totalPages</a></li>
+                                }
+                            }
+
+                            @if (page < totalPages)
+                            {
+                                <li>
+                                    <a href="@Url.Action("Index", new { page = page + 1, category = ViewBag.ActiveCategory, search = ViewBag.Search })" class="page-btn">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                    <p class="pagination-info">Trang @(page) / @totalPages - Hiển thị @(Math.Min(page * 9, total)) bài viết</p>
+                </div>
+            }
+        </div>
+    </section>
+</main>
+
+
+

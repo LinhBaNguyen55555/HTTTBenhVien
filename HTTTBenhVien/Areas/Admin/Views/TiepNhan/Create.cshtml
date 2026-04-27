@@ -1,0 +1,130 @@
+@model HTTTBenhVien.Areas.Admin.Controllers.TiepNhanViewModel
+@{
+    ViewData["Title"] = "Tiếp nhận bệnh nhân";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+    <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm shadow-sm">
+        <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin bệnh nhân & lịch hẹn</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="Create">
+                    @Html.AntiForgeryToken()
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Nếu bệnh nhân đã có trong hệ thống, nhập mã hoặc số điện thoại vào ô "Tìm bệnh nhân". Nếu chưa có, điền thông tin bên dưới để đăng ký mới.
+                    </div>
+
+                    <h6 class="text-primary border-bottom pb-2 mb-3"><i class="fas fa-calendar-check mr-1"></i> Thông tin lịch hẹn</h6>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Ngày khám <span class="text-danger">*</span></label>
+                                <input type="date" asp-for="AppDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Giờ khám <span class="text-danger">*</span></label>
+                                <select asp-for="TimeSlot" class="form-control" required>
+                                    <option value="">-- Chọn giờ --</option>
+                                    <option>07:00</option><option>07:30</option>
+                                    <option>08:00</option><option>08:30</option>
+                                    <option>09:00</option><option>09:30</option>
+                                    <option>10:00</option><option>10:30</option>
+                                    <option>11:00</option><option>11:30</option>
+                                    <option>13:00</option><option>13:30</option>
+                                    <option>14:00</option><option>14:30</option>
+                                    <option>15:00</option><option>15:30</option>
+                                    <option>16:00</option><option>16:30</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Bác sĩ</label>
+                                <select asp-for="DoctorId" class="form-control">
+                                    <option value="">-- Chọn bác sĩ --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Lý do khám</label>
+                                <input type="text" asp-for="Reason" class="form-control" placeholder="VD: Khám định kỳ, đau bụng..." />
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="text-primary border-bottom pb-2 mb-3 mt-4"><i class="fas fa-user-plus mr-1"></i> Thông tin bệnh nhân (nếu chưa có trong hệ thống)</h6>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Họ tên <span class="text-danger">*</span></label>
+                                <input type="text" asp-for="FullName" class="form-control" placeholder="Nhập họ tên đầy đủ" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Số điện thoại</label>
+                                <input type="text" asp-for="Phone" class="form-control" placeholder="0xxx xxx xxx" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Giới tính</label>
+                                <select asp-for="Gender" class="form-control">
+                                    <option value="">-- Chọn --</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Ngày sinh</label>
+                                <input type="date" asp-for="Dob" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Mã BHYT</label>
+                                <input type="text" asp-for="BhytCode" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Địa chỉ</label>
+                        <input type="text" asp-for="Address" class="form-control" />
+                    </div>
+
+                    <div class="text-right mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-check"></i> Tiếp nhận bệnh nhân
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

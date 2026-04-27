@@ -1,0 +1,517 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="VinhuniHIS - Hệ thống Quản lý Thông tin Bệnh viện">
+    <title>@ViewData["Title"] - VinhuniHIS</title>
+    <link href="~/admin/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="~/admin/css/sb-admin-2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    @* Responsive CSS must be in a separate style tag *@
+    <style>
+        @@media (max-width: 768px) {
+            .container-fluid { padding: 12px 15px; }
+            .stat-card .stat-value { font-size: 20px; }
+        }
+        @@keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    <style>
+        :root {
+            --sidebar-bg: #1a5276;
+            --sidebar-hover: #2471a3;
+            --sidebar-active: #2e86c1;
+            --topbar-bg: #ffffff;
+            --brand-primary: #175cdd;
+            --success: #1cc88a;
+            --danger: #e74a3b;
+            --warning: #f6c23e;
+            --info: #36b9cc;
+        }
+        body { font-family: 'Nunito', sans-serif; background: #f0f4f8; }
+        #accordionSidebar { background: var(--sidebar-bg); }
+        .sidebar-brand { padding: 12px 10px; text-decoration: none; }
+        .sidebar-brand-icon i { font-size: 22px; color: #85c1e9; }
+        .sidebar-brand-text { font-size: 14px; font-weight: 800; color: #fff; }
+        @@media (min-width: 768px) { .sidebar-brand-text { display: none; } }
+        .nav-item .nav-link { padding: 11px 18px; font-size: 13.5px; color: #d5e6f1; border-radius: 8px; margin: 2px 10px; transition: all 0.25s ease; }
+        .nav-item .nav-link:hover { background: var(--sidebar-hover); color: #fff; transform: translateX(4px); }
+        .nav-item .nav-link.active { background: var(--sidebar-active); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .nav-item .nav-link i { margin-right: 10px; width: 20px; text-align: center; }
+        .sidebar-heading { padding: 8px 20px 4px; color: #85c1e9; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar-divider { border-top: 1px solid rgba(255,255,255,0.12); margin: 4px 15px; }
+        .topbar { background: var(--topbar-bg) !important; box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important; }
+        .navbar-search .form-control { border-radius: 20px; font-size: 14px; }
+        .topbar-divider { border-right: 1px solid #e9ecef; }
+        .dropdown-list { min-width: 300px; }
+        .dropdown-list .dropdown-item { padding: 10px 15px; font-size: 13px; border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+        .dropdown-list .dropdown-item:hover { background: #f8f9fc; }
+        .dropdown-list .dropdown-item:last-child { border-bottom: none; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .card-header { border-radius: 12px 12px 0 0 !important; padding: 14px 20px; font-weight: 700; }
+        .btn-primary { background: #175cdd; border-color: #175cdd; }
+        .btn-primary:hover { background: #1448b8; border-color: #1448b8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(23,92,221,0.3); }
+        .btn-success { background: var(--success); border-color: var(--success); }
+        .btn-success:hover { background: #17a673; border-color: #17a673; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(28,200,138,0.3); }
+        .btn-danger { background: var(--danger); border-color: var(--danger); }
+        .btn-danger:hover { background: #be3a2f; border-color: #be3a2f; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(231,74,59,0.3); }
+        .btn-warning { background: var(--warning); border-color: var(--warning); color: #444; }
+        .btn-warning:hover { background: #dda20a; border-color: #dda20a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(246,194,62,0.3); }
+        .btn-secondary { background: #858796; border-color: #858796; }
+        .btn-secondary:hover { background: #717384; border-color: #717384; }
+        .btn-info { background: var(--info); border-color: var(--info); }
+        .btn-info:hover { background: #2c9faf; border-color: #2c9faf; transform: translateY(-1px); }
+        .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 6px; transition: all 0.2s; }
+        .sidebar-card { display: none; }
+        .text-primary { color: #175cdd !important; }
+        .bg-gradient-primary { background: var(--sidebar-bg); }
+        .dropdown-toggle::after { display: none; }
+        .table thead th { border-top: none; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #555; background: #f8f9fc; }
+        .table td { vertical-align: middle; font-size: 14px; border-color: #edf0f4; }
+        .table-hover tbody tr:hover { background: #f8f9fc !important; }
+        .badge { font-size: 11px; padding: 4px 9px; border-radius: 6px; font-weight: 600; }
+        .alert { border-radius: 10px; border: none; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-danger { background: #f8d7da; color: #721c24; }
+        .alert-warning { background: #fff3cd; color: #856404; }
+        .alert-info { background: #d1ecf1; color: #0c5460; }
+        .form-control, .form-select { border-radius: 8px; font-size: 14px; padding: 9px 14px; border: 1.5px solid #dce0e7; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-control:focus, .form-select:focus { border-color: #175cdd; box-shadow: 0 0 0 3px rgba(23,92,221,0.1); }
+        .form-label { font-weight: 600; color: #444; font-size: 13px; }
+        .container-fluid { padding: 20px 25px; }
+        .page-item.active .page-link { background: #175cdd; border-color: #175cdd; }
+        .page-link { color: #175cdd; border-radius: 6px; margin: 0 2px; transition: all 0.2s; }
+        .page-link:hover { background: #f0f4f8; border-color: #175cdd; color: #175cdd; }
+        .scroll-to-top { background: #175cdd; }
+        .scroll-to-top:hover { background: #1448b8; }
+
+        /* Breadcrumb */
+        .breadcrumb-section { padding: 0 25px 12px; }
+        .breadcrumb { background: transparent; padding: 0; margin: 0; font-size: 13px; }
+        .breadcrumb-item a { color: #175cdd; text-decoration: none; }
+        .breadcrumb-item a:hover { text-decoration: underline; }
+        .breadcrumb-item.active { color: #6c757d; }
+        .breadcrumb-item + .breadcrumb-item::before { color: #adb5bd; }
+
+        /* Stat cards */
+        .stat-card { border-radius: 12px; padding: 20px; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: all 0.25s; border-left: 4px solid; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .stat-card.primary { border-left-color: #175cdd; }
+        .stat-card.success { border-left-color: #1cc88a; }
+        .stat-card.danger { border-left-color: #e74a3b; }
+        .stat-card.warning { border-left-color: #f6c23e; }
+        .stat-card.info { border-left-color: #36b9cc; }
+        .stat-card .stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .stat-card .stat-icon.primary { background: rgba(23,92,221,0.1); color: #175cdd; }
+        .stat-card .stat-icon.success { background: rgba(28,200,138,0.1); color: #1cc88a; }
+        .stat-card .stat-icon.danger { background: rgba(231,74,59,0.1); color: #e74a3b; }
+        .stat-card .stat-icon.warning { background: rgba(246,194,62,0.1); color: #f6c23e; }
+        .stat-card .stat-icon.info { background: rgba(54,185,200,0.1); color: #36b9cc; }
+        .stat-card .stat-value { font-size: 26px; font-weight: 800; color: #2d3748; line-height: 1.2; }
+        .stat-card .stat-label { font-size: 13px; color: #718096; font-weight: 600; }
+
+        /* Toast */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+        .toast { border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+        .toast-success { background: #1cc88a !important; border-color: #17a673 !important; }
+        .toast-error { background: #e74a3b !important; border-color: #be3a2f !important; }
+        .toast-warning { background: #f6c23e !important; border-color: #dda20a !important; }
+        .toast-info { background: #36b9cc !important; border-color: #2c9faf !important; }
+
+        /* Modal */
+        .modal-header { border-radius: 12px 12px 0 0; background: #f8f9fc; border-bottom: 1px solid #edf0f4; }
+        .modal-content { border-radius: 12px; border: none; box-shadow: 0 15px 50px rgba(0,0,0,0.2); }
+        .modal-footer { border-top: 1px solid #edf0f4; }
+
+        /* Loading */
+        .page-loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9998; display: flex; align-items: center; justify-content: center; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #edf0f4; border-top-color: #175cdd; border-radius: 50%; }
+
+        /* User avatar */
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #fff; }
+        .avatar-primary { background: #175cdd; }
+        .avatar-success { background: #1cc88a; }
+        .avatar-danger { background: #e74a3b; }
+        .avatar-warning { background: #f6c23e; color: #444; }
+        .avatar-info { background: #36b9cc; }
+
+        /* Notification dot */
+        .notif-dot { width: 8px; height: 8px; background: #e74a3b; border-radius: 50%; position: absolute; top: 8px; right: 8px; }
+
+        /* Table actions */
+        .action-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; margin: 0 2px; }
+        .action-btn:hover { transform: scale(1.1); }
+
+        /* Collapse items */
+        .collapse-item { border-radius: 6px; padding: 8px 12px; font-size: 13px; transition: all 0.2s; margin: 2px 8px; width: calc(100% - 16px); color: #3a4b5c; }
+        .collapse-item:hover { background: #eef2f7; color: #175cdd; }
+
+        /* Footer */
+        footer.sticky-footer { border-top: 1px solid #edf0f4; }
+        footer .copyright { color: #718096; font-size: 13px; }
+    </style>
+</head>
+
+<body id="page-top">
+
+    <div id="wrapper">
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-hospital-alt"></i>
+                </div>
+                <div class="sidebar-brand-text mx-2">VinhuniHIS</div>
+            </a>
+
+            <hr class="sidebar-divider my-0">
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" ? "active" : "")" href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                    <i class="fas fa-fw fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Khám bệnh</div>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "BenhNhan" || ViewContext.RouteData.Values["controller"].ToString() == "TiepNhan" || ViewContext.RouteData.Values["controller"].ToString() == "LichKham" || ViewContext.RouteData.Values["controller"].ToString() == "KhamBenh" ? "active" : "") collapsed" href="#" data-toggle="collapse" data-target="#collapseReception">
+                    <i class="fas fa-fw fa-user-plus"></i>
+                    <span>Tiếp nhận & Lịch khám</span>
+                </a>
+                <div id="collapseReception" class="collapse @(ViewContext.RouteData.Values["controller"].ToString() == "BenhNhan" || ViewContext.RouteData.Values["controller"].ToString() == "TiepNhan" || ViewContext.RouteData.Values["controller"].ToString() == "LichKham" || ViewContext.RouteData.Values["controller"].ToString() == "KhamBenh" ? "show" : "")" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item @(ViewContext.RouteData.Values["controller"].ToString() == "BenhNhan" ? "active" : "")" href="@Url.Action("Index", "BenhNhan", new { area = "Admin" })"><i class="fas fa-users fa-xs mr-2"></i>Bệnh nhân</a>
+                        <a class="collapse-item @(ViewContext.RouteData.Values["controller"].ToString() == "TiepNhan" ? "active" : "")" href="@Url.Action("Index", "TiepNhan", new { area = "Admin" })"><i class="fas fa-clipboard-list fa-xs mr-2"></i>Tiếp nhận khám</a>
+                        <a class="collapse-item @(ViewContext.RouteData.Values["controller"].ToString() == "LichKham" ? "active" : "")" href="@Url.Action("Index", "LichKham", new { area = "Admin" })"><i class="fas fa-calendar-check fa-xs mr-2"></i>Lịch hẹn khám</a>
+                        <a class="collapse-item @(ViewContext.RouteData.Values["controller"].ToString() == "KhamBenh" ? "active" : "")" href="@Url.Action("Index", "KhamBenh", new { area = "Admin" })"><i class="fas fa-stethoscope fa-xs mr-2"></i>Phòng khám</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "HoSoBenhAn" ? "active" : "")" href="@Url.Action("Index", "HoSoBenhAn", new { area = "Admin" })">
+                    <i class="fas fa-fw fa-file-medical"></i>
+                    <span>Hồ sơ bệnh án</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Dược & Cận lâm sàng</div>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "DonThuoc" ? "active" : "")" href="@Url.Action("Index", "DonThuoc", new { area = "Admin" })">
+                    <i class="fas fa-fw fa-pills"></i>
+                    <span>Kê đơn thuốc</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "KhoDuoc" ? "active" : "") collapsed" href="#" data-toggle="collapse" data-target="#collapsePharmacy">
+                    <i class="fas fa-fw fa-mortar-pestle"></i>
+                    <span>Kho dược</span>
+                </a>
+                <div id="collapsePharmacy" class="collapse @(ViewContext.RouteData.Values["controller"].ToString() == "KhoDuoc" ? "show" : "")" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item @(ViewContext.RouteData.Values["controller"].ToString() == "KhoDuoc" && ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")" href="@Url.Action("Index", "KhoDuoc", new { area = "Admin" })"><i class="fas fa-capsules fa-xs mr-2"></i>Danh sách thuốc</a>
+                        <a class="collapse-item @(ViewContext.RouteData.Values["controller"].ToString() == "KhoDuoc" && ViewContext.RouteData.Values["action"].ToString() == "BaoCaoTon" ? "active" : "")" href="@Url.Action("BaoCaoTon", "KhoDuoc", new { area = "Admin" })"><i class="fas fa-chart-bar fa-xs mr-2"></i>Báo cáo tồn kho</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "ChiDinh" ? "active" : "")" href="@Url.Action("Index", "ChiDinh", new { area = "Admin" })">
+                    <i class="fas fa-fw fa-flask"></i>
+                    <span>Chỉ định dịch vụ</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Tài chính & BHYT</div>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "ThanhToan" ? "active" : "")" href="@Url.Action("Index", "ThanhToan", new { area = "Admin" })">
+                    <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                    <span>Thanh toán viện phí</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Quản trị hệ thống</div>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "NhanVien" ? "active" : "")" href="@Url.Action("Index", "NhanVien", new { area = "Admin" })">
+                    <i class="fas fa-fw fa-user-tie"></i>
+                    <span>Nhân sự</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "KhoaPhong" ? "active" : "")" href="@Url.Action("Index", "KhoaPhong", new { area = "Admin" })">
+                    <i class="fas fa-fw fa-building"></i>
+                    <span>Khoa - Phòng</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "DanhMuc" ? "active" : "")" href="@Url.Action("Index", "DanhMuc", new { area = "Admin" })">
+                    <i class="fas fa-fw fa-list-ul"></i>
+                    <span>Danh mục ICD</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "BaiViet" || ViewContext.RouteData.Values["controller"].ToString() == "LienHe" || ViewContext.RouteData.Values["controller"].ToString() == "Menu" ? "active" : "") collapsed" href="#" data-toggle="collapse" data-target="#collapseCMS">
+                    <i class="fas fa-fw fa-newspaper"></i>
+                    <span>Quản lý nội dung</span>
+                </a>
+                <div id="collapseCMS" class="collapse @(ViewContext.RouteData.Values["controller"].ToString() == "BaiViet" || ViewContext.RouteData.Values["controller"].ToString() == "LienHe" || ViewContext.RouteData.Values["controller"].ToString() == "Menu" ? "show" : "")" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item @(ViewContext.RouteData.Values["controller"].ToString() == "BaiViet" ? "active" : "")" href="@Url.Action("Index", "BaiViet", new { area = "Admin" })"><i class="fas fa-newspaper fa-xs mr-2"></i>Bài viết</a>
+                        <a class="collapse-item @(ViewContext.RouteData.Values["controller"].ToString() == "LienHe" ? "active" : "")" href="@Url.Action("Index", "LienHe", new { area = "Admin" })"><i class="fas fa-envelope fa-xs mr-2"></i>Liên hệ</a>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Account" ? "active" : "")" href="@Url.Action("Index", "Account", new { area = "Admin" })">
+                    <i class="fas fa-fw fa-user-circle"></i>
+                    <span>Tài khoản</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider d-none d-md-block">
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"><i class="fas fa-exchange-alt"></i></button>
+            </div>
+
+        </ul>
+
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow">
+
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <div class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 navbar-search">
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-light border-0 small" placeholder="Tìm kiếm bệnh nhân, lịch khám..."
+                               aria-label="Search" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button">
+                                <i class="fas fa-search fa-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="navbar-nav ml-auto">
+
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link dropdown-toggle position-relative" href="#" id="alertsDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell fa-fw"></i>
+                            <span class="badge badge-danger badge-counter">3+</span>
+                        </a>
+                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                             aria-labelledby="alertsDropdown">
+                            <h6 class="dropdown-header"><i class="fas fa-bell mr-1"></i> Thông báo</h6>
+                            <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Index", "LichKham", new { area = "Admin" })">
+                                <div class="mr-3"><div class="user-avatar avatar-primary" style="width:36px;height:36px;"><i class="fas fa-calendar-check fa-sm"></i></div></div>
+                                <div>
+                                    <div class="small text-gray-500">Hôm nay</div>
+                                    <span>Còn 5 lịch hẹn chưa xác nhận</span>
+                                </div>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Index", "KhoDuoc", new { area = "Admin" })">
+                                <div class="mr-3"><div class="user-avatar avatar-warning" style="width:36px;height:36px;"><i class="fas fa-pills fa-sm"></i></div></div>
+                                <div>
+                                    <div class="small text-gray-500">Hôm nay</div>
+                                    <span>Thuốc Amoxicillin sắp hết hàng</span>
+                                </div>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Index", "LienHe", new { area = "Admin" })">
+                                <div class="mr-3"><div class="user-avatar avatar-danger" style="width:36px;height:36px;"><i class="fas fa-envelope fa-sm"></i></div></div>
+                                <div>
+                                    <div class="small text-gray-500">Hôm nay</div>
+                                    <span>Có 2 liên hệ mới chưa đọc</span>
+                                </div>
+                            </a>
+                            <a class="dropdown-item text-center small text-gray-500 py-2" href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Xem tất cả thông báo</a>
+                        </div>
+                    </li>
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">
+                                @User.Identity?.Name
+                            </span>
+                            <div class="user-avatar avatar-primary">
+                                @((User.Identity?.Name?.Length > 0 ? User.Identity.Name[0].ToString().ToUpper() : "U"))
+                            </div>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                             aria-labelledby="userDropdown">
+                            <a class="dropdown-item" href="@Url.Action("Profile", "Account", new { area = "Admin" })">
+                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Hồ sơ cá nhân
+                            </a>
+                            <a class="dropdown-item" href="@Url.Action("ChangePassword", "Account", new { area = "Admin" })">
+                                <i class="fas fa-key fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Đổi mật khẩu
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#logoutModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Đăng xuất
+                            </a>
+                        </div>
+                    </li>
+
+                </ul>
+            </nav>
+
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
+
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; VinhuniHIS @DateTime.Now.Year — Hệ thống Quản lý Thông tin Bệnh viện</span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-sign-out-alt mr-2 text-primary"></i>Xác nhận đăng xuất</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <i class="fas fa-question-circle fa-3x text-warning mb-3"></i>
+                        <p>Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal"><i class="fas fa-times mr-1"></i>Hủy</button>
+                    <a class="btn btn-primary" href="@Url.Action("Logout", "Account", new { area = "Admin" })"><i class="fas fa-sign-out-alt mr-1"></i>Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2 text-danger"></i>Xác nhận xóa</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmDeleteMsg">Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal"><i class="fas fa-times mr-1"></i>Hủy</button>
+                    <a class="btn btn-danger" id="confirmDeleteBtn" href="#"><i class="fas fa-trash mr-1"></i>Xóa</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="~/admin/vendor/jquery/jquery.min.js"></script>
+    <script src="~/admin/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/admin/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="~/admin/js/sb-admin-2.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        $(document).ready(function() {
+            // DataTable defaults
+            if ($('#dataTable').length) {
+                $('#dataTable').DataTable({
+                    "language": {
+                        "lengthMenu": "Hiển thị _MENU_ dòng",
+                        "zeroRecords": "Không tìm thấy dữ liệu",
+                        "info": "Trang _PAGE_ / _PAGES_",
+                        "infoEmpty": "Không có dữ liệu",
+                        "search": "Tìm kiếm:",
+                        "paginate": {
+                            "first": "Đầu",
+                            "last": "Cuối",
+                            "next": "Sau",
+                            "previous": "Trước"
+                        }
+                    },
+                    "order": [[0, 'asc']],
+                    "pageLength": 25,
+                    "responsive": true
+                });
+            }
+
+            // Toast notifications from TempData
+            @if (TempData["Success"] != null)
+            {
+                <text>toastr.success('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(TempData["Success"]!.ToString()))', 'Thành công');</text>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <text>toastr.error('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(TempData["Error"]!.ToString()))', 'Lỗi');</text>
+            }
+
+            // Confirm delete
+            $('a[href*="Delete"], a[href*="Xoa"]').each(function() {
+                if (!$(this).data('noprompt')) {
+                    $(this).on('click', function(e) {
+                        e.preventDefault();
+                        var href = $(this).attr('href');
+                        var msg = $(this).data('msg') || 'Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác.';
+                        $('#confirmDeleteMsg').text(msg);
+                        $('#confirmDeleteBtn').attr('href', href);
+                        $('#confirmDeleteModal').modal('show');
+                    });
+                }
+            });
+
+            // Smooth scroll
+            $('.scroll-to-top').on('click', function(e) {
+                e.preventDefault();
+                $('html, body').animate({ scrollTop: 0 }, 300);
+            });
+        });
+    </script>
+
+</body>
+
+</html>

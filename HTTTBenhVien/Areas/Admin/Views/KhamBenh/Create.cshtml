@@ -1,0 +1,140 @@
+@model HTTTBenhVien.Areas.Admin.Controllers.KhamBenhViewModel
+@{
+    ViewData["Title"] = "Phiên khám bệnh";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Phiên khám bệnh - @Model.PatientName</h1>
+    <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm shadow-sm">
+        <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+    </a>
+</div>
+
+<form method="post" asp-action="Create">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="PatientId" value="@Model.PatientId" />
+    <input type="hidden" name="AppointmentId" value="@Model.AppointmentId" />
+    <input type="hidden" name="DoctorId" value="@Model.DoctorId" />
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin bệnh nhân</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Mã BN:</strong> <code>@Model.PatientCode</code></p>
+                    <p class="mb-1"><strong>Tên:</strong> @Model.PatientName</p>
+                    <p class="mb-1"><strong>Giới tính:</strong> @Model.PatientGender</p>
+                    <p class="mb-1"><strong>Năm sinh:</strong> @(Model.PatientDob?.ToString("yyyy") ?? "")</p>
+                    <p class="mb-1"><strong>SĐT:</strong> @Model.PatientPhone</p>
+                    <p class="mb-0"><strong>BHYT:</strong> @(string.IsNullOrEmpty(Model.BhytCode) ? "Không có" : Model.BhytCode)</p>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-heartbeat mr-1"></i> Sinh hiệu</h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="small font-weight-bold">Sinh hiệu (mạch, huyết áp, nhiệt độ, cân nặng)</label>
+                        <input type="text" name="VitalSigns" class="form-control form-control-sm" placeholder="VD: M:80, HA:120/80, ND:37.0, CN:60kg" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-stethoscope mr-1"></i> Thông tin khám</h6>
+                </div>
+                <div class="card-body">
+                    <input type="hidden" name="VisitDate" value="@DateTime.Now" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Loại khám</label>
+                                <select name="RecordType" class="form-control">
+                                    <option value="NgoaiTru">Khám ngoại trú</option>
+                                    <option value="NoiTru">Nhập viện</option>
+                                    <option value="CapCuu">Cấp cứu</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Bác sĩ khám</label>
+                                <input type="text" class="form-control" value="@Model.DoctorName" disabled />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Triệu chứng / Lý do khám</label>
+                        <textarea name="Symptoms" class="form-control" rows="2" placeholder="VD: Đau bụng, sốt 38.5 độ, ho khan 3 ngày..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Chẩn đoán</label>
+                        <textarea name="Diagnosis" class="form-control" rows="2" placeholder="Nhập chẩn đoán..."></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Mã ICD</label>
+                                <input type="text" name="IcdCode" class="form-control" placeholder="VD: A00" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Ghi chú</label>
+                                <input type="text" name="Notes" class="form-control" placeholder="Lời dặn, hướng điều trị..." />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-flask mr-1"></i> Chỉ định dịch vụ</h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Chọn dịch vụ (giữ Ctrl để chọn nhiều)</label>
+                        <select multiple name="ServiceIds" class="form-control" style="height:120px;">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-pills mr-1"></i> Kê đơn thuốc</h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Chọn thuốc (giữ Ctrl để chọn nhiều)</label>
+                        <select multiple name="MedicineIds" class="form-control" style="height:120px;">
+                        </select>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label class="font-weight-bold">Ghi chú đơn thuốc</label>
+                        <input type="text" name="PrescriptionNote" class="form-control" placeholder="VD: Uống sau ăn, ngày 3 lần..." />
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save"></i> Lưu hồ sơ & Hoàn thành khám
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

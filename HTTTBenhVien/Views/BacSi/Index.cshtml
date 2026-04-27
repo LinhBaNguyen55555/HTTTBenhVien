@@ -1,0 +1,49 @@
+@model IEnumerable<HTTTBenhVien.Models.Employee>
+@{
+    ViewData["Title"] = "Đội ngũ bác sĩ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+
+    <section class="section">
+        <div class="container" data-aos="fade-up">
+            <div class="section-title">
+                <h2>Đội ngũ chuyên gia</h2>
+                <p>Đội ngũ bác sĩ chuyên khoa giỏi, tận tâm với nghề</p>
+            </div>
+
+            <div class="row g-4">
+                @{
+                    foreach (var doctor in Model)
+                    {
+                        <div class="col-lg-4 col-md-6">
+                            <div class="doctor-card">
+                                <div class="doctor-avatar">
+                                        @await Component.InvokeAsync("DoctorAvatar", new { imageName = doctor.AvatarUrl, fullName = doctor.FullName })
+                                    <div class="status-dot"></div>
+                                </div>
+                                <div class="doctor-info">
+                                    <h4>@doctor.FullName</h4>
+                                    <p class="specialty">@doctor.Specialty</p>
+                                    <p class="department"><i class="fas fa-hospital me-1"></i> @doctor.Dept?.DeptName</p>
+                                    <div class="doctor-actions">
+                                        <a href="@Url.Action("Details", "BacSi", new { id = doctor.EmpId })" class="btn btn-sm btn-primary">Xem chi tiết</a>
+                                        <a href="@Url.Action("Index", "DatLich")" class="btn btn-sm btn-outline-primary">Đặt lịch</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<style>
+    .section-title h2 {
+        margin-top: 70px;
+    }
+</style>

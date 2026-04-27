@@ -1,0 +1,238 @@
+@model HTTTBenhVien.Models.Article
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var related = ViewBag.Related as List<HTTTBenhVien.Models.Article>;
+    var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}";
+    var categoryColor = Model.Category switch {
+        "Sức khỏe" => "#20c997",
+        "Tim mạch" => "#dc3545",
+        "Thần kinh" => "#6f42c1",
+        "Nhi khoa" => "#fd7e14",
+        "Dinh dưỡng" => "#198754",
+        "Công nghệ y tế" => "#0d6efd",
+        "Tin tức bệnh viện" => "#e83e8c",
+        _ => "#0d6efd"
+    };
+}
+
+<main class="main">
+
+    <section class="article-section section">
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="article-layout">
+
+                <div class="article-main">
+
+                    <article class="article-detail">
+
+                        <div class="article-hero">
+                            @if (!string.IsNullOrEmpty(Model.ThumbnailUrl))
+                            {
+                                <img src="@Model.ThumbnailUrl" alt="@Model.Title" class="article-hero-image">
+                            }
+                            else
+                            {
+                                <div class="article-hero-placeholder">
+                                    <i class="bi bi-newspaper"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="article-detail-header">
+                            <div class="article-category-pill" style="background: @categoryColor; color: #fff;">
+                                <i class="bi bi-tag"></i> @Model.Category
+                            </div>
+
+                            <h1 class="article-detail-title">@Model.Title</h1>
+
+                            <div class="article-detail-meta">
+                                @if (Model.Author != null)
+                                {
+                                    <div class="meta-author-detail">
+                                        <div class="author-avatar">
+                                            @if (!string.IsNullOrEmpty(Model.Author.AvatarUrl))
+                                            {
+                                                <img src="/assets/img/imagedoctor/@(Model.Author.AvatarUrl)" alt="@Model.Author.FullName">
+                                            }
+                                            else
+                                            {
+                                                <span>@(Model.Author.FullName?.Substring(0, 1) ?? "?")</span>
+                                            }
+                                        </div>
+                                        <div class="author-info">
+                                            <span class="author-name">@(Model.Author.FullName ?? "Biên tập viên")</span>
+                                            <span class="author-title">@(Model.Author.JobTitle ?? "Bác sĩ chuyên khoa")</span>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="meta-stats-detail">
+                                    <span class="meta-item"><i class="bi bi-calendar3"></i> @(Model.PublishDate?.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN")) ?? "")</span>
+                                    <span class="meta-item"><i class="bi bi-eye"></i> @(Model.ViewCount ?? 0) lượt xem</span>
+                                    <span class="meta-item"><i class="bi bi-clock"></i> @(Math.Max(1, (Model.Content?.Length ?? 500) / 200)) phút đọc</span>
+                                </div>
+                            </div>
+
+                            <div class="article-share-bar">
+                                <span class="share-label"><i class="bi bi-share"></i> Chia sẻ:</span>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(currentUrl)" target="_blank" class="share-btn share-facebook">
+                                    <i class="bi bi-facebook"></i> Facebook
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url=@Uri.EscapeDataString(currentUrl)&text=@Uri.EscapeDataString(Model.Title)" target="_blank" class="share-btn share-twitter">
+                                    <i class="bi bi-twitter-x"></i> Twitter
+                                </a>
+                                <a href="https://zalo.me/share?url=@Uri.EscapeDataString(currentUrl)" target="_blank" class="share-btn share-zalo">
+                                    <i class="bi bi-chat-dots"></i> Zalo
+                                </a>
+                                <button class="share-btn share-copy" onclick="navigator.clipboard.writeText(window.location.href); alert('Đã sao chép liên kết!');">
+                                    <i class="bi bi-link-45deg"></i> Sao chép
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="article-detail-body">
+                            <div class="article-summary-highlight">
+                                <i class="bi bi-quote"></i>
+                                <p>@Model.Summary</p>
+                            </div>
+                            @Html.Raw(Model.Content)
+                        </div>
+
+                        <div class="article-detail-footer">
+                            <div class="article-tags">
+                                <span class="tags-label"><i class="bi bi-tags"></i> Tags:</span>
+                                <a href="@Url.Action("Index", "TinTuc", new { category = Model.Category })" class="article-tag">@Model.Category</a>
+                                <a href="@Url.Action("Index", "TinTuc", new { search = "y khoa" })" class="article-tag">Y khoa</a>
+                                <a href="@Url.Action("Index", "TinTuc", new { search = "sức khỏe" })" class="article-tag">Sức khỏe</a>
+                            </div>
+
+                            <div class="article-nav-btns">
+                                <a href="@Url.Action("Index", "TinTuc")" class="btn-back-articles">
+                                    <i class="bi bi-arrow-left"></i> Quay lại danh sách tin tức
+                                </a>
+                                <a href="@Url.Action("Index", "DatLich")" class="btn-book-article">
+                                    <i class="bi bi-calendar-check"></i> Đặt lịch khám
+                                </a>
+                            </div>
+                        </div>
+
+                    </article>
+
+                    @if (Model.Author != null)
+                    {
+                        <div class="author-card" data-aos="fade-up" data-aos-delay="200">
+                            <div class="author-card-header">
+                                <div class="author-card-avatar">
+                                    @if (!string.IsNullOrEmpty(Model.Author.AvatarUrl))
+                                    {
+                                        <img src="/assets/img/imagedoctor/@(Model.Author.AvatarUrl)" alt="@Model.Author.FullName">
+                                    }
+                                    else
+                                    {
+                                        <span>@(Model.Author.FullName?.Substring(0, 1) ?? "?")</span>
+                                    }
+                                </div>
+                                <div class="author-card-info">
+                                    <h4>Tác giả bài viết</h4>
+                                    <h3>@(Model.Author.FullName ?? "Bác sĩ chuyên khoa")</h3>
+                                    <span class="author-card-title">@(Model.Author.JobTitle ?? "") · @(Model.Author.Dept?.DeptName ?? "")</span>
+                                </div>
+                            </div>
+                            <div class="author-card-actions">
+                                <a href="@Url.Action("Details", "BacSi", new { id = Model.Author.EmpId })" class="author-profile-btn">
+                                    <i class="bi bi-person"></i> Xem hồ sơ
+                                </a>
+                                <a href="@Url.Action("Index", "DatLich", new { doctorId = Model.Author.EmpId })" class="author-book-btn">
+                                    <i class="bi bi-calendar-check"></i> Đặt lịch khám
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+
+                <aside class="article-sidebar" data-aos="fade-left" data-aos-delay="300">
+
+                    <div class="sidebar-cta-card">
+                        <div class="cta-card-icon"><i class="bi bi-calendar-check-fill"></i></div>
+                        <h3>Đặt lịch khám trực tuyến</h3>
+                        <p>Đặt lịch khám với đội ngũ bác sĩ chuyên khoa giàu kinh nghiệm của bệnh viện</p>
+                        <a href="@Url.Action("Index", "DatLich")" class="sidebar-cta-btn">
+                            <i class="bi bi-calendar-plus"></i> Đặt lịch ngay
+                        </a>
+                        <div class="cta-hotline">
+                            <i class="bi bi-telephone"></i>
+                            <span>Hotline: 1900 1234</span>
+                        </div>
+                    </div>
+
+                    @if (related != null && related.Any())
+                    {
+                        <div class="sidebar-related">
+                            <div class="sidebar-section-title">
+                                <i class="bi bi-newspaper"></i>
+                                <h3>Tin liên quan</h3>
+                            </div>
+                            @foreach (var item in related)
+                            {
+                                <div class="related-card">
+                                    <div class="related-image">
+                                        @if (!string.IsNullOrEmpty(item.ThumbnailUrl))
+                                        {
+                                            <img src="@item.ThumbnailUrl" alt="@item.Title">
+                                        }
+                                        else
+                                        {
+                                            <div class="related-placeholder"><i class="bi bi-newspaper"></i></div>
+                                        }
+                                    </div>
+                                    <div class="related-info">
+                                        <span class="related-cat">@item.Category</span>
+                                        <h4><a href="@Url.Action("Details", "TinTuc", new { slug = item.Slug })">@item.Title</a></h4>
+                                        <span class="related-date">@(item.PublishDate?.ToString("dd/MM/yyyy") ?? "")</span>
+                                    </div>
+                                </div>
+                            }
+                            <a href="@Url.Action("Index", "TinTuc", new { category = Model.Category })" class="view-all-btn">
+                                Xem tất cả <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    }
+
+                    <div class="sidebar-dept-card">
+                        <div class="sidebar-section-title">
+                            <i class="bi bi-hospital"></i>
+                            <h3>Chuyên khoa</h3>
+                        </div>
+                        <div class="dept-quick-links">
+                            <a href="@Url.Action("Details", "ChuyenKhoa", new { id = 5 })" class="dept-quick-link">
+                                <span class="dept-icon" style="background:#ffe8ea;color:#dc3545;"><i class="bi bi-heart-pulse"></i></span>
+                                <span>Khoa Tim mạch</span>
+                            </a>
+                            <a href="@Url.Action("Details", "ChuyenKhoa", new { id = 6 })" class="dept-quick-link">
+                                <span class="dept-icon" style="background:#f3e8ff;color:#6f42c1;"><i class="bi bi-cpu"></i></span>
+                                <span>Khoa Thần kinh</span>
+                            </a>
+                            <a href="@Url.Action("Index", "ChuyenKhoa")" class="dept-quick-link">
+                                <span class="dept-icon" style="background:#e8f0ff;color:#0d6efd;"><i class="bi bi-activity"></i></span>
+                                <span>Ngoại tổng hợp</span>
+                            </a>
+                            <a href="@Url.Action("Index", "ChuyenKhoa")" class="dept-quick-link">
+                                <span class="dept-icon" style="background:#fff4e6;color:#fd7e14;"><i class="bi bi-people"></i></span>
+                                <span>Khoa Nhi</span>
+                            </a>
+                            <a href="@Url.Action("Index", "ChuyenKhoa")" class="dept-quick-link">
+                                <span class="dept-icon" style="background:#e8faf5;color:#20c997;"><i class="bi bi-microscope"></i></span>
+                                <span>Xét nghiệm</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </aside>
+
+            </div>
+        </div>
+    </section>
+
+</main>
