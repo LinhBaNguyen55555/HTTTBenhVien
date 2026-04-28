@@ -1,4 +1,4 @@
-﻿/**
+/**
 * Template Name: Clinic
 * Template URL: https://bootstrapmade.com/clinic-bootstrap-template/
 * Updated: Jul 23 2025 with Bootstrap v5.3.7
@@ -15,8 +15,8 @@
 /* Fonts */
 :root {
   --default-font: "Roboto", "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --heading-font: "Poppins", sans-serif;
-  --nav-font: "Poppins", sans-serif;
+  --heading-font: "Montserrat", sans-serif;
+  --nav-font: "Lato", sans-serif;
 }
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */

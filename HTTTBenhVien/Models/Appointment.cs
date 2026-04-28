@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HTTTBenhVien.Models;
 
@@ -14,6 +15,8 @@ public partial class Appointment
     public string? Status { get; set; }
     public DateTime? CreatedDate { get; set; }
     public string? Notes { get; set; }
+
+    [NotMapped]
     public int? AppointmentId { get; set; }
 
     public virtual Employee? Doctor { get; set; }

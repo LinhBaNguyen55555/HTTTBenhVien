@@ -10,6 +10,11 @@ builder.Services.AddDbContext<HtttbenhvienContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// ═══════════════════════════════════════════════════════
+// Bỏ qua Authentication tạm thời (Dev Mode)
+var devMode = builder.Configuration.GetValue<bool>("DevMode:BypassAuth", true);
+// ═══════════════════════════════════════════════════════
+
 // Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -19,6 +24,20 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Admin/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(2);
         options.SlidingExpiration = true;
+        // Bypass auth check trong Dev Mode
+        if (devMode)
+        {
+            options.Events.OnRedirectToLogin = context =>
+            {
+                context.Response.Redirect(context.Request.Path);
+                return Task.CompletedTask;
+            };
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                context.Response.Redirect(context.Request.Path);
+                return Task.CompletedTask;
+            };
+        }
     });
 
 // Authorization Policies
@@ -30,7 +49,12 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AccountingOnly", policy => policy.RequireRole("Admin", "KeToan"));
     options.AddPolicy("PharmacyOnly", policy => policy.RequireRole("Admin", "DuocSi"));
     options.AddPolicy("DoctorOrAdmin", policy => policy.RequireRole("Admin", "BacSi"));
+    options.AddPolicy("TechnicianOnly", policy => policy.RequireRole("Admin", "KyThuat"));
+    options.AddPolicy("CashierOnly", policy => policy.RequireRole("Admin", "ThuNgan"));
 });
+
+// Đăng ký IMemoryCache cho session
+builder.Services.AddMemoryCache();
 
 // MVC
 builder.Services.AddControllersWithViews();
@@ -62,18 +86,18 @@ async Task SeedData(HtttbenhvienContext context)
         {
             var depts = new List<Department>
             {
-                new() { DeptName = "Khoa Nội tổng hợp", Location = "Tầng 2 - Nhà A", DeptType = "Lâm sàng" },
-                new() { DeptName = "Khoa Ngoại tổng hợp", Location = "Tầng 3 - Nhà A", DeptType = "Lâm sàng" },
-                new() { DeptName = "Khoa Sản", Location = "Tầng 4 - Nhà B", DeptType = "Lâm sàng" },
-                new() { DeptName = "Khoa Nhi", Location = "Tầng 3 - Nhà B", DeptType = "Lâm sàng" },
-                new() { DeptName = "Khoa Tim mạch", Location = "Tầng 5 - Nhà A", DeptType = "Lâm sàng" },
-                new() { DeptName = "Khoa Thần kinh", Location = "Tầng 4 - Nhà A", DeptType = "Lâm sàng" },
-                new() { DeptName = "Khoa Xét nghiệm", Location = "Tầng 1 - Nhà C", DeptType = "Cận lâm sàng" },
-                new() { DeptName = "Khoa Chẩn đoán hình ảnh", Location = "Tầng 1 - Nhà C", DeptType = "Cận lâm sàng" },
-                new() { DeptName = "Khoa Dược", Location = "Tầng 1 - Nhà B", DeptType = "Cận lâm sàng" },
-                new() { DeptName = "Phòng Khám đa khoa", Location = "Tầng 1 - Nhà A", DeptType = "Lâm sàng" },
-                new() { DeptName = "Khoa Cấp cứu", Location = "Tầng trệt - Nhà A", DeptType = "Lâm sàng" },
-                new() { DeptName = "Khoa Hồi sức tích cực", Location = "Tầng 5 - Nhà B", DeptType = "Lâm sàng" },
+                new() { DeptName = "Khoa Nội tổng hợp", Location = "Tầng 2 - Nhà A" },
+                new() { DeptName = "Khoa Ngoại tổng hợp", Location = "Tầng 3 - Nhà A" },
+                new() { DeptName = "Khoa Sản", Location = "Tầng 4 - Nhà B" },
+                new() { DeptName = "Khoa Nhi", Location = "Tầng 3 - Nhà B" },
+                new() { DeptName = "Khoa Tim mạch", Location = "Tầng 5 - Nhà A" },
+                new() { DeptName = "Khoa Thần kinh", Location = "Tầng 4 - Nhà A" },
+                new() { DeptName = "Khoa Xét nghiệm", Location = "Tầng 1 - Nhà C" },
+                new() { DeptName = "Khoa Chẩn đoán hình ảnh", Location = "Tầng 1 - Nhà C" },
+                new() { DeptName = "Khoa Dược", Location = "Tầng 1 - Nhà B" },
+                new() { DeptName = "Phòng Khám đa khoa", Location = "Tầng 1 - Nhà A" },
+                new() { DeptName = "Khoa Cấp cứu", Location = "Tầng trệt - Nhà A" },
+                new() { DeptName = "Khoa Hồi sức tích cực", Location = "Tầng 5 - Nhà B" },
             };
             context.Departments.AddRange(depts);
             await context.SaveChangesAsync();
@@ -295,9 +319,51 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Session phải đăng ký TRƯỚC dev auth bypass
+app.UseSession();
+
+if (devMode)
+{
+    app.Use(async (context, next) =>
+    {
+        // Tự động tạo ClaimsPrincipal giả nếu chưa đăng nhập
+        if (context.User.Identity?.IsAuthenticated != true)
+        {
+            // Mặc định là Admin, có thể thay đổi bằng query string: ?role=BacSi
+            var selectedRole = context.Request.Query["role"].FirstOrDefault() ?? "Admin";
+            
+            // Map query string value to actual role
+            var roleMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "admin", "Admin" },
+                { "bacsi", "BacSi" },
+                { "letan", "LeTan" },
+                { "duocsi", "DuocSi" },
+                { "kythuat", "KyThuat" },
+                { "thungan", "ThuNgan" }
+            };
+            
+            var actualRole = roleMap.GetValueOrDefault(selectedRole, "Admin");
+            
+            var devClaims = new[]
+            {
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, "0"),
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "DevUser"),
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, actualRole),
+                new System.Security.Claims.Claim("EmpId", "0"),
+                new System.Security.Claims.Claim("Username", "dev"),
+                new System.Security.Claims.Claim("WorkspaceRole", actualRole)
+            };
+            var devIdentity = new System.Security.Claims.ClaimsIdentity(devClaims, "DevAuth");
+            context.User = new System.Security.Claims.ClaimsPrincipal(devIdentity);
+        }
+        await next();
+    });
+}
+// ═══════════════════════════════════════════════════════
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
 
 app.MapControllerRoute(
     name: "areas",

@@ -87,7 +87,7 @@
                                     <i class="fas fa-stethoscope mb-3"></i>
                                     <h4>@dept.DeptName</h4>
                                     <p>@dept.Location</p>
-                                    <span class="badge bg-primary">@dept.DeptType</span>
+                                    <span class="badge bg-primary">@dept.DeptTypeNavigation?.DeptTypeName</span>
                                     <a href="@Url.Action("Details", "ChuyenKhoa", new { id = dept.DeptId })" class="mt-3 d-inline-block">Xem chi tiết <i class="bi bi-arrow-right"></i></a>
                                 </div>
                             </div>

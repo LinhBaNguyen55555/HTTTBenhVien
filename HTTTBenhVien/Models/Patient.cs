@@ -9,7 +9,7 @@ public partial class Patient
     public string? PatientCode { get; set; }
     public string FullName { get; set; } = null!;
     public DateTime? Dob { get; set; }
-    public string? Gender { get; set; }
+    public bool Gender { get; set; }
     public string? Address { get; set; }
     public string? Phone { get; set; }
     public string? BhytCode { get; set; }

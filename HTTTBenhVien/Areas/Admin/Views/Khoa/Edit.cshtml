@@ -1,0 +1,118 @@
+@model HTTTBenhVien.Models.Department
+@{
+    ViewData["Title"] = "Sửa thông tin khoa";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .page-header-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem;
+    }
+
+    .card-ajax { border: none; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); overflow: hidden; }
+    .card-body-ajax { padding: 2rem; }
+    .form-group { margin-bottom: 1.5rem; }
+
+    .form-control-ajax {
+        border: 2px solid #e9ecef; border-radius: 0.75rem; padding: 0.875rem 1rem;
+        font-size: 1rem; transition: all 0.3s ease;
+    }
+
+    .form-control-ajax:focus {
+        border-color: #667eea; box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .form-label-ajax { font-weight: 600; color: #4e54c8; margin-bottom: 0.5rem; display: block; }
+    .input-icon { position: relative; }
+    .input-icon i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #667eea; }
+    .input-icon input { padding-left: 2.75rem; }
+    .input-icon select { padding-left: 0; }
+
+    #DeptType {
+        font-size: 1rem !important;
+        height: 42px !important;
+        color: #212529 !important;
+        background-color: #fff !important;
+    }
+    #DeptType option { color: #212529 !important; }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none; color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); color: white; }
+
+    .btn-secondary-ajax {
+        background: #e9ecef; border: none; color: #6c757d; font-weight: 600; padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem; transition: all 0.3s ease;
+    }
+
+    .btn-secondary-ajax:hover { background: #dee2e6; color: #495057; }
+    .btn-group-ajax { display: flex; gap: 1rem; margin-top: 2rem; }
+    .btn-group-ajax .btn { flex: 1; }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header-gradient">
+        <div class="d-flex align-items-center">
+            <a asp-action="Index" class="btn btn-light mr-3"><i class="fas fa-arrow-left"></i></a>
+            <div>
+                <h1><i class="fas fa-edit"></i> Sửa thông tin khoa</h1>
+                <p>Cập nhật thông tin khoa: @Model.DeptName</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-ajax">
+        <div class="card-body card-body-ajax">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="DeptId" />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label-ajax"><i class="fas fa-hospital mr-1"></i> Tên khoa <span class="text-danger">*</span></label>
+                            <div class="input-icon">
+                                <input asp-for="DeptName" class="form-control form-control-ajax" required />
+                            </div>
+                            <span asp-validation-for="DeptName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label-ajax"><i class="fas fa-tag mr-1"></i> Loại khoa <span class="text-danger">*</span></label>
+                            <select asp-for="DeptTypeId" class="form-control form-control-ajax" asp-items="ViewBag.DeptTypeId" required>
+                                <option value="">-- Chọn loại khoa --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="form-label-ajax"><i class="fas fa-map-marker-alt mr-1"></i> Vị trí <span class="text-danger">*</span></label>
+                            <div class="input-icon">
+                                <input asp-for="Location" class="form-control form-control-ajax" required />
+                            </div>
+                            <span asp-validation-for="Location" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group-ajax">
+                    <a asp-action="Index" class="btn btn-secondary-ajax"><i class="fas fa-times mr-1"></i> Hủy bỏ</a>
+                    <button type="submit" class="btn btn-gradient"><i class="fas fa-save mr-1"></i> Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

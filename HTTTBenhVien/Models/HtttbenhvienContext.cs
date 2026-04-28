@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,6 +48,9 @@ public partial class HtttbenhvienContext : DbContext
     public virtual DbSet<PrescriptionDetail> PrescriptionDetails { get; set; }
 
     public virtual DbSet<RecordService> RecordServices { get; set; }
+
+    public virtual DbSet<RoomType> RoomTypes { get; set; }
+    public virtual DbSet<DeptType> DeptTypes { get; set; }
 
     public virtual DbSet<Room> Rooms { get; set; }
 
@@ -189,8 +192,12 @@ public partial class HtttbenhvienContext : DbContext
 
             entity.Property(e => e.DeptId).HasColumnName("DeptID");
             entity.Property(e => e.DeptName).HasMaxLength(100);
-            entity.Property(e => e.DeptType).HasMaxLength(50);
+            entity.Property(e => e.DeptTypeId).HasColumnName("DeptTypeID");
             entity.Property(e => e.Location).HasMaxLength(100);
+
+            entity.HasOne(d => d.DeptTypeNavigation).WithMany(p => p.Departments)
+                .HasForeignKey(d => d.DeptTypeId)
+                .HasConstraintName("FK_Dept_DeptType");
         });
 
         modelBuilder.Entity<Employee>(entity =>
@@ -340,13 +347,14 @@ public partial class HtttbenhvienContext : DbContext
             entity.Property(e => e.PatientId).HasColumnName("PatientID");
             entity.Property(e => e.PatientCode).HasMaxLength(50);
             entity.Property(e => e.FullName).HasMaxLength(100);
-            entity.Property(e => e.Gender).HasMaxLength(10);
+            entity.Property(e => e.Dob).HasColumnName("DOB");
+            entity.Property(e => e.Gender).HasColumnType("bit");
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(15).IsUnicode(false);
-            entity.Property(e => e.BhytCode).HasMaxLength(20).IsUnicode(false);
-            entity.Property(e => e.Email).HasMaxLength(100).IsUnicode(false);
+            entity.Property(e => e.BhytCode).HasColumnName("BHYT_Code").HasMaxLength(20).IsUnicode(false);
+            entity.Property(e => e.Email).HasColumnName("Email").HasMaxLength(100).IsUnicode(false);
             entity.Property(e => e.AvatarUrl).HasMaxLength(255).IsUnicode(false);
-            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.Notes).HasColumnName("Notes").HasMaxLength(500);
         });
 
         modelBuilder.Entity<Prescription>(entity =>
@@ -408,21 +416,49 @@ public partial class HtttbenhvienContext : DbContext
                 .HasConstraintName("FK_RS_Ser");
         });
 
+        modelBuilder.Entity<RoomType>(entity =>
+        {
+            entity.ToTable("RoomTypes");
+
+            entity.HasKey(e => e.RoomTypeId).HasName("PK_RoomTypes");
+
+            entity.Property(e => e.RoomTypeId).HasColumnName("RoomTypeID");
+            entity.Property(e => e.RoomTypeName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<DeptType>(entity =>
+        {
+            entity.ToTable("DeptTypes");
+
+            entity.HasKey(e => e.DeptTypeId).HasName("PK_DeptTypes");
+
+            entity.Property(e => e.DeptTypeId).HasColumnName("DeptTypeID");
+            entity.Property(e => e.DeptTypeName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
         modelBuilder.Entity<Room>(entity =>
         {
             entity.HasKey(e => e.RoomId).HasName("PK__Rooms__32863919809AC254");
 
             entity.Property(e => e.RoomId).HasColumnName("RoomID");
             entity.Property(e => e.DeptId).HasColumnName("DeptID");
+            entity.Property(e => e.RoomTypeId).HasColumnName("RoomTypeID");
             entity.Property(e => e.RoomNumber)
                 .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.RoomType).HasMaxLength(50);
 
             entity.HasOne(d => d.Dept).WithMany(p => p.Rooms)
                 .HasForeignKey(d => d.DeptId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Room_Dept");
+
+            entity.HasOne(d => d.RoomType).WithMany(p => p.Rooms)
+                .HasForeignKey(d => d.RoomTypeId)
+                .HasConstraintName("FK_Room_RoomType");
         });
 
         modelBuilder.Entity<WebMenu>(entity =>

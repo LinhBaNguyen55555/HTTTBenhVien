@@ -16,15 +16,16 @@ public class ChuyenKhoaController : Controller
     public async Task<IActionResult> Index()
     {
         var allDepts = await _context.Departments
-            .OrderBy(d => d.DeptType)
+            .Include(d => d.DeptTypeNavigation)
+            .OrderBy(d => d.DeptTypeNavigation.DeptTypeName)
             .ThenBy(d => d.DeptName)
             .ToListAsync();
 
         var vm = new ChuyenKhoaViewModel
         {
-            KhoaLamSang = allDepts.Where(d => string.Equals(d.DeptType?.Trim(), "Lâm sàng", StringComparison.OrdinalIgnoreCase)).ToList(),
-            KhoaCanLamSang = allDepts.Where(d => string.Equals(d.DeptType?.Trim(), "Cận lâm sàng", StringComparison.OrdinalIgnoreCase)).ToList(),
-            KhoaCapCuu = allDepts.Where(d => string.Equals(d.DeptType?.Trim(), "Cấp cứu", StringComparison.OrdinalIgnoreCase)).ToList()
+            KhoaLamSang = allDepts.Where(d => string.Equals(d.DeptTypeNavigation?.DeptTypeName?.Trim(), "Lâm sàng", StringComparison.OrdinalIgnoreCase)).ToList(),
+            KhoaCanLamSang = allDepts.Where(d => string.Equals(d.DeptTypeNavigation?.DeptTypeName?.Trim(), "Cận lâm sàng", StringComparison.OrdinalIgnoreCase)).ToList(),
+            KhoaCapCuu = allDepts.Where(d => string.Equals(d.DeptTypeNavigation?.DeptTypeName?.Trim(), "Cấp cứu", StringComparison.OrdinalIgnoreCase)).ToList()
         };
 
         return View(vm);
@@ -36,6 +37,7 @@ public class ChuyenKhoaController : Controller
             return NotFound();
 
         var dept = await _context.Departments
+            .Include(d => d.DeptTypeNavigation)
             .Include(d => d.Employees)
             .ThenInclude(e => e.Account)
             .FirstOrDefaultAsync(d => d.DeptId == id);

@@ -26,9 +26,19 @@ public class DoctorAvatarViewModel
     {
         get
         {
-            const string basePath = "/assets/img/imagedoctor/";
-            const string defaultImage = "default-avatar.jpg";
-            return basePath + (string.IsNullOrEmpty(this.ImageName) ? defaultImage : this.ImageName);
+            if (!string.IsNullOrEmpty(this.ImageName))
+            {
+                // Nếu có tên file ảnh, kiểm tra xem là URL đầy đủ hay chỉ là tên file
+                if (this.ImageName.StartsWith("http://") || this.ImageName.StartsWith("https://"))
+                    return this.ImageName;
+                
+                // Đường dẫn tương đối trong wwwroot
+                return "/assets/img/imagedoctor/" + this.ImageName;
+            }
+            
+            // Sử dụng UI Avatars để tạo avatar từ tên
+            var name = Uri.EscapeDataString(this.FullName);
+            return $"https://ui-avatars.com/api/?name={name}&size=200&background=0D8ABC&color=fff&font-size=0.4&bold=true";
         }
     }
 }

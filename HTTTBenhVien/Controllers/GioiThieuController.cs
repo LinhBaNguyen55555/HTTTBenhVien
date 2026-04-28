@@ -22,7 +22,8 @@ public class GioiThieuController : Controller
             .ToListAsync();
 
         var departments = await _context.Departments
-            .Where(d => d.DeptType == "Lâm sàng")
+            .Include(d => d.DeptTypeNavigation)
+            .Where(d => d.DeptTypeNavigation != null && d.DeptTypeNavigation.DeptTypeName == "Lâm sàng")
             .OrderBy(d => d.DeptName)
             .Take(8)
             .ToListAsync();

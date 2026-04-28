@@ -17,7 +17,8 @@ public class DatLichController : Controller
     public async Task<IActionResult> Index()
     {
         var departments = await _context.Departments
-            .Where(d => d.DeptType == "Lâm sàng")
+            .Include(d => d.DeptTypeNavigation)
+            .Where(d => d.DeptTypeNavigation != null && d.DeptTypeNavigation.DeptTypeName == "Lâm sàng")
             .OrderBy(d => d.DeptName)
             .ToListAsync();
 
@@ -39,7 +40,7 @@ public class DatLichController : Controller
     {
         if (!ModelState.IsValid)
         {
-            var depts = await _context.Departments.Where(d => d.DeptType == "Lâm sàng").OrderBy(d => d.DeptName).ToListAsync();
+            var depts = await _context.Departments.Include(d => d.DeptTypeNavigation).Where(d => d.DeptTypeNavigation != null && d.DeptTypeNavigation.DeptTypeName == "Lâm sàng").OrderBy(d => d.DeptName).ToListAsync();
             var doctors = await _context.Employees.Include(e => e.Dept).Where(e => e.JobTitle != null && e.JobTitle.Contains("Bác sĩ")).OrderBy(e => e.FullName).ToListAsync();
             ViewBag.Departments = depts;
             ViewBag.Doctors = doctors;
@@ -54,7 +55,7 @@ public class DatLichController : Controller
         if (existingCount >= 15)
         {
             ModelState.AddModelError("", "Bác sĩ đã hết chỗ khám cho ngày này. Vui lòng chọn ngày hoặc bác sĩ khác.");
-            var depts = await _context.Departments.Where(d => d.DeptType == "Lâm sàng").OrderBy(d => d.DeptName).ToListAsync();
+            var depts = await _context.Departments.Include(d => d.DeptTypeNavigation).Where(d => d.DeptTypeNavigation != null && d.DeptTypeNavigation.DeptTypeName == "Lâm sàng").OrderBy(d => d.DeptName).ToListAsync();
             var doctors = await _context.Employees.Include(e => e.Dept).Where(e => e.JobTitle != null && e.JobTitle.Contains("Bác sĩ")).OrderBy(e => e.FullName).ToListAsync();
             ViewBag.Departments = depts;
             ViewBag.Doctors = doctors;

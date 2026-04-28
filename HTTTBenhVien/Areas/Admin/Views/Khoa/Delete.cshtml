@@ -1,0 +1,123 @@
+@model HTTTBenhVien.Models.Department
+@{
+    ViewData["Title"] = "Xóa khoa";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .page-header-gradient {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem;
+    }
+
+    .card-ajax { border: none; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); overflow: hidden; }
+    .card-body-ajax { padding: 2rem; }
+
+    .info-danger {
+        background: linear-gradient(135deg, rgba(235, 51, 73, 0.1) 0%, rgba(245, 92, 67, 0.1) 100%);
+        border-left: 4px solid #eb3349; border-radius: 0.5rem; padding: 1rem;
+    }
+
+    .detail-item { padding: 1rem; background: #f8f9fc; border-radius: 0.75rem; margin-bottom: 1rem; }
+    .detail-label { font-size: 0.85rem; color: #6c757d; margin-bottom: 0.25rem; }
+    .detail-value { font-size: 1.1rem; font-weight: 600; color: #2d3748; }
+
+    .btn-danger-gradient {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        border: none; color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(235, 51, 73, 0.4); color: white; }
+
+    .btn-secondary-ajax {
+        background: #e9ecef; border: none; color: #6c757d; font-weight: 600; padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem; transition: all 0.3s ease;
+    }
+
+    .btn-secondary-ajax:hover { background: #dee2e6; color: #495057; }
+    .btn-group-ajax { display: flex; gap: 1rem; margin-top: 2rem; }
+    .btn-group-ajax .btn { flex: 1; }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header-gradient">
+        <div class="d-flex align-items-center">
+            <a asp-action="Index" class="btn btn-light mr-3"><i class="fas fa-arrow-left"></i></a>
+            <div>
+                <h1><i class="fas fa-trash"></i> Xóa khoa</h1>
+                <p>Xác nhận xóa khoa: @Model.DeptName</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-ajax">
+        <div class="card-body card-body-ajax">
+            <div class="info-danger mb-4">
+                <h5 class="text-danger mb-2">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Cảnh báo: Thao tác này không thể hoàn tác!
+                </h5>
+                <p class="mb-0">
+                    Bạn đang cố xóa khoa <strong>"@Model.DeptName"</strong>. 
+                    Hành động này sẽ xóa vĩnh viễn khoa khỏi hệ thống.
+                </p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <div class="detail-label">Mã khoa</div>
+                        <div class="detail-value">#@Model.DeptId</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <div class="detail-label">Tên khoa</div>
+                        <div class="detail-value">@Model.DeptName</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <div class="detail-label">Loại khoa</div>
+                        <div class="detail-value">@Model.DeptTypeNavigation?.DeptTypeName</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <div class="detail-label">Vị trí</div>
+                        <div class="detail-value">@Model.Location</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Employees?.Count > 0 || Model.Rooms?.Count > 0)
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle mr-2"></i><strong>Thông tin liên quan:</strong>
+                    <ul class="mb-0 mt-2">
+                        @if (Model.Employees?.Count > 0)
+                        {
+                            <li>Có @Model.Employees.Count nhân viên đang thuộc khoa này</li>
+                        }
+                        @if (Model.Rooms?.Count > 0)
+                        {
+                            <li>Có @Model.Rooms.Count phòng đang thuộc khoa này</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="DeptId" />
+                <div class="btn-group-ajax">
+                    <a asp-action="Index" class="btn btn-secondary-ajax"><i class="fas fa-arrow-left mr-1"></i> Quay lại</a>
+                    <button type="submit" class="btn btn-danger-gradient"><i class="fas fa-trash mr-1"></i> Xác nhận xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

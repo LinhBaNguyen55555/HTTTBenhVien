@@ -1,0 +1,161 @@
+@model HTTTBenhVien.Models.Department
+@{
+    ViewData["Title"] = "Chi tiết khoa";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .page-header-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem;
+    }
+
+    .card-ajax { border: none; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); overflow: hidden; }
+    .card-header-ajax { background: white; border-bottom: 2px solid #f8f9fe; padding: 1.25rem 1.5rem; font-weight: 600; color: #4e54c8; }
+    .card-body-ajax { padding: 2rem; }
+
+    .detail-item {
+        padding: 1.25rem; background: #f8f9fc; border-radius: 0.75rem; margin-bottom: 1rem; border-left: 4px solid #667eea;
+    }
+
+    .detail-item-teal { border-left-color: #11998e; }
+    .detail-label { font-size: 0.85rem; color: #6c757d; margin-bottom: 0.25rem; }
+    .detail-value { font-size: 1.1rem; font-weight: 600; color: #2d3748; }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none; color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); color: white; }
+    .btn-group-ajax { display: flex; gap: 1rem; margin-top: 2rem; }
+
+    .sub-list { list-style: none; padding: 0; margin: 0; }
+    .sub-list li { padding: 0.75rem; background: #f8f9fc; border-radius: 0.5rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; }
+    .sub-list li i { color: #667eea; }
+
+    .stat-mini { display: flex; gap: 2rem; margin-top: 1rem; }
+    .stat-mini-item { text-align: center; padding: 1rem; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-radius: 0.75rem; flex: 1; }
+    .stat-mini-item i { font-size: 1.5rem; color: #667eea; margin-bottom: 0.5rem; }
+    .stat-mini-value { font-size: 1.5rem; font-weight: 700; color: #2d3748; }
+    .stat-mini-label { font-size: 0.85rem; color: #6c757d; }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header-gradient">
+        <div class="d-flex align-items-center">
+            <a asp-action="Index" class="btn btn-light mr-3"><i class="fas fa-arrow-left"></i></a>
+            <div>
+                <h1><i class="fas fa-hospital"></i> @Model.DeptName</h1>
+                <p>Chi tiết thông tin khoa</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card card-ajax">
+                <div class="card-header-ajax"><i class="fas fa-info-circle mr-2"></i>Thông tin cơ bản</div>
+                <div class="card-body-ajax">
+                    <div class="detail-item">
+                        <div class="detail-label">Mã khoa</div>
+                        <div class="detail-value">#@Model.DeptId</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Tên khoa</div>
+                        <div class="detail-value">@Model.DeptName</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Loại khoa</div>
+                        <div class="detail-value">@Model.DeptTypeNavigation?.DeptTypeName</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Vị trí</div>
+                        <div class="detail-value">@Model.Location</div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="detail-item">
+                            <div class="detail-label">Mô tả</div>
+                            <div class="detail-value" style="font-size: 1rem; font-weight: normal;">@Model.Description</div>
+                        </div>
+                    }
+
+                    <div class="stat-mini">
+                        <div class="stat-mini-item">
+                            <i class="fas fa-users"></i>
+                            <div class="stat-mini-value">@Model.Employees?.Count</div>
+                            <div class="stat-mini-label">Nhân viên</div>
+                        </div>
+                        <div class="stat-mini-item">
+                            <i class="fas fa-door-open"></i>
+                            <div class="stat-mini-value">@Model.Rooms?.Count</div>
+                            <div class="stat-mini-label">Phòng</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group-ajax">
+                        <a asp-action="Edit" asp-route-id="@Model.DeptId" class="btn btn-gradient"><i class="fas fa-edit mr-1"></i> Sửa</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card card-ajax mb-4">
+                <div class="card-header-ajax"><i class="fas fa-users mr-2"></i>Nhân viên trong khoa (@Model.Employees?.Count)</div>
+                <div class="card-body-ajax">
+                    @if (Model.Employees != null && Model.Employees.Any())
+                    {
+                        <ul class="sub-list">
+                            @foreach (var emp in Model.Employees.Take(10))
+                            {
+                                <li>
+                                    <i class="fas fa-user-md"></i>
+                                    <div>
+                                        <strong>@emp.FullName</strong>
+                                        <small class="text-muted d-block">@emp.JobTitle - @emp.Specialty</small>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                        @if (Model.Employees.Count > 10)
+                        {
+                            <p class="text-muted mt-2">... và @(Model.Employees.Count - 10) nhân viên khác</p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Chưa có nhân viên nào trong khoa này</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card card-ajax">
+                <div class="card-header-ajax"><i class="fas fa-door-open mr-2"></i>Các phòng trong khoa (@Model.Rooms?.Count)</div>
+                <div class="card-body-ajax">
+                    @if (Model.Rooms != null && Model.Rooms.Any())
+                    {
+                        <ul class="sub-list">
+                            @foreach (var room in Model.Rooms)
+                            {
+                                <li class="detail-item-teal">
+                                    <i class="fas fa-door-open" style="color: #11998e;"></i>
+                                    <div>
+                                        <strong>@room.RoomNumber</strong>
+                                        <small class="text-muted d-block">@room.RoomType?.RoomTypeName</small>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Chưa có phòng nào trong khoa này</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

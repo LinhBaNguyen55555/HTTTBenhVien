@@ -3,9 +3,9 @@
     ViewData["Title"] = Model.DeptName;
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    bool isLamSang = string.Equals(Model.DeptType?.Trim(), "Lâm sàng", StringComparison.OrdinalIgnoreCase);
-    bool isCapCuu = string.Equals(Model.DeptType?.Trim(), "Cấp cứu", StringComparison.OrdinalIgnoreCase);
-    bool isCanLamSang = string.Equals(Model.DeptType?.Trim(), "Cận lâm sàng", StringComparison.OrdinalIgnoreCase);
+    bool isLamSang = string.Equals(Model.DeptTypeNavigation?.DeptTypeName?.Trim(), "Lâm sàng", StringComparison.OrdinalIgnoreCase);
+    bool isCapCuu = string.Equals(Model.DeptTypeNavigation?.DeptTypeName?.Trim(), "Cấp cứu", StringComparison.OrdinalIgnoreCase);
+    bool isCanLamSang = string.Equals(Model.DeptTypeNavigation?.DeptTypeName?.Trim(), "Cận lâm sàng", StringComparison.OrdinalIgnoreCase);
     string cardClass = isLamSang ? "clinical-card" : isCapCuu ? "emergency-card" : "paraclinical-card";
     string accentClass = isLamSang ? "accent-blue" : isCapCuu ? "accent-red" : "accent-green";
     string primaryBtn = isLamSang ? "btn-primary" : isCapCuu ? "btn-danger" : "btn-success";
@@ -26,7 +26,7 @@
                     <i class="fas @primaryIcon"></i>
                 </div>
                 <div class="dept-hero-content">
-                    <span class="badge @badgeClass mb-2">@Model.DeptType</span>
+                    <span class="badge @badgeClass mb-2">@Model.DeptTypeNavigation?.DeptTypeName</span>
                     <h1>@Model.DeptName</h1>
                     <div class="dept-hero-meta">
                         <span><i class="fas fa-map-marker-alt me-1"></i> @Model.Location</span>
@@ -415,7 +415,7 @@
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">Loại khoa</small>
-                                        <strong>@Model.DeptType</strong>
+                                        <strong>@Model.DeptTypeNavigation?.DeptTypeName</strong>
                                     </div>
                                 </div>
                                 <div class="dept-info-row">

@@ -1,0 +1,361 @@
+@model IEnumerable<HTTTBenhVien.Models.Department>
+@{
+    ViewData["Title"] = "Quản lý khoa";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .page-header-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .card-ajax {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+    }
+
+    .card-ajax:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
+    }
+
+    .card-header-ajax {
+        background: white;
+        border-bottom: 2px solid #f8f9fe;
+        padding: 1.25rem 1.5rem;
+        font-weight: 600;
+        color: #4e54c8;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-gradient-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-gradient-success:hover {
+        box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
+        color: white;
+    }
+
+    .btn-gradient-danger {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-gradient-danger:hover {
+        box-shadow: 0 5px 20px rgba(235, 51, 73, 0.4);
+        color: white;
+    }
+
+    .btn-gradient-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-gradient-info:hover {
+        box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4);
+        color: white;
+    }
+
+    .btn-sm-gradient {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 0.375rem;
+    }
+
+    .table-ajax thead th {
+        background: #f8f9fc;
+        color: #4e54c8;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+        padding: 1rem;
+    }
+
+    .table-ajax tbody td {
+        vertical-align: middle;
+        padding: 1rem;
+        border-color: #f0f2f8;
+    }
+
+    .table-ajax tbody tr {
+        transition: background 0.2s;
+    }
+
+    .table-ajax tbody tr:hover {
+        background: #f8f9fe;
+    }
+
+    .badge-loai {
+        padding: 0.35rem 0.65rem;
+        border-radius: 0.35rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-primary { background: #e8edfc; color: #4e54c8; }
+    .badge-warning { background: #fff3e6; color: #e67e22; }
+    .badge-success { background: #e6f7f1; color: #27ae60; }
+    .badge-danger { background: #fdeaea; color: #eb3349; }
+
+    .icon-circle {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        color: #4e54c8;
+    }
+
+    .badge-dept {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-khoa {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        color: #4e54c8;
+    }
+
+    .badge-phong {
+        background: linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(56, 239, 125, 0.15) 100%);
+        color: #11998e;
+    }
+
+    .empty-state {
+        padding: 3rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: #d1d3e0;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h5 { color: #6c757d; font-weight: 600; }
+    .empty-state p { color: #aab2bd; margin-bottom: 1.5rem; }
+
+    .action-buttons { display: flex; gap: 0.5rem; }
+
+    .stat-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    }
+
+    .stat-icon {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        color: #4e54c8;
+    }
+
+    .stat-info h4 { font-weight: 700; margin: 0; color: #2d3748; font-size: 1.5rem; }
+    .stat-info p { margin: 0; color: #a0aec0; font-size: 0.85rem; }
+
+    .toast-custom {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @@keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .table-responsive { border-radius: 0.75rem; overflow: hidden; }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header-gradient">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-hospital"></i> Quản lý khoa</h1>
+                <p>Quản lý thông tin các khoa trong bệnh viện</p>
+            </div>
+            <div class="d-none d-md-block">
+                <i class="fas fa-hospital-alt" style="font-size: 4rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>@Model.Count()</h4>
+                    <p>Tổng số khoa</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-ajax">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-list mr-2"></i>Danh sách các khoa</span>
+            <a asp-action="Create" class="btn btn-sm btn-gradient">
+                <i class="fas fa-plus mr-1"></i> Thêm khoa mới
+            </a>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-ajax">
+                        <thead>
+                            <tr>
+                                <th width="5%"><i class="fas fa-hashtag"></i></th>
+                                <th width="25%"><i class="fas fa-hospital mr-1"></i> Tên khoa</th>
+                                <th width="15%"><i class="fas fa-tag mr-1"></i> Loại khoa</th>
+                                <th width="25%"><i class="fas fa-map-marker-alt mr-1"></i> Vị trí</th>
+                                <th width="10%"><i class="fas fa-users mr-1"></i> NV</th>
+                                <th width="10%"><i class="fas fa-door-open mr-1"></i> Phòng</th>
+                                <th width="15%" class="text-center"><i class="fas fa-cog mr-1"></i> Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="icon-circle">
+                                            <i class="fas fa-hospital"></i>
+                                        </span>
+                                    </td>
+                                    <td><strong>@item.DeptName</strong></td>
+                                    <td>
+                                        @{
+                                            var deptTypeClass = item.DeptTypeNavigation?.DeptTypeName switch
+                                            {
+                                                "Lâm sàng" => "badge-primary",
+                                                "Cận lâm sàng" => "badge-success",
+                                                "Hỗ trợ" => "badge-warning",
+                                                _ => "badge-secondary"
+                                            };
+                                        }
+                                        <span class="badge badge-loai @deptTypeClass">@item.DeptTypeNavigation?.DeptTypeName</span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-map-marker-alt text-danger mr-1"></i>@item.Location
+                                    </td>
+                                    <td>
+                                        <span class="badge-dept badge-khoa">
+                                            <i class="fas fa-user-md"></i> @item.Employees?.Count
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge-dept badge-phong">
+                                            <i class="fas fa-door-open"></i> @item.Rooms?.Count
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons justify-content-center">
+                                            <a asp-action="Details" asp-route-id="@item.DeptId" class="btn btn-sm btn-gradient-info btn-sm-gradient" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.DeptId" class="btn btn-sm btn-gradient btn-sm-gradient" title="Sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.DeptId" class="btn btn-sm btn-gradient-danger btn-sm-gradient" title="Xóa">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-hospital"></i></div>
+                    <h5>Chưa có khoa nào</h5>
+                    <p>Hãy thêm khoa đầu tiên cho bệnh viện của bạn</p>
+                    <a asp-action="Create" class="btn btn-gradient">
+                        <i class="fas fa-plus mr-1"></i> Thêm khoa mới
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="toast-custom">
+        <div class="toast show" role="alert">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle mr-2"></i>
+                <strong class="mr-auto">Thành công</strong>
+                <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast"><span>&times;</span></button>
+            </div>
+            <div class="toast-body">
+                <i class="fas fa-check text-success mr-2"></i>@TempData["Success"]
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            setTimeout(function() { $('.toast').toast('hide'); }, 4000);
+        });
+    </script>
+}

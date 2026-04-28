@@ -14,7 +14,7 @@
             </div>
 
             @* ===== Khoa Cấp Cứu — nổi bật đầu trang ===== *@
-            @if (Model.KhoaCapCuu.Where(d => string.Equals(d.DeptType?.Trim(), "Cấp cứu", StringComparison.OrdinalIgnoreCase)).Any())
+            @if (Model.KhoaCapCuu.Where(d => string.Equals(d.DeptTypeNavigation?.DeptTypeName?.Trim(), "Cấp cứu", StringComparison.OrdinalIgnoreCase)).Any())
             {
                 foreach (var capCuu in Model.KhoaCapCuu)
                 {
@@ -51,7 +51,7 @@
                             @{
                                 int i = 0;
                                 var lsIcons = new[] { "fa-heartbeat", "fa-brain", "fa-bone", "fa-baby", "fa-heart", "fa-user-md", "fa-ambulance", "fa-procedures" };
-                                foreach (var dept in Model.KhoaLamSang.Where(d => string.Equals(d.DeptType?.Trim(), "Lâm sàng", StringComparison.OrdinalIgnoreCase)))
+                                foreach (var dept in Model.KhoaLamSang.Where(d => string.Equals(d.DeptTypeNavigation?.DeptTypeName?.Trim(), "Lâm sàng", StringComparison.OrdinalIgnoreCase)))
                                 {
                                     var icon = lsIcons[i % lsIcons.Length];
                                     <div class="dept-item">
@@ -90,7 +90,7 @@
                             @{
                                 int j = 0;
                                 var clsIcons = new[] { "fa-flask", "fa-x-ray", "fa-pills", "fa-diagnoses" };
-                                foreach (var dept in Model.KhoaCanLamSang.Where(d => string.Equals(d.DeptType?.Trim(), "Cận lâm sàng", StringComparison.OrdinalIgnoreCase)))
+                                foreach (var dept in Model.KhoaCanLamSang.Where(d => string.Equals(d.DeptTypeNavigation?.DeptTypeName?.Trim(), "Cận lâm sàng", StringComparison.OrdinalIgnoreCase)))
                                 {
                                     var icon = clsIcons[j % clsIcons.Length];
                                     <div class="dept-item">
