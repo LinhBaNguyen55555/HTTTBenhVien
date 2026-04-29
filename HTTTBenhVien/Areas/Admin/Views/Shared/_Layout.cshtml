@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -62,7 +62,7 @@
 
             <!-- Nav Item - Khoa -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Khoa", new { area = "Admin" })">
+                <a class="nav-link" href="@Url.Action("Index", "Department", new { area = "Admin" })">
                     <i class="fas fa-hospital"></i>
                     <span>Quản lý khoa</span>
                 </a>
@@ -70,7 +70,7 @@
 
             <!-- Nav Item - Phong -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Phong", new { area = "Admin" })">
+                <a class="nav-link" href="@Url.Action("Index", "Room", new { area = "Admin" })">
                     <i class="fas fa-door-open"></i>
                     <span>Quản lý phòng</span>
                 </a>
@@ -78,7 +78,7 @@
 
             <!-- Nav Item - Giuong -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Giuong", new { area = "Admin" })">
+                <a class="nav-link" href="@Url.Action("Index", "Bed", new { area = "Admin" })">
                     <i class="fas fa-bed"></i>
                     <span>Quản lý giường</span>
                 </a>
@@ -102,7 +102,7 @@
 
             <!-- Nav Item - Nhan Vien -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "NhanVien", new { area = "Admin" })">
+                <a class="nav-link" href="@Url.Action("Index", "Employee", new { area = "Admin" })">
                     <i class="fas fa-user-md"></i>
                     <span>Nhân viên</span>
                 </a>
@@ -118,7 +118,7 @@
 
             <!-- Nav Item - Lich Kham -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "LichKham", new { area = "Admin" })">
+                <a class="nav-link" href="@Url.Action("Index", "Appointment", new { area = "Admin" })">
                     <i class="fas fa-calendar-check"></i>
                     <span>Lịch khám</span>
                 </a>

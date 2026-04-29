@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,12 +13,12 @@ using HTTTBenhVien.Models;
 namespace HTTTBenhVien.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class NhanVienController : Controller
+    public class EmployeeController : Controller
     {
         private readonly HtttbenhvienContext _context;
         private readonly IWebHostEnvironment _env;
 
-        public NhanVienController(HtttbenhvienContext context, IWebHostEnvironment env)
+        public EmployeeController(HtttbenhvienContext context, IWebHostEnvironment env)
         {
             _context = context;
             _env = env;
@@ -200,3 +200,4 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
     }
 }
+

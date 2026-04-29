@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,11 +10,11 @@ using HTTTBenhVien.Models;
 namespace HTTTBenhVien.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class KhoaController : Controller
+    public class DepartmentController : Controller
     {
         private readonly HtttbenhvienContext _context;
 
-        public KhoaController(HtttbenhvienContext context)
+        public DepartmentController(HtttbenhvienContext context)
         {
             _context = context;
         }
@@ -149,3 +149,4 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         private bool DepartmentExists(int id) => _context.Departments.Any(e => e.DeptId == id);
     }
 }
+

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,11 +10,11 @@ using HTTTBenhVien.Models;
 namespace HTTTBenhVien.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class PhongController : Controller
+    public class RoomController : Controller
     {
         private readonly HtttbenhvienContext _context;
 
-        public PhongController(HtttbenhvienContext context)
+        public RoomController(HtttbenhvienContext context)
         {
             _context = context;
         }
@@ -149,3 +149,4 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
     }
 }
+
