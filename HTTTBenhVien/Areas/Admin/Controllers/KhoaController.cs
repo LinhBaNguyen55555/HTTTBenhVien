@@ -19,13 +19,22 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.Departments
+            ViewData["CurrentFilter"] = searchString;
+
+            var departments = _context.Departments
                 .Include(d => d.DeptTypeNavigation)
                 .Include(d => d.Employees)
                 .Include(d => d.Rooms).ThenInclude(r => r.RoomType)
-                .ToListAsync());
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                departments = departments.Where(d => d.DeptName.Contains(searchString));
+            }
+
+            return View(await departments.ToListAsync());
         }
 
         public IActionResult Create()

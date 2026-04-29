@@ -296,6 +296,10 @@ public partial class HtttbenhvienContext : DbContext
             entity.Property(e => e.VitalSigns).HasMaxLength(255);
             entity.Property(e => e.Notes).HasMaxLength(500);
 
+            entity.Property(e => e.BloodPressure).HasMaxLength(10).IsUnicode(false);
+            entity.Property(e => e.Temperature).HasColumnType("decimal(4, 1)");
+            entity.Property(e => e.Weight).HasColumnType("decimal(5, 1)");
+
             entity.HasOne(d => d.Doctor).WithMany(p => p.MedicalRecords)
                 .HasForeignKey(d => d.DoctorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -343,6 +347,7 @@ public partial class HtttbenhvienContext : DbContext
             entity.HasKey(e => e.PatientId).HasName("PK__Patients__970EC346ED987832");
 
             entity.HasIndex(e => e.PatientCode).IsUnique();
+            entity.HasIndex(e => e.CitizenId, "UQ_Patient_CitizenID").IsUnique();
 
             entity.Property(e => e.PatientId).HasColumnName("PatientID");
             entity.Property(e => e.PatientCode).HasMaxLength(50);
@@ -355,6 +360,9 @@ public partial class HtttbenhvienContext : DbContext
             entity.Property(e => e.Email).HasColumnName("Email").HasMaxLength(100).IsUnicode(false);
             entity.Property(e => e.AvatarUrl).HasMaxLength(255).IsUnicode(false);
             entity.Property(e => e.Notes).HasColumnName("Notes").HasMaxLength(500);
+            entity.Property(e => e.CitizenId).HasColumnName("CitizenID").HasMaxLength(20).IsUnicode(false);
+            entity.Property(e => e.Occupation).HasMaxLength(200);
+            entity.Property(e => e.WorkplaceOrSchool).HasMaxLength(500);
         });
 
         modelBuilder.Entity<Prescription>(entity =>

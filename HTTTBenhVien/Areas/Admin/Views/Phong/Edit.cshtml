@@ -1,0 +1,58 @@
+@model HTTTBenhVien.Models.Room
+@{
+    ViewData["Title"] = "Chỉnh sửa phòng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-edit mr-2"></i>Chỉnh sửa thông tin phòng</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="RoomId" />
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="RoomNumber" class="control-label font-weight-bold">Số phòng</label>
+                            <input asp-for="RoomNumber" class="form-control" required />
+                            <span asp-validation-for="RoomNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="DeptId" class="control-label font-weight-bold">Thuộc khoa</label>
+                            <select asp-for="DeptId" class="form-control" asp-items="ViewBag.DeptId" required></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="RoomTypeId" class="control-label font-weight-bold">Loại phòng</label>
+                            <select asp-for="RoomTypeId" class="form-control" asp-items="ViewBag.RoomTypeId" required></select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="form-group text-center mt-4">
+                    <button type="submit" class="btn btn-primary px-4 mr-2">
+                        <i class="fas fa-save mr-1"></i> Lưu thay đổi
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-4">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

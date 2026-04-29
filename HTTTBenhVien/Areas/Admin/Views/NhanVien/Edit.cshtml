@@ -1,0 +1,165 @@
+@model HTTTBenhVien.Models.Employee
+@{
+    ViewData["Title"] = "Sửa nhân viên";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-header-gradient {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header card-header-gradient py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-user-edit mr-2"></i>Cập nhật hồ sơ nhân viên</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Edit" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="EmpId" />
+                
+                <h5 class="text-primary border-bottom pb-2 mb-4"><i class="fas fa-info-circle mr-2"></i>Thông tin cơ bản</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="FullName" class="control-label font-weight-bold">Họ và tên <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" required />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Gender" class="control-label font-weight-bold">Giới tính</label>
+                            <select asp-for="Gender" class="form-control">
+                                <option value="">-- Chọn giới tính --</option>
+                                <option value="true">Nam</option>
+                                <option value="false">Nữ</option>
+                            </select>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="DeptId" class="control-label font-weight-bold">Thuộc khoa</label>
+                            <select asp-for="DeptId" class="form-control" asp-items="ViewBag.DeptId">
+                                <option value="">-- Chọn Khoa --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="JobTitle" class="control-label font-weight-bold">Chức vụ <span class="text-danger">*</span></label>
+                            <select asp-for="JobTitle" class="form-control" required>
+                                <option value="">-- Chọn chức vụ --</option>
+                                <option value="Bác sĩ">Bác sĩ</option>
+                                <option value="Y tá">Y tá</option>
+                                <option value="Điều dưỡng">Điều dưỡng</option>
+                                <option value="Kỹ thuật viên">Kỹ thuật viên</option>
+                                <option value="Nhân viên hành chính">Nhân viên hành chính</option>
+                            </select>
+                            <span asp-validation-for="JobTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="AcademicTitle" class="control-label font-weight-bold">Học hàm / Học vị</label>
+                            <input asp-for="AcademicTitle" class="form-control" placeholder="VD: ThS. BS, PGS. TS..." />
+                            <span asp-validation-for="AcademicTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Specialty" class="control-label font-weight-bold">Chuyên khoa / Chuyên môn</label>
+                            <input asp-for="Specialty" class="form-control" />
+                            <span asp-validation-for="Specialty" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="text-primary border-bottom pb-2 mt-4 mb-4"><i class="fas fa-address-book mr-2"></i>Thông tin liên hệ & Khác</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Phone" class="control-label font-weight-bold">Số điện thoại</label>
+                            <input asp-for="Phone" class="form-control" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="control-label font-weight-bold">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label class="control-label font-weight-bold">Ảnh đại diện mới (nếu muốn đổi)</label>
+                            <input type="hidden" asp-for="AvatarUrl" />
+                            <input type="hidden" name="RemoveAvatar" id="RemoveAvatar" value="false" />
+                            <input type="file" id="AvatarUpload" name="AvatarUpload" class="form-control-file mt-2" accept="image/*" />
+                            
+                            <div id="imagePreviewContainer" class="mt-3" style="position:relative; width: fit-content; @(string.IsNullOrEmpty(Model.AvatarUrl) ? "display:none;" : "")">
+                                <img id="imagePreview" src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? "" : Model.AvatarUrlFull)" style="height:120px; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); object-fit: cover;" />
+                                <button type="button" id="btnRemoveImage" class="btn btn-danger" style="position:absolute; top:-10px; right:-10px; border-radius:50%; width:28px; height:28px; padding:0; align-items:center; justify-content:center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); @(string.IsNullOrEmpty(Model.AvatarUrl) ? "display:none;" : "display:flex;")" title="Xóa ảnh này"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary px-5 py-2 mr-3" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none;">
+                        <i class="fas fa-save mr-2"></i> Lưu thay đổi
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            var originalSrc = '@Html.Raw(string.IsNullOrEmpty(Model.AvatarUrl) ? "" : Model.AvatarUrlFull)';
+
+            $('#AvatarUpload').change(function() {
+                var file = this.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#imagePreview').attr('src', e.target.result);
+                        $('#imagePreviewContainer').fadeIn();
+                        $('#btnRemoveImage').css('display', 'flex'); // Hiện nút xóa khi có file mới
+                        $('#RemoveAvatar').val('false'); // Chọn file mới thì hủy trạng thái xóa hoàn toàn
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            $('#btnRemoveImage').click(function() {
+                // Xóa file đang chọn
+                $('#AvatarUpload').val('');
+                
+                // Ẩn ảnh hoàn toàn
+                $('#imagePreviewContainer').fadeOut(function() {
+                    $('#imagePreview').attr('src', '');
+                    $('#btnRemoveImage').hide();
+                });
+
+                // Bật cờ xóa trong DB để khi bấm Lưu, sẽ xóa hẳn ảnh ở DB
+                $('#RemoveAvatar').val('true');
+            });
+        });
+    </script>
+}

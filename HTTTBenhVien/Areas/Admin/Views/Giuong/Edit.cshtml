@@ -1,0 +1,75 @@
+@model HTTTBenhVien.Models.Bed
+@{
+    ViewData["Title"] = "Chỉnh sửa giường";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-header-gradient {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header card-header-gradient py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-edit mr-2"></i>Chỉnh sửa thông tin giường</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="BedId" />
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="BedNumber" class="control-label font-weight-bold">Số/Mã giường <span class="text-danger">*</span></label>
+                            <input asp-for="BedNumber" class="form-control" required />
+                            <span asp-validation-for="BedNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="RoomId" class="control-label font-weight-bold">Thuộc phòng <span class="text-danger">*</span></label>
+                            <select asp-for="RoomId" class="form-control" asp-items="ViewBag.RoomId" required></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="PricePerDay" class="control-label font-weight-bold">Giá thuê / ngày (VNĐ)</label>
+                            <input asp-for="PricePerDay" type="number" step="1000" min="0" class="form-control" />
+                            <span asp-validation-for="PricePerDay" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="control-label font-weight-bold">Trạng thái hiện tại</label>
+                            <div class="custom-control custom-switch mt-2">
+                                <input type="checkbox" class="custom-control-input" id="IsOccupied" name="IsOccupied" value="true" @(Model?.IsOccupied == true ? "checked" : "")>
+                                <label class="custom-control-label" for="IsOccupied">Đang có bệnh nhân nằm</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary px-5 py-2 mr-3" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none;">
+                        <i class="fas fa-save mr-2"></i> Lưu thay đổi
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

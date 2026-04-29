@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -76,6 +76,22 @@
                 </a>
             </li>
 
+            <!-- Nav Item - Giuong -->
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index", "Giuong", new { area = "Admin" })">
+                    <i class="fas fa-bed"></i>
+                    <span>Quản lý giường</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - WebMenu -->
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index", "WebMenu", new { area = "Admin" })">
+                    <i class="fas fa-sitemap"></i>
+                    <span>Cấu hình Web Menu</span>
+                </a>
+            </li>
+
             <!-- Divider -->
             <hr class="sidebar-divider">
 
@@ -94,7 +110,7 @@
 
             <!-- Nav Item - Benh Nhan -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "BenhNhan", new { area = "Admin" })">
+                <a class="nav-link" href="@Url.Action("Index", "Patient", new { area = "Admin" })">
                     <i class="fas fa-procedures"></i>
                     <span>Bệnh nhân</span>
                 </a>

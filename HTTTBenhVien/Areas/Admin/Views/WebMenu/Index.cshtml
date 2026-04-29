@@ -1,0 +1,162 @@
+@model IEnumerable<HTTTBenhVien.Models.WebMenu>
+@{
+    ViewData["Title"] = "Quản lý Web Menu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .page-header-gradient {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+    }
+    .card-ajax { border: none; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); transition: transform 0.2s, box-shadow 0.2s; overflow: hidden; }
+    .card-ajax:hover { transform: translateY(-2px); box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25); }
+    .card-header-ajax { background: white; border-bottom: 2px solid #f8f9fe; padding: 1.25rem 1.5rem; font-weight: 600; color: #4facfe; }
+    .btn-gradient { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; color: white; font-weight: 600; padding: 0.625rem 1.25rem; border-radius: 0.5rem; transition: all 0.3s ease; }
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4); color: white; }
+    .btn-gradient-info { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; color: white; }
+    .btn-gradient-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: white; }
+    .btn-sm-gradient { padding: 0.375rem 0.75rem; font-size: 0.875rem; border-radius: 0.375rem; }
+    .table-ajax thead th { background: #f8f9fc; color: #4facfe; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border: none; padding: 1rem; }
+    .table-ajax tbody td { vertical-align: middle; padding: 1rem; border-color: #f0f2f8; }
+    .table-ajax tbody tr:hover { background: #f8f9fe; }
+    .badge-loai { padding: 0.35rem 0.65rem; border-radius: 0.35rem; font-size: 0.75rem; font-weight: 600; }
+    .badge-primary { background: #e8edfc; color: #4e54c8; }
+    .badge-success { background: #e6f7f1; color: #27ae60; }
+    .icon-circle { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(0, 242, 254, 0.15) 100%); color: #4facfe; }
+    .empty-state { padding: 3rem; text-align: center; }
+    .empty-state-icon { font-size: 4rem; color: #d1d3e0; margin-bottom: 1rem; }
+    .toast-custom { position: fixed; top: 20px; right: 20px; z-index: 9999; animation: slideIn 0.3s ease-out; }
+    @@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
+
+<div class="container-fluid">
+    <div class="page-header-gradient">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-sitemap"></i> Quản lý Web Menu</h1>
+                <p>Cấu hình thanh điều hướng và menu cho website</p>
+            </div>
+            <div class="d-none d-md-block">
+                <i class="fas fa-sitemap" style="font-size: 4rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-ajax mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-list mr-2"></i>Cấu trúc Menu</span>
+            <div class="d-flex align-items-center">
+                <form asp-action="Index" method="get" class="form-inline mr-3 mb-0">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Tìm tên menu..." style="border-radius: 20px 0 0 20px; outline: none; box-shadow: none;" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary" style="border-radius: 0 20px 20px 0; background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); border: none;"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <a asp-action="Create" class="btn btn-sm btn-gradient">
+                    <i class="fas fa-plus mr-1"></i> Thêm menu mới
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-ajax">
+                        <thead>
+                            <tr>
+                                <th width="25%"><i class="fas fa-heading mr-1"></i> Tên Menu</th>
+                                <th width="25%"><i class="fas fa-link mr-1"></i> Đường dẫn (URL)</th>
+                                <th width="15%"><i class="fas fa-level-up-alt mr-1"></i> Menu cha</th>
+                                <th width="10%"><i class="fas fa-sort-numeric-down mr-1"></i> Thứ tự</th>
+                                <th width="15%" style="white-space: nowrap;"><i class="fas fa-user-shield mr-1"></i> Quyền truy cập</th>
+                                <th width="10%" class="text-center"><i class="fas fa-cog mr-1"></i> Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="icon-circle mr-3">
+                                                <i class="@(string.IsNullOrEmpty(item.IconClass) ? "fas fa-circle" : item.IconClass)"></i>
+                                            </span>
+                                            <strong>@item.MenuName</strong>
+                                        </div>
+                                    </td>
+                                    <td><code style="color: #e83e8c;">@item.MenuUrl</code></td>
+                                    <td>
+                                        @if (item.Parent != null)
+                                        {
+                                            <span class="badge badge-success badge-loai">@item.Parent.MenuName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-primary badge-loai">Menu gốc</span>
+                                        }
+                                    </td>
+                                    <td><span class="font-weight-bold">@item.DisplayOrder</span></td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.RoleRequired))
+                                        {
+                                            <span class="badge badge-dark badge-loai">@(item.RoleRequired.ToLower() == "all" ? "Tất cả" : item.RoleRequired)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">Tất cả</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a asp-action="Edit" asp-route-id="@item.MenuId" class="btn btn-sm btn-gradient btn-sm-gradient mx-1" title="Sửa"><i class="fas fa-edit"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.MenuId" class="btn btn-sm btn-gradient-danger btn-sm-gradient mx-1" title="Xóa"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-sitemap"></i></div>
+                    <h5>Chưa có menu nào</h5>
+                    <p>Hãy thiết lập menu điều hướng đầu tiên cho website</p>
+                    <a asp-action="Create" class="btn btn-gradient">
+                        <i class="fas fa-plus mr-1"></i> Thêm menu mới
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="toast-custom">
+        <div class="toast show" role="alert">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle mr-2"></i>
+                <strong class="mr-auto">Thành công</strong>
+                <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast"><span>&times;</span></button>
+            </div>
+            <div class="toast-body">
+                <i class="fas fa-check text-success mr-2"></i>@TempData["Success"]
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            setTimeout(function() { $('.toast').toast('hide'); }, 4000);
+        });
+    </script>
+}

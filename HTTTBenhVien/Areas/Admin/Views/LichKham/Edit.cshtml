@@ -1,0 +1,117 @@
+@model HTTTBenhVien.Models.Appointment
+@{
+    ViewData["Title"] = "Cập nhật Lịch hẹn khám";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-header-gradient {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: white;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header card-header-gradient py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-edit mr-2"></i>Cập nhật lịch hẹn</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="AppId" />
+                <input type="hidden" asp-for="CreatedDate" />
+                
+                <h5 class="text-primary border-bottom pb-2 mb-4"><i class="fas fa-info-circle mr-2"></i>Thông tin lịch hẹn</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="PatientId" class="control-label font-weight-bold">Bệnh nhân <span class="text-danger">*</span></label>
+                            <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId" required>
+                                <option value="">-- Chọn Bệnh nhân --</option>
+                            </select>
+                            <span asp-validation-for="PatientId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="DoctorId" class="control-label font-weight-bold">Bác sĩ phụ trách</label>
+                            <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId">
+                                <option value="">-- Chọn Bác sĩ (Không bắt buộc) --</option>
+                            </select>
+                            <span asp-validation-for="DoctorId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="AppDate" class="control-label font-weight-bold">Ngày khám <span class="text-danger">*</span></label>
+                            <input asp-for="AppDate" type="date" class="form-control" required />
+                            <span asp-validation-for="AppDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="TimeSlot" class="control-label font-weight-bold">Khung giờ</label>
+                            <select asp-for="TimeSlot" class="form-control">
+                                <option value="">-- Chọn khung giờ --</option>
+                                <option value="Buổi Sáng (07:30 - 11:30)">Buổi Sáng (07:30 - 11:30)</option>
+                                <option value="Buổi Chiều (13:00 - 17:00)">Buổi Chiều (13:00 - 17:00)</option>
+                                <option value="Khám Ngoài giờ">Khám Ngoài giờ</option>
+                            </select>
+                            <span asp-validation-for="TimeSlot" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="Status" class="control-label font-weight-bold">Trạng thái</label>
+                            <select asp-for="Status" class="form-control">
+                                <option value="New">Mới đặt (New)</option>
+                                <option value="Confirmed">Đã xác nhận (Confirmed)</option>
+                                <option value="Completed">Đã hoàn thành (Completed)</option>
+                                <option value="Cancelled">Đã hủy (Cancelled)</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="text-primary border-bottom pb-2 mt-4 mb-4"><i class="fas fa-stethoscope mr-2"></i>Nội dung khám</h5>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mb-3">
+                            <label asp-for="Reason" class="control-label font-weight-bold">Lý do khám bệnh <span class="text-danger">*</span></label>
+                            <textarea asp-for="Reason" class="form-control" rows="3" required></textarea>
+                            <span asp-validation-for="Reason" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mb-3">
+                            <label asp-for="Notes" class="control-label font-weight-bold">Ghi chú thêm</label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary px-5 py-2 mr-3" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border: none; color: white;">
+                        <i class="fas fa-save mr-2"></i> Lưu thay đổi
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

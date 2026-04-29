@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace HTTTBenhVien.Models;
@@ -17,6 +17,13 @@ public partial class MedicalRecord
     public string? IcdCode { get; set; }
     public string? Notes { get; set; }
     public string? VitalSigns { get; set; }
+
+    public string? BloodPressure { get; set; }
+    public int? PulseRate { get; set; }
+    public decimal? Temperature { get; set; }
+    public int? Height { get; set; }
+    public decimal? Weight { get; set; }
+    public int? SpO2 { get; set; }
 
     public virtual Employee Doctor { get; set; } = null!;
     public virtual IcdDictionary? IcdCodeNavigation { get; set; }

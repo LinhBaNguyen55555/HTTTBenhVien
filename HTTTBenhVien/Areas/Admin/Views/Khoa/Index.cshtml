@@ -247,9 +247,19 @@
     <div class="card card-ajax">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span><i class="fas fa-list mr-2"></i>Danh sách các khoa</span>
-            <a asp-action="Create" class="btn btn-sm btn-gradient">
-                <i class="fas fa-plus mr-1"></i> Thêm khoa mới
-            </a>
+            <div class="d-flex align-items-center">
+                <form asp-action="Index" method="get" class="form-inline mr-3 mb-0">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Tìm tên khoa..." style="border-radius: 20px 0 0 20px; outline: none; box-shadow: none;" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary" style="border-radius: 0 20px 20px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <a asp-action="Create" class="btn btn-sm btn-gradient">
+                    <i class="fas fa-plus mr-1"></i> Thêm khoa mới
+                </a>
+            </div>
         </div>
         <div class="card-body p-0">
             @if (Model.Any())

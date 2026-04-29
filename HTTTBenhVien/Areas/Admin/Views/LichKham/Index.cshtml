@@ -1,0 +1,232 @@
+@model IEnumerable<HTTTBenhVien.Models.Appointment>
+@{
+    ViewData["Title"] = "Quản lý Lịch hẹn khám";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .page-header-gradient {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(253, 160, 133, 0.3);
+    }
+    .card-ajax { border: none; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); transition: transform 0.2s, box-shadow 0.2s; overflow: hidden; }
+    .card-ajax:hover { transform: translateY(-2px); box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25); }
+    .card-header-ajax { background: white; border-bottom: 2px solid #f8f9fe; padding: 1.25rem 1.5rem; font-weight: 600; color: #fda085; }
+    .btn-gradient { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border: none; color: white; font-weight: 600; padding: 0.625rem 1.25rem; border-radius: 0.5rem; transition: all 0.3s ease; }
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(253, 160, 133, 0.4); color: white; }
+    .btn-gradient-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; color: white; }
+    .btn-gradient-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: white; }
+    .btn-sm-gradient { padding: 0.375rem 0.75rem; font-size: 0.875rem; border-radius: 0.375rem; }
+    .table-ajax thead th { background: #f8f9fc; color: #fda085; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border: none; padding: 1rem; }
+    .table-ajax tbody td { vertical-align: middle; padding: 1rem; border-color: #f0f2f8; }
+    .table-ajax tbody tr:hover { background: #f8f9fe; }
+    .badge-loai { padding: 0.45rem 0.75rem; border-radius: 0.35rem; font-size: 0.8rem; font-weight: 600; }
+    .avatar-circle { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; }
+    .empty-state { padding: 3rem; text-align: center; }
+    .empty-state-icon { font-size: 4rem; color: #d1d3e0; margin-bottom: 1rem; }
+    .stat-card { background: white; border-radius: 1rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1); }
+    .stat-icon { width: 3.5rem; height: 3.5rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: linear-gradient(135deg, rgba(246, 211, 101, 0.15) 0%, rgba(253, 160, 133, 0.15) 100%); color: #fda085; }
+    .stat-info h4 { font-weight: 700; margin: 0; color: #2d3748; font-size: 1.5rem; }
+    .stat-info p { margin: 0; color: #a0aec0; font-size: 0.85rem; }
+</style>
+
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 5px solid #28a745;">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="page-header-gradient">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-calendar-alt"></i> Quản lý Lịch hẹn khám</h1>
+                <p>Theo dõi và sắp xếp lịch khám bệnh</p>
+            </div>
+            <div class="d-none d-md-block">
+                <i class="fas fa-calendar-check" style="font-size: 4rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(0, 242, 254, 0.15) 100%); color: #4facfe;"><i class="fas fa-calendar-plus"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(a => a.Status == "New")</h4>
+                    <p>Mới đặt</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(56, 239, 125, 0.15) 100%); color: #11998e;"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(a => a.Status == "Confirmed")</h4>
+                    <p>Đã xác nhận</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(168, 230, 207, 0.2) 0%, rgba(220, 237, 193, 0.2) 100%); color: #28a745;"><i class="fas fa-check-double"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(a => a.Status == "Completed")</h4>
+                    <p>Đã hoàn thành</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(235, 51, 73, 0.15) 0%, rgba(244, 92, 67, 0.15) 100%); color: #eb3349;"><i class="fas fa-calendar-times"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(a => a.Status == "Cancelled")</h4>
+                    <p>Đã hủy</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-ajax mb-4">
+        <div class="card-header card-header-ajax d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-list mr-2"></i>Danh sách lịch hẹn</span>
+            <div class="d-flex align-items-center">
+                <form asp-action="Index" method="get" class="form-inline mr-3 mb-0">
+                    <div class="input-group input-group-sm mr-2">
+                        <select name="statusFilter" class="form-control" style="border-radius: 20px; outline: none; box-shadow: none;">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="New" selected="@(ViewData["StatusFilter"]?.ToString() == "New")">Mới đặt</option>
+                            <option value="Confirmed" selected="@(ViewData["StatusFilter"]?.ToString() == "Confirmed")">Đã xác nhận</option>
+                            <option value="Completed" selected="@(ViewData["StatusFilter"]?.ToString() == "Completed")">Đã hoàn thành</option>
+                            <option value="Cancelled" selected="@(ViewData["StatusFilter"]?.ToString() == "Cancelled")">Đã hủy</option>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Tìm bệnh nhân, bác sĩ..." style="border-radius: 20px 0 0 20px; outline: none; box-shadow: none;" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary" style="border-radius: 0 20px 20px 0; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border: none;"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <a asp-action="Create" class="btn btn-sm btn-gradient">
+                    <i class="fas fa-plus mr-1"></i> Tạo lịch hẹn
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-ajax mb-0">
+                        <thead>
+                            <tr>
+                                <th width="20%"><i class="fas fa-user-injured mr-1"></i> Bệnh nhân</th>
+                                <th width="20%"><i class="fas fa-user-md mr-1"></i> Bác sĩ phụ trách</th>
+                                <th width="15%"><i class="fas fa-clock mr-1"></i> Thời gian</th>
+                                <th width="20%"><i class="fas fa-stethoscope mr-1"></i> Lý do khám</th>
+                                <th width="10%" class="text-center"><i class="fas fa-info-circle mr-1"></i> Trạng thái</th>
+                                <th width="15%" class="text-center"><i class="fas fa-cog mr-1"></i> Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (item.Patient != null)
+                                            {
+                                                <img src="@item.Patient.AvatarUrlFull" class="avatar-circle mr-3" alt="Avatar">
+                                                <div>
+                                                    <strong class="text-dark d-block">@item.Patient.FullName</strong>
+                                                    <span class="text-muted" style="font-size: 0.8rem;"><i class="fas fa-phone mr-1"></i>@(string.IsNullOrEmpty(item.Patient.Phone) ? "N/A" : item.Patient.Phone)</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (item.Doctor != null)
+                                        {
+                                            <div class="d-flex align-items-center">
+                                                <img src="@item.Doctor.AvatarUrlFull" class="avatar-circle mr-2" style="width:30px; height:30px;" alt="Doctor">
+                                                <div>
+                                                    <strong class="text-info d-block">@item.Doctor.FullName</strong>
+                                                    <span class="text-muted" style="font-size: 0.75rem;">@item.Doctor.Specialty</span>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted"><i class="fas fa-user-times mr-1"></i>Chưa phân công</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.9rem;">
+                                            <div class="font-weight-bold text-dark"><i class="far fa-calendar-alt text-primary mr-1"></i>@(item.AppDate?.ToString("dd/MM/yyyy") ?? "N/A")</div>
+                                            <div class="text-secondary mt-1"><i class="far fa-clock text-warning mr-1"></i>@(string.IsNullOrEmpty(item.TimeSlot) ? "N/A" : item.TimeSlot)</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 200px;" title="@item.Reason">
+                                            @(string.IsNullOrEmpty(item.Reason) ? "Không có lý do" : item.Reason)
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        @switch (item.Status)
+                                        {
+                                            case "New":
+                                                <span class="badge badge-info badge-loai text-white" style="background-color: #4facfe;"><i class="fas fa-star mr-1"></i>Mới đặt</span>
+                                                break;
+                                            case "Confirmed":
+                                                <span class="badge badge-primary badge-loai text-white" style="background-color: #11998e;"><i class="fas fa-check mr-1"></i>Đã xác nhận</span>
+                                                break;
+                                            case "Completed":
+                                                <span class="badge badge-success badge-loai text-white" style="background-color: #28a745;"><i class="fas fa-check-double mr-1"></i>Hoàn thành</span>
+                                                break;
+                                            case "Cancelled":
+                                                <span class="badge badge-danger badge-loai text-white" style="background-color: #eb3349;"><i class="fas fa-times mr-1"></i>Đã hủy</span>
+                                                break;
+                                            default:
+                                                <span class="badge badge-secondary badge-loai">@item.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group shadow-sm">
+                                            <a asp-action="Edit" asp-route-id="@item.AppId" class="btn btn-sm btn-gradient btn-sm-gradient text-white" title="Cập nhật">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.AppId" class="btn btn-sm btn-gradient-info btn-sm-gradient text-white" title="Chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.AppId" class="btn btn-sm btn-gradient-danger btn-sm-gradient text-white" title="Xóa">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times empty-state-icon"></i>
+                    <h5 class="text-muted font-weight-bold">Không tìm thấy lịch hẹn nào</h5>
+                    <p class="text-muted mb-4">Hãy tạo lịch hẹn mới cho bệnh nhân</p>
+                    <a asp-action="Create" class="btn btn-gradient px-4">
+                        <i class="fas fa-plus mr-2"></i>Tạo lịch hẹn
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

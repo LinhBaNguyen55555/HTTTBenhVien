@@ -1,0 +1,92 @@
+@model HTTTBenhVien.Models.WebMenu
+@{
+    ViewData["Title"] = "Thêm Web Menu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-header-gradient {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header card-header-gradient py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-plus mr-2"></i>Thêm Menu mới</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="MenuName" class="control-label font-weight-bold">Tên Menu <span class="text-danger">*</span></label>
+                            <input asp-for="MenuName" class="form-control" placeholder="VD: Trang chủ, Giới thiệu..." required />
+                            <span asp-validation-for="MenuName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="MenuUrl" class="control-label font-weight-bold">Đường dẫn (URL) <span class="text-danger">*</span></label>
+                            <input asp-for="MenuUrl" class="form-control" placeholder="VD: /Home/Index, hoặc https://..." required />
+                            <span asp-validation-for="MenuUrl" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="ParentId" class="control-label font-weight-bold">Menu cha (Nếu có)</label>
+                            <select asp-for="ParentId" class="form-control" asp-items="ViewBag.ParentId">
+                                <option value="">-- Không có (Menu gốc) --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="DisplayOrder" class="control-label font-weight-bold">Thứ tự hiển thị</label>
+                            <input asp-for="DisplayOrder" type="number" class="form-control" value="0" />
+                            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="IconClass" class="control-label font-weight-bold">Biểu tượng (Icon Class)</label>
+                            <input asp-for="IconClass" class="form-control" placeholder="VD: fas fa-home" />
+                            <small class="form-text text-muted">Sử dụng class của FontAwesome. VD: fas fa-home</small>
+                            <span asp-validation-for="IconClass" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="RoleRequired" class="control-label font-weight-bold">Quyền truy cập (Role)</label>
+                            <input asp-for="RoleRequired" class="form-control" placeholder="VD: Admin, Doctor... Để trống nếu tất cả đều xem được" />
+                            <span asp-validation-for="RoleRequired" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary px-5 py-2 mr-3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none;">
+                        <i class="fas fa-save mr-2"></i> Lưu Menu
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

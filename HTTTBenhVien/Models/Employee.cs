@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -35,8 +35,9 @@ public partial class Employee
     [NotMapped]
     public DateTime? Dob { get; set; }
 
-    [NotMapped]
-    public string? Gender { get; set; }
+    public bool? Gender { get; set; }
+    
+    public string? AcademicTitle { get; set; }
 
     public virtual Account? Account { get; set; }
     public virtual Department? Dept { get; set; }

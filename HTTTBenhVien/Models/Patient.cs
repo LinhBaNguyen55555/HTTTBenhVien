@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HTTTBenhVien.Models;
 
@@ -15,7 +16,25 @@ public partial class Patient
     public string? BhytCode { get; set; }
     public string? Email { get; set; }
     public string? AvatarUrl { get; set; }
+
+    [NotMapped]
+    public string AvatarUrlFull
+    {
+        get
+        {
+            const string basePath = "/assets/img/imagepatient/";
+            const string defaultImage = "default-patient.jpg";
+            return basePath + (string.IsNullOrEmpty(this.AvatarUrl) ? defaultImage : this.AvatarUrl);
+        }
+    }
+
     public string? Notes { get; set; }
+
+    public string? CitizenId { get; set; }
+    public string? FamilyMedicalHistory { get; set; }
+    public string? PersonalMedicalHistory { get; set; }
+    public string? Occupation { get; set; }
+    public string? WorkplaceOrSchool { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
