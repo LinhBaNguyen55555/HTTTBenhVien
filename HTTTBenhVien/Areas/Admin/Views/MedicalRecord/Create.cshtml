@@ -1,0 +1,178 @@
+@model HTTTBenhVien.Models.MedicalRecord
+@{
+    ViewData["Title"] = "Tạo Bệnh án mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-header-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .vital-card { background: #f8f9fe; border-radius: 0.75rem; padding: 1.25rem; border: 1px solid #e8edfc; }
+    .vital-input { text-align: center; font-weight: 700; font-size: 1.1rem; }
+    .vital-label { font-size: 0.8rem; color: #764ba2; font-weight: 600; text-align: center; }
+    .vital-unit { font-size: 0.75rem; color: #a0aec0; text-align: center; }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header card-header-gradient py-3">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-file-medical mr-2"></i>Tạo bệnh án mới</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <h5 class="border-bottom pb-2 mb-4" style="color: #764ba2;"><i class="fas fa-users mr-2"></i>Thông tin khám bệnh</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="PatientId" class="font-weight-bold">Bệnh nhân <span class="text-danger">*</span></label>
+                            <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId" required>
+                                <option value="">-- Chọn Bệnh nhân --</option>
+                            </select>
+                            <span asp-validation-for="PatientId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="DoctorId" class="font-weight-bold">Bác sĩ khám <span class="text-danger">*</span></label>
+                            <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId" required>
+                                <option value="">-- Chọn Bác sĩ --</option>
+                            </select>
+                            <span asp-validation-for="DoctorId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="VisitDate" class="font-weight-bold">Ngày khám <span class="text-danger">*</span></label>
+                            <input asp-for="VisitDate" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                            <span asp-validation-for="VisitDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="RecordType" class="font-weight-bold">Loại khám</label>
+                            <select asp-for="RecordType" class="form-control">
+                                <option value="">-- Chọn --</option>
+                                <option value="Khám mới">Khám mới</option>
+                                <option value="Tái khám">Tái khám</option>
+                                <option value="Cấp cứu">Cấp cứu</option>
+                                <option value="Nhập viện">Nhập viện</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="IcdCode" class="font-weight-bold">Mã bệnh ICD-10</label>
+                            <select asp-for="IcdCode" class="form-control" asp-items="ViewBag.IcdCode">
+                                <option value="">-- Chọn mã bệnh (Nếu có) --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="AppointmentId" class="font-weight-bold">Mã lịch hẹn (Nếu có)</label>
+                            <input asp-for="AppointmentId" type="number" class="form-control" placeholder="Nhập mã lịch hẹn nếu có" />
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4 mb-4" style="color: #764ba2;"><i class="fas fa-heartbeat mr-2"></i>Chỉ số sinh tồn (Vital Signs)</h5>
+                <div class="vital-card mb-4">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group text-center mb-2">
+                                <label class="vital-label"><i class="fas fa-tint text-danger mr-1"></i>Huyết áp</label>
+                                <input asp-for="BloodPressure" class="form-control vital-input" placeholder="120/80" />
+                                <small class="vital-unit">mmHg</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group text-center mb-2">
+                                <label class="vital-label"><i class="fas fa-heartbeat text-primary mr-1"></i>Mạch</label>
+                                <input asp-for="PulseRate" type="number" class="form-control vital-input" placeholder="80" />
+                                <small class="vital-unit">lần/phút</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group text-center mb-2">
+                                <label class="vital-label"><i class="fas fa-thermometer-half text-warning mr-1"></i>Nhiệt độ</label>
+                                <input asp-for="Temperature" type="number" step="0.1" class="form-control vital-input" placeholder="37.0" />
+                                <small class="vital-unit">°C</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group text-center mb-2">
+                                <label class="vital-label"><i class="fas fa-ruler-vertical text-success mr-1"></i>Chiều cao</label>
+                                <input asp-for="Height" type="number" class="form-control vital-input" placeholder="170" />
+                                <small class="vital-unit">cm</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group text-center mb-2">
+                                <label class="vital-label"><i class="fas fa-weight text-info mr-1"></i>Cân nặng</label>
+                                <input asp-for="Weight" type="number" step="0.1" class="form-control vital-input" placeholder="60.0" />
+                                <small class="vital-unit">kg</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group text-center mb-2">
+                                <label class="vital-label"><i class="fas fa-lungs text-danger mr-1"></i>SpO2</label>
+                                <input asp-for="SpO2" type="number" class="form-control vital-input" placeholder="98" />
+                                <small class="vital-unit">%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4 mb-4" style="color: #764ba2;"><i class="fas fa-stethoscope mr-2"></i>Kết quả khám</h5>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mb-3">
+                            <label asp-for="Symptoms" class="font-weight-bold">Triệu chứng <span class="text-danger">*</span></label>
+                            <textarea asp-for="Symptoms" class="form-control" rows="3" placeholder="Mô tả triệu chứng bệnh nhân (VD: Đau đầu, sốt cao, ho khan...)" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Diagnosis" class="font-weight-bold">Chẩn đoán <span class="text-danger">*</span></label>
+                            <textarea asp-for="Diagnosis" class="form-control" rows="3" placeholder="Chẩn đoán của bác sĩ" required></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Conclusion" class="font-weight-bold">Kết luận / Hướng điều trị</label>
+                            <textarea asp-for="Conclusion" class="form-control" rows="3" placeholder="Kết luận và hướng xử trí tiếp theo"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mb-3">
+                            <label asp-for="Notes" class="font-weight-bold">Ghi chú thêm</label>
+                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Ghi chú dành cho bác sĩ hoặc điều dưỡng"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="text-center">
+                    <button type="submit" class="btn px-5 py-2 mr-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; font-weight: 600;">
+                        <i class="fas fa-save mr-2"></i> Lưu bệnh án
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,203 @@
+@model IEnumerable<HTTTBenhVien.Models.Invoice>
+@{
+    ViewData["Title"] = "Quản lý Hóa đơn";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .page-header-gradient {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(253, 160, 133, 0.3);
+    }
+    .card-ajax { border: none; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); overflow: hidden; }
+    .card-header-ajax { background: white; border-bottom: 2px solid #f8f9fe; padding: 1.25rem 1.5rem; font-weight: 600; color: #e67e22; }
+    .btn-gradient { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border: none; color: white; font-weight: 600; padding: 0.625rem 1.25rem; border-radius: 0.5rem; transition: all 0.3s ease; }
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(253, 160, 133, 0.4); color: white; }
+    .btn-gradient-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; color: white; }
+    .btn-gradient-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: white; }
+    .btn-sm-gradient { padding: 0.375rem 0.75rem; font-size: 0.875rem; border-radius: 0.375rem; }
+    .table-ajax thead th { background: #f8f9fc; color: #e67e22; font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; border: none; padding: 0.9rem; }
+    .table-ajax tbody td { vertical-align: middle; padding: 0.9rem; border-color: #f0f2f8; }
+    .table-ajax tbody tr:hover { background: #fef9f2; }
+    .badge-loai { padding: 0.4rem 0.7rem; border-radius: 0.35rem; font-size: 0.78rem; font-weight: 600; }
+    .empty-state { padding: 3rem; text-align: center; }
+    .empty-state-icon { font-size: 4rem; color: #d1d3e0; margin-bottom: 1rem; }
+    .stat-card { background: white; border-radius: 1rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1); }
+    .stat-icon { width: 3.5rem; height: 3.5rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .stat-info h4 { font-weight: 700; margin: 0; color: #2d3748; font-size: 1.5rem; }
+    .stat-info p { margin: 0; color: #a0aec0; font-size: 0.85rem; }
+    .amount-tag { font-weight: 700; color: #e67e22; }
+</style>
+
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 5px solid #28a745;">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <div class="page-header-gradient">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-file-invoice-dollar"></i> Quản lý Hóa đơn</h1>
+                <p>Thanh toán viện phí, theo dõi công nợ bệnh nhân</p>
+            </div>
+            <div class="d-none d-md-block">
+                <i class="fas fa-file-invoice-dollar" style="font-size: 4rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(246, 211, 101, 0.15) 0%, rgba(253, 160, 133, 0.15) 100%); color: #e67e22;"><i class="fas fa-file-invoice"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count()</h4>
+                    <p>Tổng hóa đơn</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(0, 242, 254, 0.15) 100%); color: #4facfe;"><i class="fas fa-hourglass-half"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(i => i.Status == "ChuaThanhToan")</h4>
+                    <p>Chưa thanh toán</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(56, 239, 125, 0.15) 100%); color: #11998e;"><i class="fas fa-check-double"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(i => i.Status == "DaThanhToan")</h4>
+                    <p>Đã thanh toán</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(235, 51, 73, 0.15) 0%, rgba(244, 92, 67, 0.15) 100%); color: #eb3349;"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="stat-info">
+                    <h4>@(Model.Where(i => i.Status == "DaThanhToan").Sum(i => i.PatientAmount ?? 0).ToString("N0"))</h4>
+                    <p>Tổng thu (VNĐ)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-ajax mb-4">
+        <div class="card-header card-header-ajax d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-list mr-2"></i>Danh sách hóa đơn</span>
+            <div class="d-flex align-items-center">
+                <form asp-action="Index" method="get" class="form-inline mr-3 mb-0">
+                    <select name="statusFilter" class="form-control form-control-sm mr-2" style="border-radius: 20px;">
+                        <option value="">Tất cả</option>
+                        <option value="ChuaThanhToan" selected="@(ViewData["StatusFilter"]?.ToString() == "ChuaThanhToan")">Chưa TT</option>
+                        <option value="DaThanhToan" selected="@(ViewData["StatusFilter"]?.ToString() == "DaThanhToan")">Đã TT</option>
+                        <option value="Huy" selected="@(ViewData["StatusFilter"]?.ToString() == "Huy")">Đã hủy</option>
+                    </select>
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Tìm tên BN, mã HĐ..." style="border-radius: 20px 0 0 20px;" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn" style="border-radius: 0 20px 20px 0; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border: none; color: white;"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <a asp-action="Create" class="btn btn-sm btn-gradient">
+                    <i class="fas fa-plus mr-1"></i> Tạo hóa đơn
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-ajax mb-0">
+                        <thead>
+                            <tr>
+                                <th width="7%"><i class="fas fa-hashtag mr-1"></i> Mã</th>
+                                <th width="16%"><i class="fas fa-user-injured mr-1"></i> Bệnh nhân</th>
+                                <th width="10%"><i class="fas fa-calendar mr-1"></i> Ngày TT</th>
+                                <th width="12%" class="text-right"><i class="fas fa-calculator mr-1"></i> Tổng tiền</th>
+                                <th width="10%" class="text-right"><i class="fas fa-shield-alt mr-1"></i> BHYT</th>
+                                <th width="12%" class="text-right"><i class="fas fa-money-bill mr-1"></i> BN trả</th>
+                                <th width="10%"><i class="fas fa-credit-card mr-1"></i> Hình thức</th>
+                                <th width="10%" class="text-center"><i class="fas fa-flag mr-1"></i> Trạng thái</th>
+                                <th width="13%" class="text-center"><i class="fas fa-cog mr-1"></i> Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><span class="badge badge-light border font-weight-bold px-2 py-1">#@item.InvoiceId</span></td>
+                                    <td><strong class="text-dark">@(item.Patient?.FullName ?? "N/A")</strong></td>
+                                    <td>@(item.PaymentDate?.ToString("dd/MM/yyyy") ?? "—")</td>
+                                    <td class="text-right"><span class="amount-tag">@((item.TotalAmount ?? 0).ToString("N0"))đ</span></td>
+                                    <td class="text-right text-info font-weight-bold">@((item.BhytAmount ?? 0).ToString("N0"))đ</td>
+                                    <td class="text-right"><strong style="color: #eb3349;">@((item.PatientAmount ?? 0).ToString("N0"))đ</strong></td>
+                                    <td>
+                                        @if (item.PaymentMethod == "Tiền mặt")
+                                        {
+                                            <span class="badge badge-light border"><i class="fas fa-money-bill-alt text-success mr-1"></i>Tiền mặt</span>
+                                        }
+                                        else if (item.PaymentMethod == "Chuyển khoản")
+                                        {
+                                            <span class="badge badge-light border"><i class="fas fa-university text-primary mr-1"></i>CK</span>
+                                        }
+                                        else if (item.PaymentMethod == "Thẻ")
+                                        {
+                                            <span class="badge badge-light border"><i class="fas fa-credit-card text-info mr-1"></i>Thẻ</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">@(item.PaymentMethod ?? "—")</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @switch (item.Status)
+                                        {
+                                            case "ChuaThanhToan":
+                                                <span class="badge badge-warning badge-loai"><i class="fas fa-clock mr-1"></i>Chưa TT</span>
+                                                break;
+                                            case "DaThanhToan":
+                                                <span class="badge badge-success badge-loai text-white"><i class="fas fa-check mr-1"></i>Đã TT</span>
+                                                break;
+                                            case "Huy":
+                                                <span class="badge badge-secondary badge-loai"><i class="fas fa-ban mr-1"></i>Đã hủy</span>
+                                                break;
+                                            default:
+                                                <span class="badge badge-light badge-loai">@item.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group shadow-sm">
+                                            <a asp-action="Details" asp-route-id="@item.InvoiceId" class="btn btn-sm btn-gradient-info btn-sm-gradient text-white" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                                            <a asp-action="Edit" asp-route-id="@item.InvoiceId" class="btn btn-sm btn-gradient btn-sm-gradient text-white" title="Sửa"><i class="fas fa-edit"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.InvoiceId" class="btn btn-sm btn-gradient-danger btn-sm-gradient text-white" title="Xóa"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-file-invoice-dollar empty-state-icon"></i>
+                    <h5 class="text-muted font-weight-bold">Chưa có hóa đơn nào</h5>
+                    <p class="text-muted mb-4">Tạo hóa đơn mới cho bệnh nhân</p>
+                    <a asp-action="Create" class="btn btn-gradient px-4"><i class="fas fa-plus mr-2"></i>Tạo hóa đơn</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

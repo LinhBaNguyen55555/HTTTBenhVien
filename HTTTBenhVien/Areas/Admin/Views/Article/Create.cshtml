@@ -1,0 +1,118 @@
+@model HTTTBenhVien.Models.Article
+@{
+    ViewData["Title"] = "Viết bài mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-header-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .img-preview { width: 100%; height: 200px; border-radius: 0.75rem; object-fit: cover; border: 3px dashed #d1d3e0; display: flex; align-items: center; justify-content: center; color: #d1d3e0; font-size: 2.5rem; cursor: pointer; transition: all 0.3s; overflow: hidden; }
+    .img-preview:hover { border-color: #667eea; color: #667eea; }
+    .img-preview img { width: 100%; height: 100%; object-fit: cover; }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+        <div class="card-header card-header-gradient py-3">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-pen-fancy mr-2"></i>Viết bài mới</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <h5 class="border-bottom pb-2 mb-4" style="color: #667eea;"><i class="fas fa-heading mr-2"></i>Thông tin bài viết</h5>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group mb-3">
+                            <label asp-for="Title" class="font-weight-bold">Tiêu đề <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control form-control-lg" placeholder="Nhập tiêu đề bài viết..." required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Slug" class="font-weight-bold">Slug URL</label>
+                                    <input asp-for="Slug" class="form-control" placeholder="Tự động tạo từ tiêu đề" />
+                                    <small class="text-muted">Để trống sẽ tự tạo từ tiêu đề</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Category" class="font-weight-bold">Danh mục <span class="text-danger">*</span></label>
+                                    <select asp-for="Category" class="form-control" required>
+                                        <option value="">-- Chọn --</option>
+                                        <option value="Tin tức">Tin tức</option>
+                                        <option value="Sức khỏe">Sức khỏe</option>
+                                        <option value="Hoạt động">Hoạt động</option>
+                                        <option value="Tuyển dụng">Tuyển dụng</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Status" class="font-weight-bold">Trạng thái</label>
+                                    <select asp-for="Status" class="form-control">
+                                        <option value="Draft">Bản nháp</option>
+                                        <option value="Published">Xuất bản</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="AuthorId" class="font-weight-bold">Tác giả</label>
+                            <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId">
+                                <option value="">-- Chọn tác giả --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Ảnh đại diện</label>
+                            <label for="ThumbnailFile" class="img-preview" id="imgPreviewLabel">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </label>
+                            <input type="file" name="ThumbnailFile" id="ThumbnailFile" accept="image/*" class="d-none" onchange="previewImage(this)" />
+                            <small class="text-muted d-block text-center mt-1">Click để chọn ảnh</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Summary" class="font-weight-bold">Tóm tắt</label>
+                    <textarea asp-for="Summary" class="form-control" rows="2" placeholder="Mô tả ngắn gọn nội dung bài viết..."></textarea>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Content" class="font-weight-bold">Nội dung <span class="text-danger">*</span></label>
+                    <textarea asp-for="Content" class="form-control" rows="12" placeholder="Viết nội dung bài viết..." required></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="text-center">
+                    <button type="submit" class="btn px-5 py-2 mr-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; font-weight: 600;">
+                        <i class="fas fa-paper-plane mr-2"></i> Đăng bài
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imgPreviewLabel').innerHTML = '<img src="' + e.target.result + '" />';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

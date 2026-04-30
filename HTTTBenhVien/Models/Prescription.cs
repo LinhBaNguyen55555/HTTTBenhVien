@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace HTTTBenhVien.Models;
@@ -21,6 +21,8 @@ public partial class Prescription
     public string? Status { get; set; }
 
     public virtual ICollection<PrescriptionDetail> PrescriptionDetails { get; set; } = new List<PrescriptionDetail>();
+
+    public virtual Employee Doctor { get; set; } = null!;
 
     public virtual MedicalRecord Record { get; set; } = null!;
 }

@@ -1,0 +1,41 @@
+@model HTTTBenhVien.Models.RecordService
+@{
+    ViewData["Title"] = "Xóa Chỉ định CLS";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+                <div class="card-header py-3" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white;">
+                    <h6 class="m-0 font-weight-bold text-center"><i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa chỉ định</h6>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4" style="font-size: 4rem; color: #eb3349;">
+                        <i class="fas fa-vials"></i>
+                    </div>
+
+                    <h4 class="font-weight-bold text-gray-800 mb-2">Chỉ định #@Model.RsId</h4>
+                    <p class="text-muted mb-1"><strong>Bệnh nhân:</strong> @(Model.Record?.Patient?.FullName ?? "N/A")</p>
+                    <p class="text-muted mb-1"><strong>Dịch vụ:</strong> @(Model.Service?.ServiceName ?? "N/A")</p>
+                    <p class="text-muted mb-4"><strong>BS thực hiện:</strong> @(Model.Doctor?.FullName ?? "N/A")</p>
+
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Cảnh báo:</strong> Xóa chỉ định sẽ mất toàn bộ kết quả xét nghiệm liên quan. Hành động này không thể hoàn tác.
+                    </div>
+
+                    <form asp-action="Delete" class="mt-4">
+                        <input type="hidden" asp-for="RsId" />
+                        <button type="submit" class="btn btn-danger px-4 py-2 mr-2" style="border-radius: 0.5rem; background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none;">
+                            <i class="fas fa-trash-alt mr-2"></i> Xác nhận Xóa
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary px-4 py-2" style="border-radius: 0.5rem;">
+                            Hủy bỏ
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

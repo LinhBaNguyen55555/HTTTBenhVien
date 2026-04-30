@@ -1,0 +1,53 @@
+@model HTTTBenhVien.Models.Contact
+@{
+    ViewData["Title"] = "Xóa Liên hệ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+                <div class="card-header py-3" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white;">
+                    <h6 class="m-0 font-weight-bold text-center"><i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa liên hệ</h6>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4" style="font-size: 4rem; color: #eb3349;">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+
+                    <h4 class="font-weight-bold text-gray-800 mb-3">@Model.Subject</h4>
+
+                    <div class="text-left p-3 mb-3" style="background: #fef9fb; border-radius: 0.5rem; border: 1px solid #fce4ec;">
+                        <p class="mb-1"><strong><i class="fas fa-user text-primary mr-2"></i>Người gửi:</strong> @Model.FullName</p>
+                        <p class="mb-1"><strong><i class="fas fa-phone-alt text-success mr-2"></i>SĐT:</strong> @Model.Phone</p>
+                        @if (!string.IsNullOrEmpty(Model.Email))
+                        {
+                            <p class="mb-1"><strong><i class="fas fa-envelope text-info mr-2"></i>Email:</strong> @Model.Email</p>
+                        }
+                        <p class="mb-0"><strong><i class="fas fa-calendar text-warning mr-2"></i>Ngày gửi:</strong> @(Model.SubmitDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>
+                    </div>
+
+                    <div class="text-left p-3 mb-3" style="background: #f8f9fe; border-radius: 0.5rem; border-left: 4px solid #fa709a;">
+                        <strong class="d-block mb-1" style="color: #fa709a;"><i class="fas fa-quote-left mr-1"></i> Nội dung:</strong>
+                        <p class="mb-0 text-muted" style="font-size: 0.9rem;">@(Model.MessageContent.Length > 200 ? Model.MessageContent.Substring(0, 200) + "..." : Model.MessageContent)</p>
+                    </div>
+
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Cảnh báo:</strong> Xóa liên hệ này sẽ không thể khôi phục.
+                    </div>
+
+                    <form asp-action="Delete" class="mt-4">
+                        <input type="hidden" asp-for="ContactId" />
+                        <button type="submit" class="btn btn-danger px-4 py-2 mr-2" style="border-radius: 0.5rem; background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none;">
+                            <i class="fas fa-trash-alt mr-2"></i> Xác nhận Xóa
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary px-4 py-2" style="border-radius: 0.5rem;">
+                            Hủy bỏ
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

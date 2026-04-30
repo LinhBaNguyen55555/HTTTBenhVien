@@ -1,0 +1,121 @@
+@model HTTTBenhVien.Models.Article
+@{
+    ViewData["Title"] = "Chi tiết Bài viết";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .article-detail-card { border-radius: 1rem; box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.08); border: none; overflow: hidden; }
+    .article-hero { position: relative; min-height: 280px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: flex-end; padding: 2rem; color: white; }
+    .article-hero-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
+    .article-hero-content { position: relative; z-index: 1; width: 100%; }
+    .article-body-content { padding: 2.5rem; }
+    .meta-item { display: inline-flex; align-items: center; gap: 0.4rem; margin-right: 1.5rem; font-size: 0.85rem; opacity: 0.9; }
+    .cat-badge-lg { padding: 0.35rem 0.8rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 600; background: rgba(255,255,255,0.25); }
+    .info-sidebar { background: #f8f9fe; border-radius: 0.75rem; padding: 1.5rem; }
+    .info-sidebar .info-item { padding: 0.6rem 0; border-bottom: 1px solid #e8eaf0; display: flex; justify-content: space-between; font-size: 0.88rem; }
+    .info-sidebar .info-item:last-child { border-bottom: none; }
+    .article-content-text { line-height: 1.9; color: #2d3748; font-size: 1rem; }
+    .article-content-text p { margin-bottom: 1rem; }
+</style>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card article-detail-card">
+                <div class="article-hero">
+                    @if (!string.IsNullOrEmpty(Model.ThumbnailUrl))
+                    {
+                        <img src="@Model.ThumbnailUrl" class="article-hero-img" alt="@Model.Title">
+                    }
+                    <div class="article-hero-content">
+                        <div class="mb-2">
+                            <span class="cat-badge-lg">@Model.Category</span>
+                            @if (Model.Status == "Published")
+                            {
+                                <span class="badge badge-success ml-2 px-3 py-1"><i class="fas fa-globe mr-1"></i>Đã xuất bản</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning ml-2 px-3 py-1"><i class="fas fa-pencil-alt mr-1"></i>Bản nháp</span>
+                            }
+                        </div>
+                        <h1 class="font-weight-bold mb-2" style="text-shadow: 0 2px 10px rgba(0,0,0,0.3);">@Model.Title</h1>
+                        <div>
+                            <span class="meta-item"><i class="far fa-user"></i> @(Model.Author?.FullName ?? "Ẩn danh")</span>
+                            <span class="meta-item"><i class="far fa-calendar-alt"></i> @(Model.PublishDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</span>
+                            <span class="meta-item"><i class="far fa-eye"></i> @(Model.ViewCount ?? 0) lượt xem</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="article-body-content">
+                    <div class="row">
+                        <div class="col-md-8">
+                            @if (!string.IsNullOrEmpty(Model.Summary))
+                            {
+                                <div class="p-3 mb-4" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%); border-left: 4px solid #667eea; border-radius: 0 0.5rem 0.5rem 0;">
+                                    <strong style="color: #667eea;">Tóm tắt:</strong>
+                                    <p class="mb-0 mt-1" style="color: #4a5568;">@Model.Summary</p>
+                                </div>
+                            }
+
+                            <div class="article-content-text">
+                                @Html.Raw(Model.Content.Replace("\n", "<br/>"))
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-sidebar">
+                                <h6 class="font-weight-bold mb-3" style="color: #667eea;"><i class="fas fa-info-circle mr-1"></i> Thông tin bài viết</h6>
+                                <div class="info-item">
+                                    <span class="text-muted">Mã bài viết</span>
+                                    <strong>#@Model.ArticleId</strong>
+                                </div>
+                                <div class="info-item">
+                                    <span class="text-muted">Slug</span>
+                                    <strong class="text-truncate" style="max-width: 150px;" title="@Model.Slug">@Model.Slug</strong>
+                                </div>
+                                <div class="info-item">
+                                    <span class="text-muted">Danh mục</span>
+                                    <strong>@Model.Category</strong>
+                                </div>
+                                <div class="info-item">
+                                    <span class="text-muted">Tác giả</span>
+                                    <strong>@(Model.Author?.FullName ?? "N/A")</strong>
+                                </div>
+                                <div class="info-item">
+                                    <span class="text-muted">Ngày đăng</span>
+                                    <strong>@(Model.PublishDate?.ToString("dd/MM/yyyy") ?? "N/A")</strong>
+                                </div>
+                                <div class="info-item">
+                                    <span class="text-muted">Lượt xem</span>
+                                    <strong>@(Model.ViewCount ?? 0)</strong>
+                                </div>
+                                <div class="info-item">
+                                    <span class="text-muted">Trạng thái</span>
+                                    @if (Model.Status == "Published")
+                                    {
+                                        <span class="badge badge-success">Đã XB</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-warning">Nháp</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 text-center">
+                        <a asp-action="Edit" asp-route-id="@Model.ArticleId" class="btn px-4 py-2 mr-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; font-weight: 600;">
+                            <i class="fas fa-edit mr-1"></i> Chỉnh sửa
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary px-4 py-2">
+                            <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

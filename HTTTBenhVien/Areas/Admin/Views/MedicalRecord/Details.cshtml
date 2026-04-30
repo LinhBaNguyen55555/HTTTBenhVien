@@ -1,0 +1,130 @@
+@model HTTTBenhVien.Models.MedicalRecord
+@{
+    ViewData["Title"] = "Chi tiết Bệnh án";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .detail-card { border-radius: 1rem; box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.08); border: none; overflow: hidden; }
+    .detail-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; position: relative; }
+    .detail-body { padding: 2rem; }
+    .detail-row { display: flex; padding: 0.85rem 0; border-bottom: 1px solid #f0f2f5; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 35%; color: #6c757d; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .detail-value { width: 65%; color: #2d3748; font-weight: 500; }
+    .bg-icon { position: absolute; right: 2rem; top: 50%; transform: translateY(-50%); font-size: 8rem; opacity: 0.1; }
+    .vital-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
+    .vital-box { background: #f8f9fe; border-radius: 0.75rem; padding: 1rem; text-align: center; border: 1px solid #e8edfc; }
+    .vital-box .value { font-size: 1.5rem; font-weight: 700; color: #2d3748; }
+    .vital-box .label { font-size: 0.75rem; color: #764ba2; font-weight: 600; margin-bottom: 0.25rem; }
+    .vital-box .unit { font-size: 0.7rem; color: #a0aec0; }
+    @@media (max-width: 768px) { .vital-grid { grid-template-columns: repeat(3, 1fr); } }
+</style>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card detail-card">
+                <div class="detail-header">
+                    <i class="fas fa-file-medical-alt bg-icon"></i>
+                    <div style="position: relative; z-index: 1;">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="@Model.Patient.AvatarUrlFull" style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid white; object-fit: cover; margin-right: 1.25rem;" alt="Patient">
+                            <div>
+                                <h2 class="mb-0 font-weight-bold">Bệnh án #@Model.RecordId</h2>
+                                <p class="mb-0" style="opacity: 0.9;">Bệnh nhân: <strong>@Model.Patient.FullName</strong> (@(Model.Patient.Gender ? "Nam" : "Nữ"))</p>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap mt-2" style="gap: 0.5rem;">
+                            @if (!string.IsNullOrEmpty(Model.RecordType))
+                            {
+                                <span class="badge badge-light text-primary px-3 py-1"><i class="fas fa-tag mr-1"></i>@Model.RecordType</span>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.IcdCode))
+                            {
+                                <span class="badge badge-warning px-3 py-1"><i class="fas fa-book-medical mr-1"></i>ICD: @Model.IcdCode - @(Model.IcdCodeNavigation?.DiseaseName ?? "")</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-body">
+                    <h5 class="border-bottom pb-2 mb-3" style="color: #764ba2;"><i class="fas fa-info-circle mr-2"></i>Thông tin chung</h5>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-user-md text-info"></i> Bác sĩ khám</div>
+                        <div class="detail-value font-weight-bold text-primary">@(Model.Doctor?.FullName ?? "N/A")</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="far fa-calendar-alt text-primary"></i> Ngày khám</div>
+                        <div class="detail-value font-weight-bold">@(Model.VisitDate?.ToString("dd/MM/yyyy") ?? "N/A")</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-tag text-secondary"></i> Loại khám</div>
+                        <div class="detail-value">@(string.IsNullOrEmpty(Model.RecordType) ? "Không xác định" : Model.RecordType)</div>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mt-4 mb-3" style="color: #764ba2;"><i class="fas fa-heartbeat mr-2"></i>Chỉ số sinh tồn</h5>
+                    <div class="vital-grid mb-4">
+                        <div class="vital-box">
+                            <div class="label"><i class="fas fa-tint text-danger mr-1"></i>Huyết áp</div>
+                            <div class="value text-danger">@(string.IsNullOrEmpty(Model.BloodPressure) ? "—" : Model.BloodPressure)</div>
+                            <div class="unit">mmHg</div>
+                        </div>
+                        <div class="vital-box">
+                            <div class="label"><i class="fas fa-heartbeat text-primary mr-1"></i>Mạch</div>
+                            <div class="value text-primary">@(Model.PulseRate?.ToString() ?? "—")</div>
+                            <div class="unit">lần/phút</div>
+                        </div>
+                        <div class="vital-box">
+                            <div class="label"><i class="fas fa-thermometer-half text-warning mr-1"></i>Nhiệt độ</div>
+                            <div class="value text-warning">@(Model.Temperature?.ToString("F1") ?? "—")</div>
+                            <div class="unit">°C</div>
+                        </div>
+                        <div class="vital-box">
+                            <div class="label"><i class="fas fa-ruler-vertical text-success mr-1"></i>Chiều cao</div>
+                            <div class="value text-success">@(Model.Height?.ToString() ?? "—")</div>
+                            <div class="unit">cm</div>
+                        </div>
+                        <div class="vital-box">
+                            <div class="label"><i class="fas fa-weight text-info mr-1"></i>Cân nặng</div>
+                            <div class="value text-info">@(Model.Weight?.ToString("F1") ?? "—")</div>
+                            <div class="unit">kg</div>
+                        </div>
+                        <div class="vital-box">
+                            <div class="label"><i class="fas fa-lungs text-danger mr-1"></i>SpO2</div>
+                            <div class="value" style="color: #e74c3c;">@(Model.SpO2?.ToString() ?? "—")</div>
+                            <div class="unit">%</div>
+                        </div>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mt-4 mb-3" style="color: #764ba2;"><i class="fas fa-stethoscope mr-2"></i>Kết quả khám</h5>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-clipboard-list text-warning"></i> Triệu chứng</div>
+                        <div class="detail-value">@(string.IsNullOrEmpty(Model.Symptoms) ? "Không ghi nhận" : Model.Symptoms)</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-diagnoses text-danger"></i> Chẩn đoán</div>
+                        <div class="detail-value font-weight-bold text-danger">@(string.IsNullOrEmpty(Model.Diagnosis) ? "Chưa có" : Model.Diagnosis)</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-check-circle text-success"></i> Kết luận</div>
+                        <div class="detail-value">@(string.IsNullOrEmpty(Model.Conclusion) ? "Chưa có" : Model.Conclusion)</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-comment-medical text-info"></i> Ghi chú</div>
+                        <div class="detail-value">@(string.IsNullOrEmpty(Model.Notes) ? "Không có" : Model.Notes)</div>
+                    </div>
+
+                    <div class="mt-5 text-center">
+                        <a asp-action="Edit" asp-route-id="@Model.RecordId" class="btn px-4 py-2 mr-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; font-weight: 600;">
+                            <i class="fas fa-edit mr-1"></i> Chỉnh sửa
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary px-4 py-2">
+                            <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

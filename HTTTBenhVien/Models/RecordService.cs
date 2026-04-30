@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace HTTTBenhVien.Models;
@@ -20,6 +20,8 @@ public partial class RecordService
     public string? Status { get; set; }
 
     public string? ResultImages { get; set; }
+
+    public virtual Employee Doctor { get; set; } = null!;
 
     public virtual MedicalRecord Record { get; set; } = null!;
 

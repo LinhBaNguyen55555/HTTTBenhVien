@@ -1,0 +1,149 @@
+@model HTTTBenhVien.Models.Contact
+@{
+    ViewData["Title"] = "Chi tiết Liên hệ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .contact-card { border-radius: 1rem; box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.08); border: none; overflow: hidden; }
+    .contact-header { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 2rem; position: relative; }
+    .bg-icon { position: absolute; right: 2rem; top: 50%; transform: translateY(-50%); font-size: 8rem; opacity: 0.1; }
+    .contact-body { padding: 2rem; }
+    .info-row { display: flex; padding: 0.85rem 0; border-bottom: 1px solid #f0f2f5; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { width: 30%; color: #6c757d; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .info-value { width: 70%; color: #2d3748; font-weight: 500; }
+    .message-box { background: #fef9fb; border-radius: 0.75rem; padding: 1.5rem; border: 1px solid #fce4ec; line-height: 1.8; color: #2d3748; }
+    .resolve-box { background: #f8f9fe; border-radius: 0.75rem; padding: 1.5rem; border: 1px solid #e8eaf0; }
+</style>
+
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 5px solid #28a745;">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card contact-card">
+                <div class="contact-header">
+                    <i class="fas fa-envelope-open-text bg-icon"></i>
+                    <div style="position: relative; z-index: 1;">
+                        <h2 class="mb-1 font-weight-bold">@Model.Subject</h2>
+                        <p class="mb-0" style="opacity: 0.9;">
+                            Từ: <strong>@Model.FullName</strong> &nbsp;|&nbsp;
+                            @(Model.SubmitDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A") &nbsp;|&nbsp;
+                            @switch (Model.Status)
+                            {
+                                case "ChuaXuLy":
+                                case null:
+                                    <span class="badge badge-danger px-3 py-1"><i class="fas fa-exclamation-circle mr-1"></i>Chưa xử lý</span>
+                                    break;
+                                case "DangXuLy":
+                                    <span class="badge badge-warning px-3 py-1"><i class="fas fa-spinner mr-1"></i>Đang xử lý</span>
+                                    break;
+                                case "DaXuLy":
+                                    <span class="badge badge-success px-3 py-1"><i class="fas fa-check-double mr-1"></i>Đã xử lý</span>
+                                    break;
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                <div class="contact-body">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <h5 class="border-bottom pb-2 mb-3" style="color: #fa709a;"><i class="fas fa-comment-dots mr-2"></i>Nội dung tin nhắn</h5>
+                            <div class="message-box mb-4">
+                                @Html.Raw(Model.MessageContent.Replace("\n", "<br/>"))
+                            </div>
+
+                            <h5 class="border-bottom pb-2 mt-4 mb-3" style="color: #fa709a;"><i class="fas fa-tools mr-2"></i>Xử lý liên hệ</h5>
+                            <div class="resolve-box">
+                                <form asp-action="Resolve" method="post">
+                                    <input type="hidden" name="ContactId" value="@Model.ContactId" />
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="font-weight-bold">Trạng thái</label>
+                                                <select name="Status" class="form-control">
+                                                    <option value="ChuaXuLy" selected="@(Model.Status == "ChuaXuLy" || Model.Status == null)">Chưa xử lý</option>
+                                                    <option value="DangXuLy" selected="@(Model.Status == "DangXuLy")">Đang xử lý</option>
+                                                    <option value="DaXuLy" selected="@(Model.Status == "DaXuLy")">Đã xử lý</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="font-weight-bold">Người xử lý</label>
+                                                <select name="ResolvedBy" class="form-control" asp-items="ViewBag.ResolvedBy">
+                                                    <option value="">-- Chọn --</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold">Ghi chú xử lý</label>
+                                        <textarea name="ResolveNote" class="form-control" rows="3" placeholder="Ghi chú kết quả xử lý...">@Model.ResolveNote</textarea>
+                                    </div>
+                                    <button type="submit" class="btn px-4 py-2" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border: none; color: white; font-weight: 600;">
+                                        <i class="fas fa-save mr-2"></i> Lưu xử lý
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <h5 class="border-bottom pb-2 mb-3" style="color: #fa709a;"><i class="fas fa-user mr-2"></i>Thông tin người gửi</h5>
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-user text-primary"></i> Họ tên</div>
+                                <div class="info-value font-weight-bold">@Model.FullName</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-phone-alt text-success"></i> SĐT</div>
+                                <div class="info-value"><a href="tel:@Model.Phone" class="text-decoration-none">@Model.Phone</a></div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-envelope text-info"></i> Email</div>
+                                <div class="info-value"><a href="mailto:@Model.Email" class="text-decoration-none">@(Model.Email ?? "N/A")</a></div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label"><i class="fas fa-calendar text-warning"></i> Ngày gửi</div>
+                                <div class="info-value">@(Model.SubmitDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
+                            </div>
+
+                            @if (Model.Status == "DaXuLy")
+                            {
+                                <h5 class="border-bottom pb-2 mt-4 mb-3" style="color: #11998e;"><i class="fas fa-check-circle mr-2"></i>Kết quả xử lý</h5>
+                                <div class="info-row">
+                                    <div class="info-label"><i class="fas fa-user-check text-success"></i> Người XL</div>
+                                    <div class="info-value font-weight-bold text-success">@(Model.ResolvedByNavigation?.FullName ?? "N/A")</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label"><i class="fas fa-calendar-check text-success"></i> Ngày XL</div>
+                                    <div class="info-value">@(Model.ResolvedDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(Model.ResolveNote))
+                                {
+                                    <div class="info-row">
+                                        <div class="info-label"><i class="fas fa-sticky-note text-warning"></i> Ghi chú</div>
+                                        <div class="info-value font-italic">@Model.ResolveNote</div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <a asp-action="Index" class="btn btn-secondary px-4 py-2">
+                            <i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

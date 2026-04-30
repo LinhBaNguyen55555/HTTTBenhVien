@@ -1,0 +1,156 @@
+@model HTTTBenhVien.Models.Prescription
+@{
+    ViewData["Title"] = "Chi tiết Đơn thuốc";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    decimal totalAmount = 0;
+}
+
+<style>
+    .detail-card { border-radius: 1rem; box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.08); border: none; overflow: hidden; }
+    .detail-header { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; padding: 2rem; position: relative; }
+    .detail-body { padding: 2rem; }
+    .detail-row { display: flex; padding: 0.85rem 0; border-bottom: 1px solid #f0f2f5; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 35%; color: #6c757d; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .detail-value { width: 65%; color: #2d3748; font-weight: 500; }
+    .bg-icon { position: absolute; right: 2rem; top: 50%; transform: translateY(-50%); font-size: 8rem; opacity: 0.1; }
+    .medicine-table thead th { background: #faf5ff; color: #a18cd1; font-weight: 600; font-size: 0.82rem; text-transform: uppercase; border: none; padding: 0.85rem; }
+    .medicine-table tbody td { padding: 0.85rem; border-color: #f0f2f8; vertical-align: middle; }
+    .medicine-table tbody tr:hover { background: #faf5ff; }
+    .total-row { background: linear-gradient(135deg, rgba(161, 140, 209, 0.1) 0%, rgba(251, 194, 235, 0.1) 100%); }
+    .total-row td { font-weight: 700; font-size: 1.05rem; color: #a18cd1; border-top: 2px solid #a18cd1 !important; }
+</style>
+
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 5px solid #28a745;">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card detail-card">
+                <div class="detail-header">
+                    <i class="fas fa-prescription-bottle-alt bg-icon"></i>
+                    <div style="position: relative; z-index: 1;">
+                        <h2 class="mb-1 font-weight-bold">Đơn thuốc #@Model.PrescriptionId</h2>
+                        <p class="mb-0" style="opacity: 0.9;">
+                            Ngày kê: <strong>@(Model.CreateDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</strong>
+                            &nbsp;|&nbsp;
+                            @switch (Model.Status)
+                            {
+                                case "ChoCapPhat":
+                                    <span class="badge badge-warning px-3 py-1"><i class="fas fa-hourglass-half mr-1"></i>Chờ cấp phát</span>
+                                    break;
+                                case "DaCapPhat":
+                                    <span class="badge badge-success px-3 py-1"><i class="fas fa-check-double mr-1"></i>Đã cấp phát</span>
+                                    break;
+                                case "Huy":
+                                    <span class="badge badge-secondary px-3 py-1"><i class="fas fa-ban mr-1"></i>Đã hủy</span>
+                                    break;
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                <div class="detail-body">
+                    <h5 class="border-bottom pb-2 mb-3" style="color: #a18cd1;"><i class="fas fa-info-circle mr-2"></i>Thông tin chung</h5>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-user-injured text-primary"></i> Bệnh nhân</div>
+                        <div class="detail-value font-weight-bold">@(Model.Record?.Patient?.FullName ?? "N/A")</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-file-medical text-info"></i> Mã bệnh án</div>
+                        <div class="detail-value"><span class="badge badge-light border px-3 py-1">BA #@Model.RecordId</span></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-user-md text-success"></i> BS kê đơn</div>
+                        <div class="detail-value text-primary font-weight-bold">@(Model.Doctor?.FullName ?? "N/A")</div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div class="detail-row">
+                            <div class="detail-label"><i class="fas fa-sticky-note text-warning"></i> Ghi chú</div>
+                            <div class="detail-value font-italic">@Model.Note</div>
+                        </div>
+                    }
+
+                    <h5 class="border-bottom pb-2 mt-4 mb-3" style="color: #a18cd1;"><i class="fas fa-pills mr-2"></i>Chi tiết thuốc (@Model.PrescriptionDetails.Count loại)</h5>
+
+                    @if (Model.PrescriptionDetails.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table medicine-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="30%">Tên thuốc</th>
+                                        <th width="10%">ĐVT</th>
+                                        <th width="10%" class="text-center">Số lượng</th>
+                                        <th width="12%" class="text-right">Đơn giá</th>
+                                        <th width="13%" class="text-right">Thành tiền</th>
+                                        <th width="20%">Liều dùng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int stt = 1;
+                                    }
+                                    @foreach (var d in Model.PrescriptionDetails)
+                                    {
+                                        var lineTotal = (d.Medicine?.Price ?? 0) * (d.Quantity ?? 0);
+                                        totalAmount += lineTotal;
+                                        <tr>
+                                            <td><span class="badge badge-light border">@stt</span></td>
+                                            <td>
+                                                <div>
+                                                    <strong class="text-dark">@(d.Medicine?.MedicineName ?? "N/A")</strong>
+                                                    @if (!string.IsNullOrEmpty(d.Medicine?.MedicineCode))
+                                                    {
+                                                        <br/><span class="text-muted" style="font-size: 0.75rem;">@d.Medicine.MedicineCode</span>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td><span class="badge badge-light border">@(d.Medicine?.Unit ?? "N/A")</span></td>
+                                            <td class="text-center font-weight-bold">@d.Quantity</td>
+                                            <td class="text-right">@((d.Medicine?.Price ?? 0).ToString("N0"))đ</td>
+                                            <td class="text-right font-weight-bold" style="color: #a18cd1;">@lineTotal.ToString("N0")đ</td>
+                                            <td><span class="text-muted" style="font-size: 0.88rem;">@(string.IsNullOrEmpty(d.Dosage) ? "—" : d.Dosage)</span></td>
+                                        </tr>
+                                        stt++;
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr class="total-row">
+                                        <td colspan="5" class="text-right"><i class="fas fa-calculator mr-1"></i> TỔNG CỘNG:</td>
+                                        <td class="text-right">@totalAmount.ToString("N0")đ</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center p-4 text-muted">
+                            <i class="fas fa-pills" style="font-size: 2rem;"></i>
+                            <p class="mt-2">Đơn thuốc chưa có thuốc nào</p>
+                        </div>
+                    }
+
+                    <div class="mt-5 text-center">
+                        <a asp-action="Edit" asp-route-id="@Model.PrescriptionId" class="btn px-4 py-2 mr-2" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); border: none; color: white; font-weight: 600;">
+                            <i class="fas fa-edit mr-1"></i> Chỉnh sửa đơn
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary px-4 py-2">
+                            <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

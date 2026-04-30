@@ -1,0 +1,64 @@
+@model HTTTBenhVien.Models.MedicalService
+@{
+    ViewData["Title"] = "Chi tiết Dịch vụ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .detail-card { border-radius: 1rem; box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.08); border: none; overflow: hidden; }
+    .detail-header { background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); color: white; padding: 2rem; position: relative; }
+    .detail-body { padding: 2rem; }
+    .detail-row { display: flex; padding: 1rem 0; border-bottom: 1px solid #f0f2f5; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 35%; color: #6c757d; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .detail-value { width: 65%; color: #2d3748; font-weight: 500; }
+    .bg-icon { position: absolute; right: 2rem; top: 50%; transform: translateY(-50%); font-size: 8rem; opacity: 0.1; }
+    .price-display { font-size: 2rem; font-weight: 800; color: #00b09b; }
+</style>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card detail-card">
+                <div class="detail-header text-center">
+                    <i class="fas fa-hand-holding-medical bg-icon"></i>
+                    <div style="position: relative; z-index: 1;">
+                        <h2 class="mb-2 font-weight-bold">@Model.ServiceName</h2>
+                        <p class="mb-0" style="opacity: 0.9;">Mã dịch vụ: <strong>#DV-@Model.ServiceId</strong></p>
+                    </div>
+                </div>
+
+                <div class="detail-body">
+                    <div class="text-center mb-4 py-3" style="background: #f8f9fe; border-radius: 0.75rem;">
+                        <p class="mb-1 text-muted font-weight-bold">GIÁ CƠ BẢN</p>
+                        <div class="price-display">@Model.BasePrice.ToString("N0") <small style="font-size: 1rem;">VNĐ</small></div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-tag text-success"></i> Tên dịch vụ</div>
+                        <div class="detail-value font-weight-bold">@Model.ServiceName</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-info-circle text-info"></i> Mô tả</div>
+                        <div class="detail-value">@(string.IsNullOrEmpty(Model.Description) ? "Chưa có mô tả" : Model.Description)</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label"><i class="fas fa-chart-bar text-warning"></i> Số lần đã sử dụng</div>
+                        <div class="detail-value">
+                            <span class="badge badge-primary px-3 py-2" style="font-size: 0.9rem;">@Model.RecordServices.Count lần</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 text-center">
+                        <a asp-action="Edit" asp-route-id="@Model.ServiceId" class="btn px-4 py-2 mr-2" style="background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); border: none; color: white; font-weight: 600;">
+                            <i class="fas fa-edit mr-1"></i> Chỉnh sửa
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary px-4 py-2">
+                            <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,141 @@
+@model HTTTBenhVien.Models.Medicine
+@{
+    ViewData["Title"] = "Thêm Thuốc mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-header-gradient { background: linear-gradient(135deg, #2af598 0%, #009efd 100%); color: white; }
+    .img-preview { width: 120px; height: 120px; border-radius: 0.75rem; object-fit: cover; border: 3px dashed #d1d3e0; display: flex; align-items: center; justify-content: center; color: #d1d3e0; font-size: 2rem; cursor: pointer; transition: all 0.3s; }
+    .img-preview:hover { border-color: #009efd; color: #009efd; }
+    .img-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem; }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+        <div class="card-header card-header-gradient py-3">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-plus-circle mr-2"></i>Thêm thuốc mới vào kho</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <h5 class="border-bottom pb-2 mb-4" style="color: #009efd;"><i class="fas fa-info-circle mr-2"></i>Thông tin thuốc</h5>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group mb-3 text-center">
+                            <label class="font-weight-bold d-block">Ảnh thuốc</label>
+                            <label for="ImageFile" class="img-preview mb-2" id="imgPreviewLabel">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                            <input type="file" name="ImageFile" id="ImageFile" accept="image/*" class="d-none" onchange="previewImage(this)" />
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MedicineCode" class="font-weight-bold">Mã thuốc</label>
+                                    <input asp-for="MedicineCode" class="form-control" placeholder="VD: TH001, PA500..." />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MedicineName" class="font-weight-bold">Tên thuốc <span class="text-danger">*</span></label>
+                                    <input asp-for="MedicineName" class="form-control" placeholder="VD: Paracetamol 500mg" required />
+                                    <span asp-validation-for="MedicineName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ActiveIngredient" class="font-weight-bold">Hoạt chất</label>
+                                    <input asp-for="ActiveIngredient" class="form-control" placeholder="VD: Paracetamol" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Unit" class="font-weight-bold">Đơn vị tính</label>
+                                    <select asp-for="Unit" class="form-control">
+                                        <option value="">-- Chọn --</option>
+                                        <option value="Viên">Viên</option>
+                                        <option value="Vỉ">Vỉ</option>
+                                        <option value="Hộp">Hộp</option>
+                                        <option value="Chai">Chai</option>
+                                        <option value="Ống">Ống</option>
+                                        <option value="Gói">Gói</option>
+                                        <option value="Tuýp">Tuýp</option>
+                                        <option value="Lọ">Lọ</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Price" class="font-weight-bold">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                                    <input asp-for="Price" type="number" step="100" min="0" class="form-control" placeholder="VD: 5000" required />
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label asp-for="StockQuantity" class="font-weight-bold">Số lượng tồn <span class="text-danger">*</span></label>
+                                    <input asp-for="StockQuantity" type="number" min="0" class="form-control" placeholder="VD: 100" required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ExpiryDate" class="font-weight-bold">Hạn sử dụng</label>
+                                    <input asp-for="ExpiryDate" type="date" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="font-weight-bold">Mô tả / Chỉ định</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Mô tả công dụng, liều dùng, chống chỉ định..."></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label asp-for="IsActive" class="font-weight-bold">Trạng thái</label>
+                            <select asp-for="IsActive" class="form-control">
+                                <option value="true">Hoạt động</option>
+                                <option value="false">Ngừng kinh doanh</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="text-center">
+                    <button type="submit" class="btn px-5 py-2 mr-3" style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%); border: none; color: white; font-weight: 600;">
+                        <i class="fas fa-save mr-2"></i> Lưu thuốc
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imgPreviewLabel').innerHTML = '<img src="' + e.target.result + '" />';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

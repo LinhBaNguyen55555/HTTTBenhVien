@@ -1,0 +1,148 @@
+@model HTTTBenhVien.Models.Invoice
+@{
+    ViewData["Title"] = "Tạo Hóa đơn";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-header-gradient { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; }
+    .detail-row { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; padding: 0.75rem; background: #fef9f2; border-radius: 0.5rem; border: 1px solid #fde8d0; }
+    .detail-row .form-control { font-size: 0.9rem; }
+    .btn-remove-row { background: #fdeaea; color: #eb3349; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .btn-remove-row:hover { background: #eb3349; color: white; }
+    .btn-add-row { background: #fff3e6; color: #e67e22; border: 2px dashed #e67e22; border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-add-row:hover { background: #e67e22; color: white; }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+        <div class="card-header card-header-gradient py-3">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-plus-circle mr-2"></i>Tạo hóa đơn mới</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                <h5 class="border-bottom pb-2 mb-4" style="color: #e67e22;"><i class="fas fa-user-injured mr-2"></i>Thông tin bệnh nhân</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Bệnh nhân <span class="text-danger">*</span></label>
+                            <select name="PatientId" class="form-control" asp-items="ViewBag.PatientId" required>
+                                <option value="">-- Chọn Bệnh nhân --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Bệnh án (nếu có)</label>
+                            <select name="RecordId" class="form-control" asp-items="ViewBag.RecordId">
+                                <option value="">-- Không liên kết --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Trạng thái</label>
+                            <select name="Status" class="form-control">
+                                <option value="ChuaThanhToan">Chưa thanh toán</option>
+                                <option value="DaThanhToan">Đã thanh toán</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4 mb-4" style="color: #e67e22;"><i class="fas fa-money-check-alt mr-2"></i>Thanh toán</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">BHYT chi trả (VNĐ)</label>
+                            <input type="number" name="BhytAmount" class="form-control" min="0" step="1000" value="0" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Chiết khấu (VNĐ)</label>
+                            <input type="number" name="DiscountAmount" class="form-control" min="0" step="1000" value="0" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Hình thức thanh toán</label>
+                            <select name="PaymentMethod" class="form-control">
+                                <option value="Tiền mặt">Tiền mặt</option>
+                                <option value="Chuyển khoản">Chuyển khoản</option>
+                                <option value="Thẻ">Thẻ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Ghi chú</label>
+                            <input type="text" name="Notes" class="form-control" placeholder="Ghi chú hóa đơn..." />
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4 mb-4" style="color: #e67e22;"><i class="fas fa-receipt mr-2"></i>Chi tiết khoản mục</h5>
+
+                <div id="detailRows">
+                    <div class="detail-row">
+                        <div style="flex: 2;">
+                            <select name="ItemTypes" class="form-control">
+                                <option value="Dịch vụ">Dịch vụ</option>
+                                <option value="Thuốc">Thuốc</option>
+                                <option value="Giường">Giường</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                        <div style="flex: 4;">
+                            <input type="text" name="ItemNames" class="form-control" placeholder="Tên khoản mục" required />
+                        </div>
+                        <div style="flex: 1;">
+                            <input type="number" name="ItemQuantities" class="form-control" placeholder="SL" min="1" value="1" required />
+                        </div>
+                        <div style="flex: 2;">
+                            <input type="number" name="ItemPrices" class="form-control" placeholder="Đơn giá" min="0" step="1000" value="0" required />
+                        </div>
+                        <button type="button" class="btn-remove-row" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3 mb-4">
+                    <button type="button" class="btn-add-row" onclick="addRow()">
+                        <i class="fas fa-plus mr-1"></i> Thêm khoản mục
+                    </button>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="text-center">
+                    <button type="submit" class="btn px-5 py-2 mr-3" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border: none; color: white; font-weight: 600;">
+                        <i class="fas fa-save mr-2"></i> Lưu hóa đơn
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function addRow() {
+            var html = `<div class="detail-row">
+                <div style="flex: 2;"><select name="ItemTypes" class="form-control"><option value="Dịch vụ">Dịch vụ</option><option value="Thuốc">Thuốc</option><option value="Giường">Giường</option><option value="Khác">Khác</option></select></div>
+                <div style="flex: 4;"><input type="text" name="ItemNames" class="form-control" placeholder="Tên khoản mục" required /></div>
+                <div style="flex: 1;"><input type="number" name="ItemQuantities" class="form-control" placeholder="SL" min="1" value="1" required /></div>
+                <div style="flex: 2;"><input type="number" name="ItemPrices" class="form-control" placeholder="Đơn giá" min="0" step="1000" value="0" required /></div>
+                <button type="button" class="btn-remove-row" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+            </div>`;
+            document.getElementById('detailRows').insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeRow(btn) {
+            var rows = document.querySelectorAll('.detail-row');
+            if (rows.length > 1) btn.closest('.detail-row').remove();
+        }
+    </script>
+}

@@ -1,0 +1,132 @@
+@model HTTTBenhVien.Models.Prescription
+@{
+    ViewData["Title"] = "Kê đơn thuốc mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var medicines = ViewData["Medicines"] as List<HTTTBenhVien.Models.Medicine> ?? new List<HTTTBenhVien.Models.Medicine>();
+}
+
+<style>
+    .card-header-gradient { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; }
+    .detail-row { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; padding: 0.75rem; background: #faf5ff; border-radius: 0.5rem; border: 1px solid #e8dff5; }
+    .detail-row .form-control { font-size: 0.9rem; }
+    .btn-remove-row { background: #fdeaea; color: #eb3349; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .btn-remove-row:hover { background: #eb3349; color: white; }
+    .btn-add-row { background: #f3eaff; color: #a18cd1; border: 2px dashed #a18cd1; border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-add-row:hover { background: #a18cd1; color: white; }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+        <div class="card-header card-header-gradient py-3">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-prescription mr-2"></i>Kê đơn thuốc mới</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                <h5 class="border-bottom pb-2 mb-4" style="color: #a18cd1;"><i class="fas fa-link mr-2"></i>Thông tin đơn thuốc</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Bệnh án <span class="text-danger">*</span></label>
+                            <select name="RecordId" class="form-control" asp-items="ViewBag.RecordId" required>
+                                <option value="">-- Chọn Bệnh án --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">BS kê đơn <span class="text-danger">*</span></label>
+                            <select name="DoctorId" class="form-control" asp-items="ViewBag.DoctorId" required>
+                                <option value="">-- Chọn Bác sĩ --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Trạng thái</label>
+                            <select name="Status" class="form-control">
+                                <option value="ChoCapPhat">Chờ cấp phát</option>
+                                <option value="DaCapPhat">Đã cấp phát</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Ghi chú</label>
+                            <textarea name="Note" class="form-control" rows="2" placeholder="Lưu ý dùng thuốc, dị ứng..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4 mb-4" style="color: #a18cd1;"><i class="fas fa-pills mr-2"></i>Chi tiết thuốc kê đơn</h5>
+
+                <div id="detailRows">
+                    <div class="detail-row" data-index="0">
+                        <div style="flex: 4;">
+                            <select name="MedicineIds" class="form-control" required>
+                                <option value="">-- Chọn thuốc --</option>
+                                @foreach (var m in medicines)
+                                {
+                                    <option value="@m.MedicineId">@m.MedicineName (@m.Unit) - Tồn: @m.StockQuantity - @m.Price.ToString("N0")đ</option>
+                                }
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <input type="number" name="Quantities" class="form-control" placeholder="SL" min="1" value="1" required />
+                        </div>
+                        <div style="flex: 3;">
+                            <input type="text" name="Dosages" class="form-control" placeholder="Liều dùng: VD: 2 viên/lần x 3 lần/ngày" />
+                        </div>
+                        <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Xóa dòng">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3 mb-4">
+                    <button type="button" class="btn-add-row" onclick="addRow()">
+                        <i class="fas fa-plus mr-1"></i> Thêm thuốc
+                    </button>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="text-center">
+                    <button type="submit" class="btn px-5 py-2 mr-3" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); border: none; color: white; font-weight: 600;">
+                        <i class="fas fa-save mr-2"></i> Lưu đơn thuốc
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var medicineOptions = `<option value="">-- Chọn thuốc --</option>
+        @foreach (var m in medicines)
+        {
+            @Html.Raw($"<option value=\"{m.MedicineId}\">{m.MedicineName} ({m.Unit}) - Tồn: {m.StockQuantity} - {m.Price.ToString("N0")}đ</option>")
+        }`;
+
+        function addRow() {
+            var html = `<div class="detail-row">
+                <div style="flex: 4;"><select name="MedicineIds" class="form-control" required>${medicineOptions}</select></div>
+                <div style="flex: 1;"><input type="number" name="Quantities" class="form-control" placeholder="SL" min="1" value="1" required /></div>
+                <div style="flex: 3;"><input type="text" name="Dosages" class="form-control" placeholder="Liều dùng: VD: 2 viên/lần x 3 lần/ngày" /></div>
+                <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Xóa dòng"><i class="fas fa-times"></i></button>
+            </div>`;
+            document.getElementById('detailRows').insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeRow(btn) {
+            var rows = document.querySelectorAll('.detail-row');
+            if (rows.length > 1) {
+                btn.closest('.detail-row').remove();
+            }
+        }
+    </script>
+}

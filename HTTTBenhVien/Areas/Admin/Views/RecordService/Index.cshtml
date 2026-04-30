@@ -1,0 +1,196 @@
+@model IEnumerable<HTTTBenhVien.Models.RecordService>
+@{
+    ViewData["Title"] = "Chỉ định Dịch vụ CLS";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .page-header-gradient {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+    }
+    .card-ajax { border: none; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); overflow: hidden; }
+    .card-header-ajax { background: white; border-bottom: 2px solid #f8f9fe; padding: 1.25rem 1.5rem; font-weight: 600; color: #f5576c; }
+    .btn-gradient { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; color: white; font-weight: 600; padding: 0.625rem 1.25rem; border-radius: 0.5rem; transition: all 0.3s ease; }
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4); color: white; }
+    .btn-gradient-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; color: white; }
+    .btn-gradient-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: white; }
+    .btn-sm-gradient { padding: 0.375rem 0.75rem; font-size: 0.875rem; border-radius: 0.375rem; }
+    .table-ajax thead th { background: #f8f9fc; color: #f5576c; font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; border: none; padding: 0.9rem; }
+    .table-ajax tbody td { vertical-align: middle; padding: 0.9rem; border-color: #f0f2f8; }
+    .table-ajax tbody tr:hover { background: #fff5f7; }
+    .badge-loai { padding: 0.4rem 0.7rem; border-radius: 0.35rem; font-size: 0.78rem; font-weight: 600; }
+    .empty-state { padding: 3rem; text-align: center; }
+    .empty-state-icon { font-size: 4rem; color: #d1d3e0; margin-bottom: 1rem; }
+    .stat-card { background: white; border-radius: 1rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1); }
+    .stat-icon { width: 3.5rem; height: 3.5rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .stat-info h4 { font-weight: 700; margin: 0; color: #2d3748; font-size: 1.5rem; }
+    .stat-info p { margin: 0; color: #a0aec0; font-size: 0.85rem; }
+</style>
+
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 5px solid #28a745;">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <div class="page-header-gradient">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-vials"></i> Chỉ định Dịch vụ Cận lâm sàng</h1>
+                <p>Quản lý các yêu cầu xét nghiệm, chẩn đoán hình ảnh, thăm dò chức năng</p>
+            </div>
+            <div class="d-none d-md-block">
+                <i class="fas fa-vials" style="font-size: 4rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(240, 147, 251, 0.15) 0%, rgba(245, 87, 108, 0.15) 100%); color: #f5576c;"><i class="fas fa-clipboard-list"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count()</h4>
+                    <p>Tổng chỉ định</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(246, 211, 101, 0.15) 0%, rgba(253, 160, 133, 0.15) 100%); color: #fda085;"><i class="fas fa-hourglass-half"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(r => r.Status == "Chờ thực hiện")</h4>
+                    <p>Chờ thực hiện</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(56, 239, 125, 0.15) 100%); color: #11998e;"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(r => r.Status == "Đã có kết quả")</h4>
+                    <p>Đã có kết quả</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(0, 242, 254, 0.15) 100%); color: #4facfe;"><i class="fas fa-spinner"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(r => r.Status == "Đang thực hiện")</h4>
+                    <p>Đang thực hiện</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-ajax mb-4">
+        <div class="card-header card-header-ajax d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-list mr-2"></i>Danh sách chỉ định</span>
+            <div class="d-flex align-items-center">
+                <form asp-action="Index" method="get" class="form-inline mr-3 mb-0">
+                    <select name="statusFilter" class="form-control form-control-sm mr-2" style="border-radius: 20px;">
+                        <option value="">Tất cả</option>
+                        <option value="Chờ thực hiện" selected="@(ViewData["StatusFilter"]?.ToString() == "Chờ thực hiện")">Chờ thực hiện</option>
+                        <option value="Đang thực hiện" selected="@(ViewData["StatusFilter"]?.ToString() == "Đang thực hiện")">Đang thực hiện</option>
+                        <option value="Đã có kết quả" selected="@(ViewData["StatusFilter"]?.ToString() == "Đã có kết quả")">Đã có kết quả</option>
+                    </select>
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Tìm tên BN, dịch vụ..." style="border-radius: 20px 0 0 20px;" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn" style="border-radius: 0 20px 20px 0; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; color: white;"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <a asp-action="Create" class="btn btn-sm btn-gradient">
+                    <i class="fas fa-plus mr-1"></i> Tạo chỉ định
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-ajax mb-0">
+                        <thead>
+                            <tr>
+                                <th width="18%"><i class="fas fa-user-injured mr-1"></i> Bệnh nhân</th>
+                                <th width="18%"><i class="fas fa-medkit mr-1"></i> Dịch vụ</th>
+                                <th width="14%"><i class="fas fa-user-md mr-1"></i> BS thực hiện</th>
+                                <th width="12%"><i class="fas fa-calendar mr-1"></i> Ngày TH</th>
+                                <th width="15%"><i class="fas fa-flask mr-1"></i> Kết quả</th>
+                                <th width="10%" class="text-center"><i class="fas fa-flag mr-1"></i> Trạng thái</th>
+                                <th width="13%" class="text-center"><i class="fas fa-cog mr-1"></i> Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong class="text-dark d-block">@(item.Record?.Patient?.FullName ?? "N/A")</strong>
+                                            <span class="text-muted" style="font-size: 0.75rem;">BA #@item.RecordId</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="font-weight-bold" style="color: #f5576c;">@(item.Service?.ServiceName ?? "N/A")</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-info">@(item.Doctor?.FullName ?? "N/A")</span>
+                                    </td>
+                                    <td>
+                                        <span class="font-weight-bold">@(item.ExecuteDate?.ToString("dd/MM/yyyy") ?? "Chưa TH")</span>
+                                    </td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 160px;" title="@item.ResultValue">
+                                            @(string.IsNullOrEmpty(item.ResultValue) ? "Chưa có" : item.ResultValue)
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        @switch (item.Status)
+                                        {
+                                            case "Chờ thực hiện":
+                                                <span class="badge badge-warning badge-loai"><i class="fas fa-hourglass-half mr-1"></i>Chờ TH</span>
+                                                break;
+                                            case "Đang thực hiện":
+                                                <span class="badge badge-info badge-loai text-white"><i class="fas fa-spinner mr-1"></i>Đang TH</span>
+                                                break;
+                                            case "Đã có kết quả":
+                                                <span class="badge badge-success badge-loai text-white"><i class="fas fa-check mr-1"></i>Có KQ</span>
+                                                break;
+                                            default:
+                                                <span class="badge badge-secondary badge-loai">@item.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group shadow-sm">
+                                            <a asp-action="Details" asp-route-id="@item.RsId" class="btn btn-sm btn-gradient-info btn-sm-gradient text-white" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                                            <a asp-action="Edit" asp-route-id="@item.RsId" class="btn btn-sm btn-gradient btn-sm-gradient text-white" title="Sửa"><i class="fas fa-edit"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.RsId" class="btn btn-sm btn-gradient-danger btn-sm-gradient text-white" title="Xóa"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-vials empty-state-icon"></i>
+                    <h5 class="text-muted font-weight-bold">Chưa có chỉ định nào</h5>
+                    <p class="text-muted mb-4">Tạo chỉ định dịch vụ CLS cho bệnh nhân</p>
+                    <a asp-action="Create" class="btn btn-gradient px-4"><i class="fas fa-plus mr-2"></i>Tạo chỉ định</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

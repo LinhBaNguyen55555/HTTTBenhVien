@@ -1,0 +1,185 @@
+@model IEnumerable<HTTTBenhVien.Models.Prescription>
+@{
+    ViewData["Title"] = "Quản lý Đơn thuốc";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .page-header-gradient {
+        background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+        color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(161, 140, 209, 0.3);
+    }
+    .card-ajax { border: none; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); overflow: hidden; }
+    .card-header-ajax { background: white; border-bottom: 2px solid #f8f9fe; padding: 1.25rem 1.5rem; font-weight: 600; color: #a18cd1; }
+    .btn-gradient { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); border: none; color: white; font-weight: 600; padding: 0.625rem 1.25rem; border-radius: 0.5rem; transition: all 0.3s ease; }
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(161, 140, 209, 0.4); color: white; }
+    .btn-gradient-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; color: white; }
+    .btn-gradient-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: white; }
+    .btn-sm-gradient { padding: 0.375rem 0.75rem; font-size: 0.875rem; border-radius: 0.375rem; }
+    .table-ajax thead th { background: #f8f9fc; color: #a18cd1; font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; border: none; padding: 0.9rem; }
+    .table-ajax tbody td { vertical-align: middle; padding: 0.9rem; border-color: #f0f2f8; }
+    .table-ajax tbody tr:hover { background: #faf5ff; }
+    .badge-loai { padding: 0.4rem 0.7rem; border-radius: 0.35rem; font-size: 0.78rem; font-weight: 600; }
+    .empty-state { padding: 3rem; text-align: center; }
+    .empty-state-icon { font-size: 4rem; color: #d1d3e0; margin-bottom: 1rem; }
+    .stat-card { background: white; border-radius: 1rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1); }
+    .stat-icon { width: 3.5rem; height: 3.5rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .stat-info h4 { font-weight: 700; margin: 0; color: #2d3748; font-size: 1.5rem; }
+    .stat-info p { margin: 0; color: #a0aec0; font-size: 0.85rem; }
+    .medicine-pills { display: flex; flex-wrap: wrap; gap: 0.25rem; max-width: 200px; }
+    .medicine-pill { background: #f3eaff; color: #a18cd1; padding: 0.15rem 0.5rem; border-radius: 1rem; font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
+</style>
+
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 5px solid #28a745;">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <div class="page-header-gradient">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-prescription-bottle-alt"></i> Quản lý Đơn thuốc</h1>
+                <p>Kê đơn, theo dõi và cấp phát thuốc cho bệnh nhân</p>
+            </div>
+            <div class="d-none d-md-block">
+                <i class="fas fa-prescription-bottle-alt" style="font-size: 4rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(161, 140, 209, 0.15) 0%, rgba(251, 194, 235, 0.15) 100%); color: #a18cd1;"><i class="fas fa-file-prescription"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count()</h4>
+                    <p>Tổng đơn thuốc</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(246, 211, 101, 0.15) 0%, rgba(253, 160, 133, 0.15) 100%); color: #fda085;"><i class="fas fa-hourglass-half"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(p => p.Status == "ChoCapPhat")</h4>
+                    <p>Chờ cấp phát</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(56, 239, 125, 0.15) 100%); color: #11998e;"><i class="fas fa-check-double"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(p => p.Status == "DaCapPhat")</h4>
+                    <p>Đã cấp phát</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-ajax mb-4">
+        <div class="card-header card-header-ajax d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-list mr-2"></i>Danh sách đơn thuốc</span>
+            <div class="d-flex align-items-center">
+                <form asp-action="Index" method="get" class="form-inline mr-3 mb-0">
+                    <select name="statusFilter" class="form-control form-control-sm mr-2" style="border-radius: 20px;">
+                        <option value="">Tất cả</option>
+                        <option value="ChoCapPhat" selected="@(ViewData["StatusFilter"]?.ToString() == "ChoCapPhat")">Chờ cấp phát</option>
+                        <option value="DaCapPhat" selected="@(ViewData["StatusFilter"]?.ToString() == "DaCapPhat")">Đã cấp phát</option>
+                        <option value="Huy" selected="@(ViewData["StatusFilter"]?.ToString() == "Huy")">Đã hủy</option>
+                    </select>
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Tìm tên BN, BS..." style="border-radius: 20px 0 0 20px;" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn" style="border-radius: 0 20px 20px 0; background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); border: none; color: white;"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <a asp-action="Create" class="btn btn-sm btn-gradient">
+                    <i class="fas fa-plus mr-1"></i> Kê đơn mới
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-ajax mb-0">
+                        <thead>
+                            <tr>
+                                <th width="8%"><i class="fas fa-hashtag mr-1"></i> Mã</th>
+                                <th width="18%"><i class="fas fa-user-injured mr-1"></i> Bệnh nhân</th>
+                                <th width="14%"><i class="fas fa-user-md mr-1"></i> BS kê đơn</th>
+                                <th width="10%"><i class="fas fa-calendar mr-1"></i> Ngày kê</th>
+                                <th width="22%"><i class="fas fa-pills mr-1"></i> Thuốc kê</th>
+                                <th width="10%" class="text-center"><i class="fas fa-flag mr-1"></i> Trạng thái</th>
+                                <th width="13%" class="text-center"><i class="fas fa-cog mr-1"></i> Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><span class="badge badge-light border font-weight-bold px-2 py-1">#@item.PrescriptionId</span></td>
+                                    <td><strong class="text-dark">@(item.Record?.Patient?.FullName ?? "N/A")</strong></td>
+                                    <td><span class="text-info font-weight-bold">@(item.Doctor?.FullName ?? "N/A")</span></td>
+                                    <td><span class="font-weight-bold">@(item.CreateDate?.ToString("dd/MM/yyyy") ?? "N/A")</span></td>
+                                    <td>
+                                        <div class="medicine-pills">
+                                            @foreach (var d in item.PrescriptionDetails.Take(3))
+                                            {
+                                                <span class="medicine-pill">@d.Medicine?.MedicineName x@d.Quantity</span>
+                                            }
+                                            @if (item.PrescriptionDetails.Count > 3)
+                                            {
+                                                <span class="medicine-pill" style="background: #e0d4f5;">+@(item.PrescriptionDetails.Count - 3) thuốc</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        @switch (item.Status)
+                                        {
+                                            case "ChoCapPhat":
+                                                <span class="badge badge-warning badge-loai"><i class="fas fa-hourglass-half mr-1"></i>Chờ CP</span>
+                                                break;
+                                            case "DaCapPhat":
+                                                <span class="badge badge-success badge-loai text-white"><i class="fas fa-check mr-1"></i>Đã CP</span>
+                                                break;
+                                            case "Huy":
+                                                <span class="badge badge-secondary badge-loai"><i class="fas fa-ban mr-1"></i>Đã hủy</span>
+                                                break;
+                                            default:
+                                                <span class="badge badge-light badge-loai">@item.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group shadow-sm">
+                                            <a asp-action="Details" asp-route-id="@item.PrescriptionId" class="btn btn-sm btn-gradient-info btn-sm-gradient text-white" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                                            <a asp-action="Edit" asp-route-id="@item.PrescriptionId" class="btn btn-sm btn-gradient btn-sm-gradient text-white" title="Sửa"><i class="fas fa-edit"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.PrescriptionId" class="btn btn-sm btn-gradient-danger btn-sm-gradient text-white" title="Xóa"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-prescription-bottle-alt empty-state-icon"></i>
+                    <h5 class="text-muted font-weight-bold">Chưa có đơn thuốc nào</h5>
+                    <p class="text-muted mb-4">Kê đơn thuốc mới cho bệnh nhân</p>
+                    <a asp-action="Create" class="btn btn-gradient px-4"><i class="fas fa-plus mr-2"></i>Kê đơn mới</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

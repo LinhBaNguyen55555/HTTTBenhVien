@@ -1,0 +1,55 @@
+@model HTTTBenhVien.Models.Prescription
+@{
+    ViewData["Title"] = "Xóa Đơn thuốc";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+                <div class="card-header py-3" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white;">
+                    <h6 class="m-0 font-weight-bold text-center"><i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa đơn thuốc</h6>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4" style="font-size: 4rem; color: #eb3349;">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                    </div>
+
+                    <h4 class="font-weight-bold text-gray-800 mb-2">Đơn thuốc #@Model.PrescriptionId</h4>
+                    <p class="text-muted mb-1"><strong>Bệnh nhân:</strong> @(Model.Record?.Patient?.FullName ?? "N/A")</p>
+                    <p class="text-muted mb-1"><strong>BS kê đơn:</strong> @(Model.Doctor?.FullName ?? "N/A")</p>
+                    <p class="text-muted mb-1"><strong>Ngày kê:</strong> @(Model.CreateDate?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+                    <p class="text-muted mb-4"><strong>Số thuốc:</strong> @Model.PrescriptionDetails.Count loại</p>
+
+                    @if (Model.PrescriptionDetails.Any())
+                    {
+                        <div class="text-left mb-3 p-3" style="background: #fff3e6; border-radius: 0.5rem; border-left: 4px solid #e67e22;">
+                            <strong class="text-warning"><i class="fas fa-pills mr-1"></i> Thuốc trong đơn:</strong>
+                            <ul class="mt-2 mb-0" style="list-style: none; padding-left: 0;">
+                                @foreach (var d in Model.PrescriptionDetails)
+                                {
+                                    <li class="mb-1"><i class="fas fa-capsules text-muted mr-1"></i> @(d.Medicine?.MedicineName ?? "N/A") x @d.Quantity</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Cảnh báo:</strong> Xóa đơn thuốc sẽ xóa toàn bộ chi tiết thuốc liên quan. Hành động này không thể hoàn tác.
+                    </div>
+
+                    <form asp-action="Delete" class="mt-4">
+                        <input type="hidden" asp-for="PrescriptionId" />
+                        <button type="submit" class="btn btn-danger px-4 py-2 mr-2" style="border-radius: 0.5rem; background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none;">
+                            <i class="fas fa-trash-alt mr-2"></i> Xác nhận Xóa
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary px-4 py-2" style="border-radius: 0.5rem;">
+                            Hủy bỏ
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -126,9 +126,9 @@
 
             <!-- Nav Item - Kho Duoc -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "KhoDuoc", new { area = "Admin" })">
-                    <i class="fas fa-pills"></i>
-                    <span>Kho dược</span>
+                <a class="nav-link" href="@Url.Action("Index", "Medicine", new { area = "Admin" })">
+                    <i class="fas fa-capsules"></i>
+                    <span>Kho thuốc</span>
                 </a>
             </li>
 
@@ -142,9 +142,17 @@
 
             <!-- Nav Item - Ho So Benh An -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "HoSoBenhAn", new { area = "Admin" })">
+                <a class="nav-link" href="@Url.Action("Index", "MedicalRecord", new { area = "Admin" })">
                     <i class="fas fa-file-medical"></i>
                     <span>Hồ sơ bệnh án</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Dich Vu Y Te -->
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index", "MedicalService", new { area = "Admin" })">
+                    <i class="fas fa-hand-holding-medical"></i>
+                    <span>Dịch vụ y tế</span>
                 </a>
             </li>
 
@@ -164,27 +172,60 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Chi Dinh -->
+            <!-- Nav Item - Chi Dinh CLS -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "ChiDinh", new { area = "Admin" })">
-                    <i class="fas fa-prescription"></i>
-                    <span>Chỉ định</span>
+                <a class="nav-link" href="@Url.Action("Index", "RecordService", new { area = "Admin" })">
+                    <i class="fas fa-vials"></i>
+                    <span>Chỉ định CLS</span>
                 </a>
             </li>
 
             <!-- Nav Item - Don Thuoc -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "DonThuoc", new { area = "Admin" })">
-                    <i class="fas fa-pills"></i>
+                <a class="nav-link" href="@Url.Action("Index", "Prescription", new { area = "Admin" })">
+                    <i class="fas fa-prescription-bottle-alt"></i>
                     <span>Đơn thuốc</span>
                 </a>
             </li>
 
-            <!-- Nav Item - Thanh Toan -->
+            <!-- Nav Item - Hoa Don -->
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "ThanhToan", new { area = "Admin" })">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <span>Thanh toán</span>
+                <a class="nav-link" href="@Url.Action("Index", "Invoice", new { area = "Admin" })">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Hóa đơn</span>
+                </a>
+            </li>
+
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Nội dung
+            </div>
+
+            <!-- Nav Item - Bai Viet -->
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index", "Article", new { area = "Admin" })">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Bài viết</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Web Menu -->
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index", "WebMenu", new { area = "Admin" })">
+                    <i class="fas fa-bars"></i>
+                    <span>Menu Website</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Lien He -->
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index", "Contact", new { area = "Admin" })">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span>Liên hệ</span>
                 </a>
             </li>
 
