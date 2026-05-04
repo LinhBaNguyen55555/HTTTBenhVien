@@ -45,176 +45,172 @@
             <li class="nav-item">
                 <a class="nav-link" href="@Url.Action("Index", "Home", new { area = "Admin" })">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Báo cáo tổng quan</span>
+                    <span>Bảng điều khiển</span>
                 </a>
             </li>
 
-            <!-- Divider -->
+            @if (User.IsInRole("Admin"))
+            {
+                <!-- ═══════ ADMIN: HỆ THỐNG ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading">Hệ thống</div>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Account", new { area = "Admin" })">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Quản lý tài khoản</span>
+                    </a>
+                </li>
+
+                <!-- ═══════ ADMIN: CƠ CẤU & DANH MỤC ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading">Cơ cấu &amp; Danh mục</div>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Department", new { area = "Admin" })">
+                        <i class="fas fa-hospital"></i>
+                        <span>Quản lý khoa</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Room", new { area = "Admin" })">
+                        <i class="fas fa-door-open"></i>
+                        <span>Quản lý phòng</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Bed", new { area = "Admin" })">
+                        <i class="fas fa-bed"></i>
+                        <span>Quản lý giường</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "MedicalService", new { area = "Admin" })">
+                        <i class="fas fa-hand-holding-medical"></i>
+                        <span>Dịch vụ y tế</span>
+                    </a>
+                </li>
+
+                <!-- ═══════ ADMIN: NHÂN SỰ ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading">Nhân sự &amp; Bệnh nhân</div>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Employee", new { area = "Admin" })">
+                        <i class="fas fa-user-md"></i>
+                        <span>Nhân viên</span>
+                    </a>
+                </li>
+            }
+
+            @if (User.IsInRole("Admin") || User.IsInRole("BacSi") || User.IsInRole("Doctor") || User.IsInRole("LeTan") || User.IsInRole("Receptionist") || User.IsInRole("Nurse"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Patient", new { area = "Admin" })">
+                        <i class="fas fa-procedures"></i>
+                        <span>Bệnh nhân</span>
+                    </a>
+                </li>
+            }
+
+            <!-- ═══════ NGHIỆP VỤ Y TẾ ═══════ -->
             <hr class="sidebar-divider">
+            <div class="sidebar-heading">Nghiệp vụ y tế</div>
 
-            <!-- Heading: Hệ thống -->
-            <div class="sidebar-heading">
-                Hệ thống
-            </div>
+            @if (User.IsInRole("Admin") || User.IsInRole("BacSi") || User.IsInRole("Doctor") || User.IsInRole("LeTan") || User.IsInRole("Receptionist") || User.IsInRole("Nurse"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Appointment", new { area = "Admin" })">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Lịch khám</span>
+                    </a>
+                </li>
+            }
 
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Account", new { area = "Admin" })">
-                    <i class="fas fa-users-cog"></i>
-                    <span>Quản lý tài khoản</span>
-                </a>
-            </li>
+            @if (User.IsInRole("Admin") || User.IsInRole("BacSi") || User.IsInRole("Doctor"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "MedicalRecord", new { area = "Admin" })">
+                        <i class="fas fa-file-medical"></i>
+                        <span>Hồ sơ bệnh án</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "RecordService", new { area = "Admin" })">
+                        <i class="fas fa-vials"></i>
+                        <span>Chỉ định CLS</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Prescription", new { area = "Admin" })">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                        <span>Đơn thuốc</span>
+                    </a>
+                </li>
+            }
 
-            <!-- Divider -->
-            <hr class="sidebar-divider">
+            <!-- ═══════ HẬU CẦN & TÀI CHÍNH ═══════ -->
+            @if (User.IsInRole("Admin") || User.IsInRole("DuocSi") || User.IsInRole("LeTan") || User.IsInRole("Receptionist"))
+            {
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading">Hậu cần &amp; Tài chính</div>
+            }
 
-            <!-- Heading: Danh mục -->
-            <div class="sidebar-heading">
-                Cơ cấu & Danh mục
-            </div>
+            @if (User.IsInRole("Admin") || User.IsInRole("DuocSi"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Medicine", new { area = "Admin" })">
+                        <i class="fas fa-capsules"></i>
+                        <span>Kho thuốc</span>
+                    </a>
+                </li>
+            }
 
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Department", new { area = "Admin" })">
-                    <i class="fas fa-hospital"></i>
-                    <span>Quản lý khoa</span>
-                </a>
-            </li>
+            @if (User.IsInRole("Admin"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "MedicalSupply", new { area = "Admin" })">
+                        <i class="fas fa-boxes"></i>
+                        <span>Vật tư y tế</span>
+                    </a>
+                </li>
+            }
 
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Room", new { area = "Admin" })">
-                    <i class="fas fa-door-open"></i>
-                    <span>Quản lý phòng</span>
-                </a>
-            </li>
+            @if (User.IsInRole("Admin") || User.IsInRole("LeTan") || User.IsInRole("Receptionist"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Invoice", new { area = "Admin" })">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Hóa đơn</span>
+                    </a>
+                </li>
+            }
 
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Bed", new { area = "Admin" })">
-                    <i class="fas fa-bed"></i>
-                    <span>Quản lý giường</span>
-                </a>
-            </li>
+            @if (User.IsInRole("Admin"))
+            {
+                <!-- ═══════ ADMIN: NỘI DUNG ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading">Nội dung &amp; Phản hồi</div>
 
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "MedicalService", new { area = "Admin" })">
-                    <i class="fas fa-hand-holding-medical"></i>
-                    <span>Dịch vụ y tế</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading: Nhân sự -->
-            <div class="sidebar-heading">
-                Nhân sự & Bệnh nhân
-            </div>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Employee", new { area = "Admin" })">
-                    <i class="fas fa-user-md"></i>
-                    <span>Nhân viên</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Patient", new { area = "Admin" })">
-                    <i class="fas fa-procedures"></i>
-                    <span>Bệnh nhân</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading: Chuyên môn -->
-            <div class="sidebar-heading">
-                Nghiệp vụ y tế
-            </div>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Appointment", new { area = "Admin" })">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Lịch khám</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "MedicalRecord", new { area = "Admin" })">
-                    <i class="fas fa-file-medical"></i>
-                    <span>Hồ sơ bệnh án</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "RecordService", new { area = "Admin" })">
-                    <i class="fas fa-vials"></i>
-                    <span>Chỉ định CLS</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Prescription", new { area = "Admin" })">
-                    <i class="fas fa-prescription-bottle-alt"></i>
-                    <span>Đơn thuốc</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading: Tài chính -->
-            <div class="sidebar-heading">
-                Hậu cần & Tài chính
-            </div>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Medicine", new { area = "Admin" })">
-                    <i class="fas fa-capsules"></i>
-                    <span>Kho thuốc</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "MedicalSupply", new { area = "Admin" })">
-                    <i class="fas fa-boxes"></i>
-                    <span>Vật tư y tế</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Invoice", new { area = "Admin" })">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    <span>Hóa đơn</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading: Nội dung -->
-            <div class="sidebar-heading">
-                Nội dung & Phản hồi
-            </div>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Article", new { area = "Admin" })">
-                    <i class="fas fa-newspaper"></i>
-                    <span>Bài viết</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Contact", new { area = "Admin" })">
-                    <i class="fas fa-envelope-open-text"></i>
-                    <span>Liên hệ</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "WebMenu", new { area = "Admin" })">
-                    <i class="fas fa-sitemap"></i>
-                    <span>Menu Website</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Article", new { area = "Admin" })">
+                        <i class="fas fa-newspaper"></i>
+                        <span>Bài viết</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Contact", new { area = "Admin" })">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <span>Liên hệ</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "WebMenu", new { area = "Admin" })">
+                        <i class="fas fa-sitemap"></i>
+                        <span>Menu Website</span>
+                    </a>
+                </li>
+            }
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">

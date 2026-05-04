@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Bảng điều khiển Admin";
+    ViewData["Title"] = "Bảng điều khiển";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     var chartLabels = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ChartLabels);
     var chartData = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ChartData);
@@ -60,13 +60,24 @@
     .avatar-sm { width: 36px; height: 36px; border-radius: 10px; background: #edf2f7; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #4a5568; }
 </style>
 
+@{
+    var roleName = "";
+    if (User.IsInRole("Admin")) roleName = "Quản trị viên";
+    else if (User.IsInRole("BacSi") || User.IsInRole("Doctor")) roleName = "Bác sĩ";
+    else if (User.IsInRole("LeTan") || User.IsInRole("Receptionist")) roleName = "Lễ tân";
+    else if (User.IsInRole("DuocSi")) roleName = "Dược sĩ";
+    else if (User.IsInRole("Nurse")) roleName = "Điều dưỡng";
+    else roleName = "Nhân viên";
+}
+
 <div class="container-fluid dashboard-container">
     <!-- Header Section -->
     <div class="row align-items-end mb-5">
         <div class="col">
             <div class="header-greeting">
-                <h2 class="mb-1">Báo cáo tổng quan</h2>
+                <h2 class="mb-1">Xin chào, @User.Identity?.Name 👋</h2>
                 <div class="header-date">
+                    <span class="badge mr-2" style="background: linear-gradient(135deg, #4e73df, #36b9cc); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;">@roleName</span>
                     <i class="far fa-calendar-alt mr-1"></i> @DateTime.Now.ToString("'Ngày' dd 'tháng' MM 'năm' yyyy", new System.Globalization.CultureInfo("vi-VN"))
                 </div>
             </div>
