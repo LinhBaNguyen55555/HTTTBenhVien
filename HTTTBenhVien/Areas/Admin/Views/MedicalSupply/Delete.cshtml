@@ -1,0 +1,47 @@
+@model HTTTBenhVien.Models.MedicalSupply
+@{
+    ViewData["Title"] = "Xóa Vật tư";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+                <div class="card-header py-3" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white;">
+                    <h6 class="m-0 font-weight-bold text-center"><i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa vật tư</h6>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <div class="mb-3">
+                        <div style="width: 80px; height: 80px; border-radius: 1rem; display: inline-flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #eb3349; background: #fdeaea; margin: 0 auto;">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                    </div>
+
+                    <h4 class="font-weight-bold text-gray-800 mb-2">@Model.SupplyName</h4>
+                    <p class="text-muted mb-1">ĐVT: <strong>@(Model.Unit ?? "N/A")</strong></p>
+                    <p class="mb-1"><strong style="color: #5b86e5;">@((Model.UnitPrice ?? 0).ToString("N0")) VNĐ</strong> / @Model.Unit</p>
+                    <p class="text-muted mb-1">Tồn kho: <strong>@Model.StockQuantity @Model.Unit</strong></p>
+                    @if (!string.IsNullOrEmpty(Model.Supplier))
+                    {
+                        <p class="text-muted mb-4">NCC: <strong>@Model.Supplier</strong></p>
+                    }
+
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác.
+                    </div>
+
+                    <form asp-action="Delete" class="mt-4">
+                        <input type="hidden" asp-for="SupplyId" />
+                        <button type="submit" class="btn btn-danger px-4 py-2 mr-2" style="border-radius: 0.5rem; background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none;">
+                            <i class="fas fa-trash-alt mr-2"></i> Xác nhận Xóa
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary px-4 py-2" style="border-radius: 0.5rem;">
+                            Hủy bỏ
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

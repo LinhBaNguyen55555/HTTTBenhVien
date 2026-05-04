@@ -1,0 +1,66 @@
+@model HTTTBenhVien.Models.Account
+@{
+    ViewData["Title"] = "Xóa tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800 font-weight-bold">Xóa tài khoản</h1>
+
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+        <div class="card-header py-3" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white;">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-exclamation-triangle mr-2"></i>Xác nhận xóa tài khoản</h6>
+        </div>
+        <div class="card-body p-4">
+            <div class="alert alert-danger" style="border-radius: 10px;">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <strong>Cảnh báo!</strong> Bạn đang xóa tài khoản sau đây. Hành động này không thể hoàn tác.
+            </div>
+
+            <table class="table table-bordered" style="border-radius: 0.5rem; overflow: hidden;">
+                <tr>
+                    <th style="width: 200px; background: #f8f9fc;">Mã tài khoản</th>
+                    <td>@Model.AccountId</td>
+                </tr>
+                <tr>
+                    <th style="background: #f8f9fc;">Tên đăng nhập</th>
+                    <td><code style="color: #6f42c1; font-weight: 600;">@Model.Username</code></td>
+                </tr>
+                <tr>
+                    <th style="background: #f8f9fc;">Nhân viên</th>
+                    <td>@(Model.Emp?.FullName ?? "N/A")</td>
+                </tr>
+                <tr>
+                    <th style="background: #f8f9fc;">Vai trò</th>
+                    <td>@(Model.RoleName ?? "N/A")</td>
+                </tr>
+                <tr>
+                    <th style="background: #f8f9fc;">Trạng thái</th>
+                    <td>
+                        @if (Model.IsActive == true)
+                        {
+                            <span class="badge badge-success">Hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-danger">Đã khóa</span>
+                        }
+                    </td>
+                </tr>
+            </table>
+
+            <hr class="mt-4 mb-4" />
+            <div class="text-center">
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="AccountId" />
+                    <button type="submit" class="btn px-5 py-2 mr-3" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: white; font-weight: 600;">
+                        <i class="fas fa-trash mr-2"></i> Xác nhận xóa
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

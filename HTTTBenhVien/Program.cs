@@ -12,7 +12,7 @@ builder.Services.AddDbContext<HtttbenhvienContext>(options =>
 
 // ═══════════════════════════════════════════════════════
 // Bỏ qua Authentication tạm thời (Dev Mode)
-var devMode = builder.Configuration.GetValue<bool>("DevMode:BypassAuth", true);
+var devMode = builder.Configuration.GetValue<bool>("DevMode:BypassAuth", false);
 // ═══════════════════════════════════════════════════════
 
 // Authentication
@@ -22,7 +22,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Admin/Account/Login";
         options.LogoutPath = "/Admin/Account/Logout";
         options.AccessDeniedPath = "/Admin/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         // Bypass auth check trong Dev Mode
         if (devMode)
@@ -137,13 +137,13 @@ async Task SeedData(HtttbenhvienContext context)
 
         var accounts = new List<Account>();
         if (admin != null)
-            accounts.Add(new() { EmpId = admin.EmpId, Username = "admin", PasswordHash = HashPassword("admin123"), RoleName = "Admin", IsActive = true });
+            accounts.Add(new() { EmpId = admin.EmpId, Username = "admin", Password = HashPassword("admin123"), RoleName = "Admin", IsActive = true });
         if (doctor != null)
-            accounts.Add(new() { EmpId = doctor.EmpId, Username = "bacsi01", PasswordHash = HashPassword("123456"), RoleName = "BacSi", IsActive = true });
+            accounts.Add(new() { EmpId = doctor.EmpId, Username = "bacsi01", Password = HashPassword("123456"), RoleName = "BacSi", IsActive = true });
         if (nurse != null)
-            accounts.Add(new() { EmpId = nurse.EmpId, Username = "letan01", PasswordHash = HashPassword("123456"), RoleName = "LeTan", IsActive = true });
+            accounts.Add(new() { EmpId = nurse.EmpId, Username = "letan01", Password = HashPassword("123456"), RoleName = "LeTan", IsActive = true });
         if (pharm != null)
-            accounts.Add(new() { EmpId = pharm.EmpId, Username = "duocsi01", PasswordHash = HashPassword("123456"), RoleName = "DuocSi", IsActive = true });
+            accounts.Add(new() { EmpId = pharm.EmpId, Username = "duocsi01", Password = HashPassword("123456"), RoleName = "DuocSi", IsActive = true });
 
         context.Accounts.AddRange(accounts);
         await context.SaveChangesAsync();

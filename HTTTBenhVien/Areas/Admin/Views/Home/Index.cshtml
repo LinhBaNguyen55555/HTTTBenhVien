@@ -1,192 +1,469 @@
-﻿@{
+@{
+    ViewData["Title"] = "Bảng điều khiển Admin";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var chartLabels = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ChartLabels);
+    var chartData = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ChartData);
+    var pieLabels = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.PieLabels);
+    var pieData = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.PieData);
+    var doughnutLabels = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.DoughnutLabels);
+    var doughnutData = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.DoughnutData);
+    var radarLabels = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.RadarLabels);
+    var radarData = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.RadarData);
 }
 
-<!-- Main Content -->
-<div id="content">
+<style>
+    .dashboard-container { padding: 1.5rem; background: #f8fafc; min-height: 100vh; }
+    .header-greeting h2 { color: #1a202c; font-weight: 800; letter-spacing: -0.025em; }
+    .header-date { color: #718096; font-weight: 500; }
+    
+    .stat-widget {
+        background: white; border-radius: 1.25rem; padding: 1.5rem; border: 1px solid #edf2f7;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;
+    }
+    .stat-widget:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    .stat-widget .icon-box {
+        width: 56px; height: 56px; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+    .stat-widget .label { color: #718096; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-widget .value { color: #1a202c; font-size: 1.75rem; font-weight: 800; margin-top: 0.25rem; }
+    .stat-widget .trend { font-size: 0.75rem; margin-top: 0.75rem; display: flex; align-items: center; gap: 0.25rem; }
+    
+    .bg-soft-primary { background: #ebf4ff; color: #3182ce; }
+    .bg-soft-success { background: #f0fff4; color: #38a169; }
+    .bg-soft-info { background: #e6fffa; color: #319795; }
+    .bg-soft-warning { background: #fffaf0; color: #d69e2e; }
 
-    <!-- Topbar -->
-    <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+    .quick-action-btn {
+        border-radius: 0.75rem; padding: 1.25rem 1rem; text-align: center; transition: all 0.3s;
+        border: 1px solid #edf2f7; background: white; color: #4a5568; font-weight: 700;
+        display: flex; flex-direction: column; align-items: center; gap: 0.75rem; text-decoration: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .quick-action-btn:hover {
+        background: white; transform: translateY(-3px); color: #4e73df; border-color: #4e73df; 
+        text-decoration: none; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .quick-action-btn i { font-size: 1.5rem; }
 
-        <!-- Sidebar Toggle (Topbar) -->
-        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-            <i class="fa fa-bars"></i>
-        </button>
+    .card-header-premium {
+        background: white; border-bottom: 1px solid #edf2f7; padding: 1.25rem 1.5rem;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .card-header-premium h6 { margin: 0; font-weight: 700; color: #2d3748; font-size: 1rem; }
+    
+    .table-modern thead th {
+        background: #f8fafc; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em;
+        color: #a0aec0; border-bottom: 1px solid #edf2f7; padding: 1rem 1.5rem;
+    }
+    .table-modern tbody td { padding: 1.25rem 1.5rem; border-color: #edf2f7; vertical-align: middle; color: #4a5568; }
+    .avatar-sm { width: 36px; height: 36px; border-radius: 10px; background: #edf2f7; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #4a5568; }
+</style>
 
-        <!-- Topbar Navbar -->
-        <ul class="navbar-nav ml-auto">
-
-            <!-- Nav Item - User Information -->
-            <li class="nav-item dropdown no-arrow">
-                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
-                    <img class="img-profile rounded-circle" src="~/admin/img/undraw_profile.svg">
-                </a>
-                <!-- Dropdown - User Information -->
-                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                     aria-labelledby="userDropdown">
-                    <a class="dropdown-item" href="@Url.Action("Profile", "Account", new { area = "Admin" })">
-                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Profile
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Logout
-                    </a>
-                </div>
-            </li>
-
-        </ul>
-
-    </nav>
-    <!-- End of Topbar -->
-    <!-- Begin Page Content -->
-    <div class="container-fluid">
-
-        <!-- Page Heading -->
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Bảng điều khiển</h1>
-        </div>
-
-        <!-- Content Row -->
-        <div class="row">
-
-            <!-- Khoa Card -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Khoa
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-hospital fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Nhan Vien Card -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Nhân viên
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-user-md fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Benh Nhan Card -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Bệnh nhân
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-procedures fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lich Kham Card -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Lịch khám hôm nay
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
+<div class="container-fluid dashboard-container">
+    <!-- Header Section -->
+    <div class="row align-items-end mb-5">
+        <div class="col">
+            <div class="header-greeting">
+                <h2 class="mb-1">Báo cáo tổng quan</h2>
+                <div class="header-date">
+                    <i class="far fa-calendar-alt mr-1"></i> @DateTime.Now.ToString("'Ngày' dd 'tháng' MM 'năm' yyyy", new System.Globalization.CultureInfo("vi-VN"))
                 </div>
             </div>
         </div>
-
-        <!-- Quick Actions Row -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Thao tác nhanh</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <a href="@Url.Action("CreateKhoa", "KhoaPhong", new { area = "Admin" })" 
-                                   class="btn btn-primary btn-block">
-                                    <i class="fas fa-plus mr-2"></i> Thêm khoa mới
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="@Url.Action("CreatePhong", "KhoaPhong", new { area = "Admin" })" 
-                                   class="btn btn-success btn-block">
-                                    <i class="fas fa-plus mr-2"></i> Thêm phòng mới
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="@Url.Action("Index", "Employee", new { area = "Admin" })" 
-                                   class="btn btn-info btn-block text-white">
-                                    <i class="fas fa-user-md mr-2"></i> Quản lý nhân viên
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="@Url.Action("Index", "BenhNhan", new { area = "Admin" })" 
-                                   class="btn btn-warning btn-block text-white">
-                                    <i class="fas fa-procedures mr-2"></i> Quản lý bệnh nhân
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+        <div class="col-auto">
+            <div class="d-flex gap-2">
+                <div class="bg-white border rounded-pill px-3 py-2 d-flex align-items-center shadow-sm">
+                    <span class="dot bg-success mr-2" style="width:8px; height:8px; border-radius:50%"></span>
+                    <span class="small font-weight-bold text-gray-700">@ViewBag.TodayAppointments Lịch hẹn mới</span>
                 </div>
             </div>
         </div>
-
-        <!-- Welcome Card -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card bg-gradient-primary text-white shadow">
-                    <div class="card-body">
-                        <div class="text-center">
-                            <i class="fas fa-hospital-alt fa-4x mb-3"></i>
-                            <h2>Chào mừng đến với Hệ thống Quản lý Bệnh viện</h2>
-                            <p>Hệ thống quản lý thông tin bệnh viện toàn diện</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
-    <!-- /.container-fluid -->
 
+    <!-- Stats Grid -->
+    <div class="row mb-5">
+        <!-- Revenue Widget -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-widget">
+                <div class="icon-box bg-soft-primary">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="label">Doanh thu tháng</div>
+                <div class="value">@((ViewBag.MonthlyRevenue ?? 0).ToString("N0"))<small class="text-muted ml-1">đ</small></div>
+                <div class="trend text-success">
+                    <i class="fas fa-arrow-up"></i> <span>+12.5%</span> <span class="text-muted font-weight-normal">so với tháng trước</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patients Widget -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-widget">
+                <div class="icon-box bg-soft-success">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="label">Tổng bệnh nhân</div>
+                <div class="value">@ViewBag.TotalPatients</div>
+                <div class="trend text-success">
+                    <i class="fas fa-arrow-up"></i> <span>+5.2%</span> <span class="text-muted font-weight-normal">tăng trưởng</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctors Widget -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-widget">
+                <div class="icon-box bg-soft-info">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="label">Nhân sự hệ thống</div>
+                <div class="value">@ViewBag.TotalEmployees</div>
+                <div class="trend text-info">
+                    <i class="fas fa-check-circle"></i> <span class="text-muted font-weight-normal">Đang hoạt động tốt</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplies Widget -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-widget">
+                <div class="icon-box bg-soft-warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="label">Cảnh báo tồn kho</div>
+                <div class="value">@ViewBag.LowStockMedicine</div>
+                <div class="trend text-warning">
+                    <i class="fas fa-history"></i> <span class="text-muted font-weight-normal">Cần nhập thêm thuốc</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4 stat-card">
+                <div class="card-header-premium">
+                    <h6><i class="fas fa-chart-line mr-2 text-primary"></i>Xu hướng khám bệnh (7 ngày qua)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="appointmentChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card shadow stat-card h-100">
+                        <div class="card-header-premium">
+                            <h6><i class="fas fa-chart-pie mr-2 text-success"></i>Trạng thái lịch khám</h6>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center">
+                            <canvas id="pieChart" style="max-height: 250px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow stat-card h-100">
+                        <div class="card-header-premium">
+                            <h6><i class="fas fa-chart-pie mr-2 text-warning"></i>Doanh thu theo PT thanh toán</h6>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center">
+                            <canvas id="doughnutChart" style="max-height: 250px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow stat-card h-100">
+                        <div class="card-header-premium">
+                            <h6><i class="fas fa-hospital mr-2 text-danger"></i>Top 5 Khoa hoạt động sôi nổi</h6>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center">
+                            <canvas id="radarChart" style="max-height: 250px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Appointments -->
+            <div class="card shadow mb-4 stat-card">
+                <div class="card-header-premium">
+                    <h6><i class="fas fa-calendar-alt mr-2 text-info"></i>Lịch khám vừa đăng ký</h6>
+                    <a href="@Url.Action("Index", "Appointment", new { area = "Admin" })" class="btn btn-sm btn-link">Xem tất cả</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-modern mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Bệnh nhân</th>
+                                    <th>Ngày khám</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var app in (IEnumerable<HTTTBenhVien.Models.Appointment>)ViewBag.RecentAppointments)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm mr-2 text-info">@app.Patient?.FullName.Substring(0, 1)</div>
+                                                <div>
+                                                    <div class="font-weight-bold">@app.Patient?.FullName</div>
+                                                    <div class="small text-muted">@app.Patient?.Phone</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@(app.AppDate?.ToString("dd/MM/yyyy HH:mm"))</td>
+                                        <td>
+                                            @switch (app.Status)
+                                            {
+                                                case "New": <span class="badge badge-info">Mới</span> break;
+                                                case "Confirmed": <span class="badge badge-success">Đã xác nhận</span> break;
+                                                case "Pending": <span class="badge badge-warning">Đang chờ</span> break;
+                                                case "Completed": <span class="badge badge-primary">Hoàn thành</span> break;
+                                                case "Cancelled": <span class="badge badge-danger">Đã hủy</span> break;
+                                                default: <span class="badge badge-light">@app.Status</span> break;
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Side Stats -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4 stat-card">
+                <div class="card-header-premium">
+                    <h6><i class="fas fa-bolt mr-2 text-warning"></i>Thao tác nhanh</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6 mb-3">
+                            <a href="@Url.Action("Create", "Patient", new { area = "Admin" })" class="quick-action-btn">
+                                <i class="fas fa-user-plus text-primary"></i>
+                                <span>Thêm BN</span>
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="@Url.Action("Create", "Appointment", new { area = "Admin" })" class="quick-action-btn">
+                                <i class="fas fa-calendar-plus text-success"></i>
+                                <span>Đặt lịch</span>
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="@Url.Action("Create", "Prescription", new { area = "Admin" })" class="quick-action-btn">
+                                <i class="fas fa-file-medical text-info"></i>
+                                <span>Kê đơn</span>
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="@Url.Action("Create", "Invoice", new { area = "Admin" })" class="quick-action-btn">
+                                <i class="fas fa-file-invoice-dollar text-warning"></i>
+                                <span>Hóa đơn</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Invoices -->
+            <div class="card shadow mb-4 stat-card">
+                <div class="card-header-premium">
+                    <h6><i class="fas fa-file-invoice-dollar mr-2 text-warning"></i>Hóa đơn vừa xuất</h6>
+                    <a href="@Url.Action("Index", "Invoice", new { area = "Admin" })" class="btn btn-sm btn-link">Xem tất cả</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-modern mb-0">
+                            <thead>
+                                <tr>
+                                    <th>BN</th>
+                                    <th>Số tiền</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var inv in (IEnumerable<HTTTBenhVien.Models.Invoice>)ViewBag.RecentInvoices)
+                                {
+                                    <tr>
+                                        <td class="font-weight-bold">@inv.Patient?.FullName</td>
+                                        <td class="text-primary">@((inv.TotalAmount ?? 0).ToString("N0"))</td>
+                                        <td>
+                                            @if (inv.Status == "Paid") { <span class="badge badge-success">Đã thu</span> }
+                                            else { <span class="badge badge-warning">Chờ thu</span> }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Patients -->
+            <div class="card shadow mb-4 stat-card">
+                <div class="card-header-premium">
+                    <h6><i class="fas fa-users mr-2 text-success"></i>Bệnh nhân mới</h6>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var p in (IEnumerable<HTTTBenhVien.Models.Patient>)ViewBag.RecentPatients)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm mr-3 bg-light text-primary"><i class="fas fa-user"></i></div>
+                                    <div>
+                                        <div class="font-weight-bold">@p.FullName</div>
+                                        <div class="small text-muted">@p.Phone</div>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("Details", "Patient", new { area = "Admin", id = p.PatientId })" class="btn btn-sm btn-light rounded-circle"><i class="fas fa-chevron-right"></i></a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<!-- End of Main Content -->
 
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('appointmentChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(chartLabels),
+                datasets: [{
+                    label: 'Số ca khám',
+                    data: @Html.Raw(chartData),
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { display: false, drawBorder: false } },
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 },
+                        grid: { color: 'rgb(234, 236, 244)', drawBorder: false, borderDash: [2], zeroLineColor: 'rgb(234, 236, 244)' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+    <script>
+        // Pie Chart - Trạng thái lịch khám
+        var pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(pieLabels),
+                datasets: [{
+                    data: @Html.Raw(pieData),
+                    backgroundColor: [
+                        'rgba(28, 200, 138, 0.85)',
+                        'rgba(246, 194, 62, 0.85)',
+                        'rgba(231, 74, 59, 0.85)',
+                        'rgba(54, 185, 204, 0.85)',
+                        'rgba(133, 135, 150, 0.85)'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } }
+                }
+            }
+        });
+
+        // Doughnut Chart - Doanh thu theo phương thức thanh toán
+        var doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+        new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(doughnutLabels),
+                datasets: [{
+                    data: @Html.Raw(doughnutData),
+                    backgroundColor: [
+                        'rgba(78, 115, 223, 0.85)',
+                        'rgba(28, 200, 138, 0.85)',
+                        'rgba(246, 194, 62, 0.85)',
+                        'rgba(231, 74, 59, 0.85)',
+                        'rgba(54, 185, 204, 0.85)'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    cutout: '60%'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } }
+                }
+            }
+        });
+
+        // Radar Chart - Chỉ số vận hành
+        var radarCtx = document.getElementById('radarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: @Html.Raw(radarLabels),
+                datasets: [{
+                    label: 'Chỉ số hiện tại',
+                    data: @Html.Raw(radarData),
+                    fill: true,
+                    backgroundColor: 'rgba(231, 74, 59, 0.2)',
+                    borderColor: 'rgb(231, 74, 59)',
+                    pointBackgroundColor: 'rgb(231, 74, 59)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(231, 74, 59)'
+                }]
+            },
+            options: {
+                responsive: true,
+                elements: { line: { borderWidth: 3 } },
+                scales: {
+                    r: {
+                        angleLines: { display: true },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+}

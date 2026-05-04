@@ -41,6 +41,8 @@ public partial class HtttbenhvienContext : DbContext
 
     public virtual DbSet<Medicine> Medicines { get; set; }
 
+    public virtual DbSet<MedicalSupply> MedicalSupplies { get; set; }
+
     public virtual DbSet<Patient> Patients { get; set; }
 
     public virtual DbSet<Prescription> Prescriptions { get; set; }
@@ -71,7 +73,7 @@ public partial class HtttbenhvienContext : DbContext
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
             entity.Property(e => e.EmpId).HasColumnName("EmpID");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.PasswordHash)
+            entity.Property(e => e.Password)
                 .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.RoleName).HasMaxLength(50);
@@ -489,6 +491,21 @@ public partial class HtttbenhvienContext : DbContext
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
                 .HasForeignKey(d => d.ParentId)
                 .HasConstraintName("FK_Menu_Parent");
+        });
+
+        modelBuilder.Entity<MedicalSupply>(entity =>
+        {
+            entity.HasKey(e => e.SupplyId).HasName("PK__MedicalS__SupplyID");
+
+            entity.ToTable("MedicalSupplies");
+
+            entity.Property(e => e.SupplyId).HasColumnName("SupplyID");
+            entity.Property(e => e.SupplyName).HasMaxLength(200);
+            entity.Property(e => e.Unit).HasMaxLength(50);
+            entity.Property(e => e.StockQuantity).HasDefaultValue(0);
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(12, 0)");
+            entity.Property(e => e.Supplier).HasMaxLength(200);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
         OnModelCreatingPartial(modelBuilder);

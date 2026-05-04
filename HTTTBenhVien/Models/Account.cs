@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace HTTTBenhVien.Models;
@@ -11,7 +11,7 @@ public partial class Account
 
     public string Username { get; set; } = null!;
 
-    public string PasswordHash { get; set; } = null!;
+    public string Password { get; set; } = null!;
 
     public string? RoleName { get; set; }
 

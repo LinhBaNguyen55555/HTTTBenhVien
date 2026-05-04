@@ -1,0 +1,91 @@
+@model HTTTBenhVien.Models.Account
+@{
+    ViewData["Title"] = "Thêm tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-header-gradient { background: linear-gradient(135deg, #a18cd1 0%, #6f42c1 100%); color: white; }
+</style>
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800 font-weight-bold">Thêm tài khoản mới</h1>
+
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+        <div class="card-header card-header-gradient py-3">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-user-plus mr-2"></i>Tạo tài khoản</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <h5 class="border-bottom pb-2 mb-4" style="color: #6f42c1;"><i class="fas fa-link mr-2"></i>Liên kết nhân viên</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="EmpId" class="font-weight-bold">Nhân viên <span class="text-danger">*</span></label>
+                            <select asp-for="EmpId" class="form-control" asp-items="ViewBag.EmpId" required>
+                                <option value="">-- Chọn nhân viên --</option>
+                            </select>
+                            <small class="form-text text-muted">Chỉ hiển thị nhân viên chưa có tài khoản</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="RoleName" class="font-weight-bold">Vai trò <span class="text-danger">*</span></label>
+                            <select asp-for="RoleName" class="form-control" required>
+                                <option value="">-- Chọn vai trò --</option>
+                                <option value="Admin">Admin - Quản trị viên</option>
+                                <option value="Doctor">Doctor - Bác sĩ</option>
+                                <option value="Nurse">Nurse - Y tá</option>
+                                <option value="Receptionist">Receptionist - Lễ tân</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="border-bottom pb-2 mt-4 mb-4" style="color: #6f42c1;"><i class="fas fa-key mr-2"></i>Thông tin đăng nhập</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Username" class="font-weight-bold">Tên đăng nhập <span class="text-danger">*</span></label>
+                            <input asp-for="Username" class="form-control" placeholder="VD: nguyenvana" required />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" name="Password" class="form-control" placeholder="Nhập mật khẩu" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <div class="custom-control custom-switch mt-3">
+                                <input type="checkbox" class="custom-control-input" id="isActiveSwitch" name="IsActive" value="true" checked>
+                                <label class="custom-control-label font-weight-bold" for="isActiveSwitch">Kích hoạt tài khoản</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4 mb-4" />
+                <div class="text-center">
+                    <button type="submit" class="btn px-5 py-2 mr-3" style="background: linear-gradient(135deg, #a18cd1 0%, #6f42c1 100%); border: none; color: white; font-weight: 600;">
+                        <i class="fas fa-save mr-2"></i> Tạo tài khoản
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-5 py-2">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

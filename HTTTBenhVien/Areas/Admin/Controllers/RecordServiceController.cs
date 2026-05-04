@@ -142,16 +142,32 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             {
                 try
                 {
-                    _context.Update(rs);
+                    var existingRs = await _context.RecordServices.FindAsync(id);
+                    if (existingRs == null) return NotFound();
+
+                    // Update fields manually to ensure correctness
+                    existingRs.RecordId = rs.RecordId;
+                    existingRs.ServiceId = rs.ServiceId;
+                    existingRs.DoctorId = rs.DoctorId;
+                    existingRs.ResultValue = rs.ResultValue;
+                    existingRs.ExecuteDate = rs.ExecuteDate;
+                    existingRs.Status = rs.Status;
+                    existingRs.ResultImages = rs.ResultImages;
+
+                    _context.Update(existingRs);
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = "Cập nhật chỉ định thành công!";
+                    TempData["Success"] = $"Cập nhật chỉ định cho Bệnh án #{existingRs.RecordId} thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!RsExists(rs.RsId)) return NotFound();
                     else throw;
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Lỗi: " + ex.Message);
+                }
             }
 
             var recordList = _context.MedicalRecords

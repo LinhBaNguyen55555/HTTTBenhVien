@@ -1,0 +1,197 @@
+@model IEnumerable<HTTTBenhVien.Models.Account>
+@{
+    ViewData["Title"] = "Quản lý tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-ajax { border: none; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); overflow: hidden; }
+    .card-header-ajax { background: white; border-bottom: 2px solid #f8f9fe; padding: 1.25rem 1.5rem; font-weight: 600; color: #6f42c1; }
+    .btn-gradient { background: linear-gradient(135deg, #a18cd1 0%, #6f42c1 100%); border: none; color: white; font-weight: 600; padding: 0.625rem 1.25rem; border-radius: 0.5rem; transition: all 0.3s ease; }
+    .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(111, 66, 193, 0.4); color: white; }
+    .btn-gradient-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; color: white; }
+    .btn-gradient-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); border: none; color: white; }
+    .btn-gradient-warning { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border: none; color: #333; }
+    .btn-sm-gradient { padding: 0.375rem 0.75rem; font-size: 0.875rem; border-radius: 0.375rem; }
+    .table-ajax thead th { background: #f8f9fc; color: #6f42c1; font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; border: none; padding: 0.9rem; }
+    .table-ajax tbody td { vertical-align: middle; padding: 0.9rem; border-color: #f0f2f8; }
+    .table-ajax tbody tr:hover { background: #f8f5ff; }
+    .stat-card { background: white; border-radius: 1rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1); }
+    .stat-icon { width: 3.5rem; height: 3.5rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .stat-info h4 { font-weight: 700; margin: 0; color: #2d3748; font-size: 1.5rem; }
+    .stat-info p { margin: 0; color: #a0aec0; font-size: 0.85rem; }
+    .empty-state { padding: 3rem; text-align: center; }
+    .empty-state-icon { font-size: 4rem; color: #d1d3e0; margin-bottom: 1rem; }
+    .badge-role { padding: 0.4rem 0.75rem; border-radius: 0.5rem; font-size: 0.78rem; font-weight: 700; }
+</style>
+
+<div class="container-fluid">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 5px solid #28a745;">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <h1 class="h3 mb-4 text-gray-800 font-weight-bold">Quản lý tài khoản</h1>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(161, 140, 209, 0.15) 0%, rgba(111, 66, 193, 0.15) 100%); color: #6f42c1;"><i class="fas fa-users-cog"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count()</h4>
+                    <p>Tổng tài khoản</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(56, 239, 125, 0.15) 100%); color: #11998e;"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(a => a.IsActive == true)</h4>
+                    <p>Đang hoạt động</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(235, 51, 73, 0.15) 0%, rgba(244, 92, 67, 0.15) 100%); color: #eb3349;"><i class="fas fa-lock"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(a => a.IsActive == false)</h4>
+                    <p>Đã khóa</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(0, 242, 254, 0.15) 100%); color: #4facfe;"><i class="fas fa-user-shield"></i></div>
+                <div class="stat-info">
+                    <h4>@Model.Count(a => a.RoleName == "Admin")</h4>
+                    <p>Quản trị viên</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-ajax mb-4">
+        <div class="card-header card-header-ajax d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-list mr-2"></i>Danh sách tài khoản</span>
+            <div class="d-flex align-items-center">
+                <form asp-action="Index" method="get" class="form-inline mr-3 mb-0">
+                    <select name="roleFilter" class="form-control form-control-sm mr-2" style="border-radius: 20px;">
+                        <option value="">Tất cả vai trò</option>
+                        <option value="Admin" selected="@(ViewData["RoleFilter"]?.ToString() == "Admin")">Admin</option>
+                        <option value="Doctor" selected="@(ViewData["RoleFilter"]?.ToString() == "Doctor")">Bác sĩ</option>
+                        <option value="Nurse" selected="@(ViewData["RoleFilter"]?.ToString() == "Nurse")">Y tá</option>
+                        <option value="Receptionist" selected="@(ViewData["RoleFilter"]?.ToString() == "Receptionist")">Lễ tân</option>
+                    </select>
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Tìm tên, username..." style="border-radius: 20px 0 0 20px;" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn" style="border-radius: 0 20px 20px 0; background: linear-gradient(135deg, #a18cd1 0%, #6f42c1 100%); border: none; color: white;"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <a asp-action="Create" class="btn btn-sm btn-gradient">
+                    <i class="fas fa-plus mr-1"></i> Thêm tài khoản
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-ajax mb-0">
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="18%"><i class="fas fa-user mr-1"></i> Nhân viên</th>
+                                <th width="15%"><i class="fas fa-at mr-1"></i> Tên đăng nhập</th>
+                                <th width="12%"><i class="fas fa-building mr-1"></i> Khoa</th>
+                                <th width="12%"><i class="fas fa-briefcase mr-1"></i> Chức danh</th>
+                                <th width="10%" class="text-center"><i class="fas fa-shield-alt mr-1"></i> Vai trò</th>
+                                <th width="10%" class="text-center"><i class="fas fa-flag mr-1"></i> Trạng thái</th>
+                                <th width="18%" class="text-center"><i class="fas fa-cog mr-1"></i> Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-muted">@item.AccountId</td>
+                                    <td>
+                                        <strong class="text-dark">@(item.Emp?.FullName ?? "N/A")</strong>
+                                    </td>
+                                    <td>
+                                        <code style="color: #6f42c1; background: #f8f5ff; padding: 2px 8px; border-radius: 4px; font-weight: 600;">@item.Username</code>
+                                    </td>
+                                    <td class="text-muted">@(item.Emp?.Dept?.DeptName ?? "N/A")</td>
+                                    <td class="text-muted">@(item.Emp?.JobTitle ?? "N/A")</td>
+                                    <td class="text-center">
+                                        @switch (item.RoleName)
+                                        {
+                                            case "Admin":
+                                                <span class="badge badge-role" style="background: #ffeef0; color: #e3342f;">Admin</span>
+                                                break;
+                                            case "Doctor":
+                                                <span class="badge badge-role" style="background: #e6fffa; color: #38a169;">Bác sĩ</span>
+                                                break;
+                                            case "Nurse":
+                                                <span class="badge badge-role" style="background: #ebf4ff; color: #3182ce;">Y tá</span>
+                                                break;
+                                            case "Receptionist":
+                                                <span class="badge badge-role" style="background: #fffaf0; color: #d69e2e;">Lễ tân</span>
+                                                break;
+                                            default:
+                                                <span class="badge badge-role" style="background: #f1f5f9; color: #718096;">@item.RoleName</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.IsActive == true)
+                                        {
+                                            <span class="badge badge-success badge-role"><i class="fas fa-check mr-1"></i>Hoạt động</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger badge-role"><i class="fas fa-lock mr-1"></i>Đã khóa</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group shadow-sm">
+                                            <a asp-action="Edit" asp-route-id="@item.AccountId" class="btn btn-sm btn-gradient btn-sm-gradient text-white" title="Sửa"><i class="fas fa-edit"></i></a>
+                                            <form asp-action="ToggleStatus" asp-route-id="@item.AccountId" method="post" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                @if (item.IsActive == true)
+                                                {
+                                                    <button type="submit" class="btn btn-sm btn-gradient-warning btn-sm-gradient" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản này?')"><i class="fas fa-lock"></i></button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="btn btn-sm btn-gradient-info btn-sm-gradient text-white" title="Mở khóa tài khoản" onclick="return confirm('Bạn có chắc muốn MỞ KHÓA tài khoản này?')"><i class="fas fa-unlock"></i></button>
+                                                }
+                                            </form>
+                                            <a asp-action="Delete" asp-route-id="@item.AccountId" class="btn btn-sm btn-gradient-danger btn-sm-gradient text-white" title="Xóa"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-user-slash empty-state-icon"></i>
+                    <h5 class="text-muted font-weight-bold">Chưa có tài khoản nào</h5>
+                    <p class="text-muted mb-4">Tạo tài khoản mới cho nhân viên hệ thống</p>
+                    <a asp-action="Create" class="btn btn-gradient px-4"><i class="fas fa-plus mr-2"></i>Thêm tài khoản</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
