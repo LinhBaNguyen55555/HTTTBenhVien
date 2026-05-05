@@ -107,7 +107,12 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 new Claim("Username", account.Username),
             };
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var claimsIdentity = new ClaimsIdentity(
+                claims, 
+                CookieAuthenticationDefaults.AuthenticationScheme, 
+                ClaimTypes.Name, 
+                ClaimTypes.Role);
+            
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = true,

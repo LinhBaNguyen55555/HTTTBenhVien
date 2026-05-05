@@ -1,0 +1,98 @@
+@model HTTTBenhVien.Models.IcdDictionary
+
+@{
+    ViewData["Title"] = "Cập nhật mã bệnh";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .form-card { background: white; border-radius: 1rem; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); border: none; overflow: hidden; }
+    .form-card-header { background: linear-gradient(135deg, #36b9cc, #1b8a9b); color: white; padding: 1.5rem; }
+    .form-card-title { font-weight: 700; margin: 0; font-size: 1.25rem; }
+    .form-card-body { padding: 2rem; }
+    
+    .form-control { border-radius: 0.5rem; padding: 0.75rem 1rem; border: 1px solid #d1d3e2; }
+    .form-control:focus { border-color: #36b9cc; box-shadow: 0 0 0 0.2rem rgba(54, 185, 204, 0.25); }
+    .form-control:read-only { background-color: #eaecf4; opacity: 1; border-color: #eaecf4; cursor: not-allowed; }
+    .form-group label { font-weight: 600; color: #4a5568; margin-bottom: 0.5rem; }
+    
+    .btn-action { border-radius: 50rem; padding: 0.5rem 1.5rem; font-weight: 600; letter-spacing: 0.05em; transition: all 0.2s; }
+    .btn-action:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+</style>
+
+<div class="container-fluid mb-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-transparent p-0 m-0">
+            <li class="breadcrumb-item"><a asp-action="Index">Từ điển mã bệnh</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Cập nhật mã @Model.IcdCode</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h5 class="form-card-title"><i class="fas fa-edit mr-2"></i>Chỉnh sửa thông tin mã bệnh</h5>
+                </div>
+                <div class="form-card-body">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+                        <input type="hidden" asp-for="IcdCode" />
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Mã ICD</label>
+                                    <input value="@Model.IcdCode" class="form-control font-weight-bold text-primary" readonly />
+                                    <small class="form-text text-muted mt-2">
+                                        <i class="fas fa-lock mr-1"></i>Không thể thay đổi mã
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label asp-for="DiseaseName">Tên bệnh <span class="text-danger">*</span></label>
+                                    <input asp-for="DiseaseName" class="form-control" required />
+                                    <span asp-validation-for="DiseaseName" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label asp-for="Chapter">Chương / Nhóm bệnh</label>
+                            <input asp-for="Chapter" class="form-control" />
+                            <span asp-validation-for="Chapter" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <div class="custom-control custom-switch">
+                                <input name="IsActive" class="custom-control-input" type="checkbox" id="isActiveSwitch" value="true" @(Model.IsActive == true ? "checked" : "")>
+                                <input type="hidden" name="IsActive" value="false" />
+                                <label class="custom-control-label font-weight-bold text-gray-700" for="isActiveSwitch">
+                                    Trạng thái hoạt động
+                                </label>
+                                <small class="d-block text-muted mt-1">Bật để cho phép sử dụng mã bệnh này trong các chức năng khám chữa bệnh.</small>
+                            </div>
+                        </div>
+
+                        <hr class="mt-5 mb-4">
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-light btn-action text-gray-700 border">
+                                <i class="fas fa-arrow-left mr-2"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-info btn-action" style="background-color: #36b9cc; border-color: #36b9cc;">
+                                <i class="fas fa-save mr-2"></i> Cập nhật thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
