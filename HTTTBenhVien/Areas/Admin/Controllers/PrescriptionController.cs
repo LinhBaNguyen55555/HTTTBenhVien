@@ -32,6 +32,15 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .OrderByDescending(p => p.CreateDate)
                 .AsQueryable();
 
+            if (User.IsInRole("BacSi") || User.IsInRole("Doctor") || User.IsInRole("Bác sĩ"))
+            {
+                var empIdClaim = User.FindFirst("EmpId");
+                if (empIdClaim != null && int.TryParse(empIdClaim.Value, out int empId))
+                {
+                    prescriptions = prescriptions.Where(p => p.DoctorId == empId);
+                }
+            }
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 prescriptions = prescriptions.Where(p =>
@@ -72,7 +81,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .ToList();
             ViewData["RecordId"] = new SelectList(recordList, "RecordId", "Display");
             ViewData["DoctorId"] = new SelectList(_context.Employees.Where(e => e.JobTitle == "Bác sĩ"), "EmpId", "FullName");
-            ViewData["Medicines"] = _context.Medicines.Where(m => m.IsActive == true && m.StockQuantity > 0).OrderBy(m => m.MedicineName).ToList();
+            ViewData["Medicines"] = _context.Medicines.Where(m => m.IsActive != false).OrderBy(m => m.MedicineName).ToList();
             return View();
         }
 
@@ -134,7 +143,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .ToList();
             ViewData["RecordId"] = new SelectList(recordList, "RecordId", "Display", prescription.RecordId);
             ViewData["DoctorId"] = new SelectList(_context.Employees.Where(e => e.JobTitle == "Bác sĩ"), "EmpId", "FullName", prescription.DoctorId);
-            ViewData["Medicines"] = _context.Medicines.Where(m => m.IsActive == true).OrderBy(m => m.MedicineName).ToList();
+            ViewData["Medicines"] = _context.Medicines.Where(m => m.IsActive != false).OrderBy(m => m.MedicineName).ToList();
             return View(prescription);
         }
 

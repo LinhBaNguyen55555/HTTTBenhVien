@@ -42,12 +42,86 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Home", new { area = "Admin" })">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Bảng điều khiển</span>
-                </a>
-            </li>
+            @if (!User.IsInRole("BacSi") && !User.IsInRole("Doctor") && !User.IsInRole("Bác sĩ"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Home", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-tachometer-alt"></i>
+                        <span>Bảng điều khiển</span>
+                    </a>
+                </li>
+            }
+
+            @{
+                var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+            }
+            @if (User.IsInRole("BacSi") || User.IsInRole("Doctor") || User.IsInRole("Bác sĩ"))
+            {
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading" style="color: #f8f9fc; font-weight: bold; letter-spacing: 0.5px;">KHÔNG GIAN BÁC SĨ</div>
+
+                <li class="nav-item @(currentController == "DoctorWorkspace" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "DoctorWorkspace", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-stethoscope"></i>
+                        <span>Bàn khám trong ngày</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "Patient" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "Patient", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-user-injured"></i>
+                        <span>Bệnh nhân của tôi</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "Appointment" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "Appointment", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-calendar-check"></i>
+                        <span>Lịch khám của tôi</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "MedicalRecord" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "MedicalRecord", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-file-medical"></i>
+                        <span>Hồ sơ bệnh án</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "RecordService" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "RecordService", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-vials"></i>
+                        <span>Chỉ định CLS</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "Prescription" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "Prescription", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-prescription-bottle-alt"></i>
+                        <span>Đơn thuốc đã kê</span>
+                    </a>
+                </li>
+            }
+            @if (User.IsInRole("Lễ tân") || User.IsInRole("LeTan") || User.IsInRole("Receptionist"))
+            {
+                <!-- ═══════ LỄ TÂN ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading" style="color: #f8f9fc; font-weight: bold; letter-spacing: 0.5px;">TIẾP ĐÓN</div>
+
+                <li class="nav-item @(currentController == "ReceptionWorkspace" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "ReceptionWorkspace", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-concierge-bell"></i>
+                        <span>Bàn tiếp đón</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item @(currentController == "Patient" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "Patient", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>Danh sách bệnh nhân</span>
+                    </a>
+                </li>
+            }
 
             @if (User.IsInRole("Admin"))
             {
@@ -109,7 +183,7 @@
                 </li>
             }
 
-            @if (User.IsInRole("Admin") || User.IsInRole("BacSi") || User.IsInRole("Doctor") || User.IsInRole("LeTan") || User.IsInRole("Receptionist") || User.IsInRole("Nurse"))
+            @if (User.IsInRole("Admin") || User.IsInRole("LeTan") || User.IsInRole("Receptionist") || User.IsInRole("Nurse"))
             {
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "Patient", new { area = "Admin" })">
@@ -119,12 +193,12 @@
                 </li>
             }
 
-            <!-- ═══════ NGHIỆP VỤ Y TẾ ═══════ -->
-            <hr class="sidebar-divider">
-            <div class="sidebar-heading">Nghiệp vụ y tế</div>
-
-            @if (User.IsInRole("Admin") || User.IsInRole("BacSi") || User.IsInRole("Doctor") || User.IsInRole("LeTan") || User.IsInRole("Receptionist") || User.IsInRole("Nurse"))
+            @if (User.IsInRole("Admin") || User.IsInRole("LeTan") || User.IsInRole("Receptionist") || User.IsInRole("Nurse"))
             {
+                <!-- ═══════ NGHIỆP VỤ Y TẾ ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading">Nghiệp vụ y tế</div>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "Appointment", new { area = "Admin" })">
                         <i class="fas fa-calendar-check"></i>
@@ -133,7 +207,7 @@
                 </li>
             }
 
-            @if (User.IsInRole("Admin") || User.IsInRole("BacSi") || User.IsInRole("Doctor"))
+            @if (User.IsInRole("Admin"))
             {
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "MedicalRecord", new { area = "Admin" })">

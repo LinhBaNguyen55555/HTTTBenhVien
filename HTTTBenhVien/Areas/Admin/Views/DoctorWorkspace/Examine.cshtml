@@ -1,0 +1,404 @@
+@model HTTTBenhVien.Models.MedicalRecord
+@{
+    ViewData["Title"] = "Hồ sơ khám bệnh";
+    var icdCodes = ViewBag.IcdCodes as List<HTTTBenhVien.Models.IcdDictionary>;
+}
+
+<!-- Select2 CSS for searchable dropdown -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    .emr-container { font-family: 'Inter', sans-serif; }
+    .panel-header {
+        background-color: #4e73df;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+        font-weight: bold;
+    }
+    .panel-body {
+        border: 1px solid #e3e6f0;
+        border-top: none;
+        padding: 15px;
+        border-radius: 0 0 5px 5px;
+        background: #fff;
+    }
+    .vital-sign-input { width: 80px; display: inline-block; }
+    .input-group-text { background-color: #f8f9fc; }
+    .form-control:focus { border-color: #4e73df; box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25); }
+    .select2-container .select2-selection--single { height: 38px !important; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px !important; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 36px !important; }
+    .select2-container--open { z-index: 9999999 !important; }
+    .select2-dropdown { z-index: 9999999 !important; }
+</style>
+
+<div class="container-fluid emr-container mb-5">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-file-medical text-primary mr-2"></i> Hồ sơ khám bệnh</h1>
+        <a href="@Url.Action("Index", "DoctorWorkspace", new { area = "Admin" })" class="btn btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại Danh sách
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <form asp-action="SaveRecord" asp-controller="DoctorWorkspace" asp-area="Admin" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="RecordId" />
+        <input type="hidden" asp-for="PatientId" />
+        <input type="hidden" asp-for="DoctorId" />
+        <input type="hidden" asp-for="AppointmentId" />
+        <input type="hidden" asp-for="RecordType" value="Khám ngoại trú" />
+
+        <div class="row">
+            <!-- Cột trái: Thông tin hành chính & Sinh hiệu -->
+            <div class="col-xl-3 col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="panel-header bg-gradient-primary">
+                        <i class="fas fa-user-injured mr-1"></i> Thông tin Bệnh nhân
+                    </div>
+                    <div class="panel-body">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-user-circle fa-4x text-gray-300"></i>
+                            <h5 class="mt-2 font-weight-bold text-primary">@Model.Patient?.FullName</h5>
+                            <span class="badge @(Model.Patient?.Gender == true ? "badge-info" : "badge-danger") p-2">
+                                @(Model.Patient?.Gender == true ? "Nam" : "Nữ")
+                            </span>
+                        </div>
+                        <hr />
+                        <div class="mb-2"><strong>Mã BN:</strong> @Model.PatientId</div>
+                        <div class="mb-2"><strong>Ngày sinh:</strong> @(Model.Patient?.Dob?.ToString("dd/MM/yyyy") ?? "N/A")</div>
+                        <div class="mb-2"><strong>SĐT:</strong> @Model.Patient?.Phone</div>
+                        <div class="mb-2"><strong>Địa chỉ:</strong> @Model.Patient?.Address</div>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="panel-header bg-info">
+                        <i class="fas fa-heartbeat mr-1"></i> Sinh hiệu (Vitals)
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group mb-3">
+                            <label class="text-xs font-weight-bold text-gray-800">Huyết áp (mmHg)</label>
+                            <input asp-for="BloodPressure" class="form-control form-control-sm" placeholder="VD: 120/80" />
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-6 mb-3">
+                                <label class="text-xs font-weight-bold text-gray-800">Mạch (lần/p)</label>
+                                <input asp-for="PulseRate" class="form-control form-control-sm" placeholder="VD: 80" />
+                            </div>
+                            <div class="form-group col-6 mb-3">
+                                <label class="text-xs font-weight-bold text-gray-800">Nhiệt độ (°C)</label>
+                                <input asp-for="Temperature" class="form-control form-control-sm" placeholder="VD: 37.0" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-6 mb-3">
+                                <label class="text-xs font-weight-bold text-gray-800">Chiều cao (cm)</label>
+                                <input asp-for="Height" class="form-control form-control-sm" placeholder="VD: 170" />
+                            </div>
+                            <div class="form-group col-6 mb-3">
+                                <label class="text-xs font-weight-bold text-gray-800">Cân nặng (kg)</label>
+                                <input asp-for="Weight" class="form-control form-control-sm" placeholder="VD: 65" />
+                            </div>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="text-xs font-weight-bold text-gray-800">SpO2 (%)</label>
+                            <input asp-for="SpO2" class="form-control form-control-sm" placeholder="VD: 98" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột giữa: Ghi nhận Lâm sàng (SOAP) -->
+            <div class="col-xl-9 col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="panel-header bg-dark">
+                        <i class="fas fa-notes-medical mr-1"></i> Khám Lâm sàng & Chẩn đoán
+                    </div>
+                    <div class="panel-body p-4">
+                        
+                        <div class="form-group">
+                            <label class="font-weight-bold text-dark">Lý do vào viện / Triệu chứng (Subjective)</label>
+                            <textarea asp-for="Symptoms" class="form-control" rows="3" placeholder="Ghi nhận lời kể của bệnh nhân..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-dark">Khám thực thể (Objective)</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Ghi nhận quá trình thăm khám..."></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label class="font-weight-bold text-dark">Chẩn đoán (Diagnosis)</label>
+                                    <input asp-for="Diagnosis" class="form-control" placeholder="Chẩn đoán bệnh..." />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="font-weight-bold text-dark">Mã ICD-10</label>
+                                    <select asp-for="IcdCode" class="form-control select2">
+                                        <option value="">-- Chọn mã ICD --</option>
+                                        @if (icdCodes != null)
+                                        {
+                                            foreach (var icd in icdCodes)
+                                            {
+                                                <option value="@icd.IcdCode">[@icd.IcdCode] @icd.DiseaseName</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-dark">Kết luận / Hướng xử lý (Plan)</label>
+                            <textarea asp-for="Conclusion" class="form-control" rows="2" placeholder="Kê đơn, cho về, hoặc nhập viện..."></textarea>
+                        </div>
+
+                        <hr class="mt-4 mb-4" />
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary btn-lg shadow-sm px-5" style="border-radius: 30px;">
+                                <i class="fas fa-save mr-2"></i> Lưu Bệnh Án
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bảng Kê đơn / Dịch vụ -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card shadow mb-4 border-left-success">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-success"><i class="fas fa-prescription-bottle-alt mr-2"></i>Đơn thuốc</h6>
+                                @if (Model.RecordId > 0)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-success shadow-sm" data-toggle="modal" data-target="#modalPrescription"><i class="fas fa-plus"></i> Kê đơn</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Lưu bệnh án trước khi kê đơn"><i class="fas fa-plus"></i> Kê đơn</button>
+                                }
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.RecordId > 0 && Model.Prescriptions != null && Model.Prescriptions.Any())
+                                {
+                                    <div class="list-group list-group-flush">
+                                    @foreach (var p in Model.Prescriptions)
+                                    {
+                                        <div class="list-group-item">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1 font-weight-bold text-dark">Đơn thuốc #@p.PrescriptionId</h6>
+                                                <small class="text-muted">@p.CreateDate?.ToString("dd/MM/yyyy HH:mm")</small>
+                                            </div>
+                                            <ul class="pl-3 mb-0 text-sm">
+                                            @if (p.PrescriptionDetails != null)
+                                            {
+                                                foreach (var d in p.PrescriptionDetails)
+                                                {
+                                                    <li>@d.Medicine?.MedicineName - SL: @d.Quantity - Liều: @d.Dosage</li>
+                                                }
+                                            }
+                                            </ul>
+                                        </div>
+                                    }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center p-4">
+                                        <p class="text-muted mb-0">Chưa có đơn thuốc nào.</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow mb-4 border-left-warning">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-warning"><i class="fas fa-vials mr-2"></i>Chỉ định Cận lâm sàng</h6>
+                                @if (Model.RecordId > 0)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-warning shadow-sm" data-toggle="modal" data-target="#modalRecordService"><i class="fas fa-plus"></i> Chỉ định</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Lưu bệnh án trước khi chỉ định"><i class="fas fa-plus"></i> Chỉ định</button>
+                                }
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.RecordId > 0 && Model.RecordServices != null && Model.RecordServices.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                    @foreach (var rs in Model.RecordServices)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="font-weight-bold text-dark">@rs.Service?.ServiceName</div>
+                                                <small class="text-muted">Ghi chú: @rs.ResultValue</small>
+                                            </div>
+                                            <span class="badge badge-warning badge-pill">@rs.Status</span>
+                                        </li>
+                                    }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <div class="text-center p-4">
+                                        <p class="text-muted mb-0">Chưa có chỉ định nào.</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Modal Thêm Đơn Thuốc -->
+<div class="modal fade" id="modalPrescription" role="dialog" aria-labelledby="modalPrescriptionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <form asp-action="AddPrescription" asp-controller="DoctorWorkspace" asp-area="Admin" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="RecordId" value="@Model.RecordId" />
+            <input type="hidden" name="AppointmentId" value="@Model.AppointmentId" />
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="modalPrescriptionLabel"><i class="fas fa-prescription-bottle-alt mr-2"></i>Kê đơn thuốc mới</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="medicine-list">
+                        <div class="row mb-2 medicine-row">
+                            <div class="col-md-5">
+                                <label class="font-weight-bold">Tên thuốc</label>
+                                <select name="MedicineIds[]" class="form-control select2-modal" required>
+                                    <option value="">-- Chọn thuốc --</option>
+                                    @if (ViewBag.Medicines != null)
+                                    {
+                                        foreach (var m in ViewBag.Medicines)
+                                        {
+                                            <option value="@m.MedicineId">@m.MedicineName (Tồn: @m.StockQuantity)</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="font-weight-bold">Số lượng</label>
+                                <input type="number" name="Quantities[]" class="form-control" min="1" value="1" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="font-weight-bold">Liều dùng</label>
+                                <input type="text" name="Dosages[]" class="form-control" placeholder="Sáng 1 viên, tối 1 viên" required />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addMedicineRow()"><i class="fas fa-plus"></i> Thêm dòng thuốc</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Lưu Đơn thuốc</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Thêm Chỉ Định -->
+<div class="modal fade" id="modalRecordService" role="dialog" aria-labelledby="modalRecordServiceLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form asp-action="AddRecordService" asp-controller="DoctorWorkspace" asp-area="Admin" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="RecordId" value="@Model.RecordId" />
+            <input type="hidden" name="AppointmentId" value="@Model.AppointmentId" />
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="modalRecordServiceLabel"><i class="fas fa-vials mr-2"></i>Chỉ định Cận lâm sàng</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Dịch vụ Y tế</label>
+                        <select name="ServiceId" class="form-control select2-modal" style="width: 100%;" required>
+                            <option value="">-- Chọn dịch vụ --</option>
+                            @if (ViewBag.MedicalServices != null)
+                            {
+                                foreach (var s in ViewBag.MedicalServices)
+                                {
+                                    <option value="@s.ServiceId">@s.ServiceName (@s.BasePrice.ToString("N0") VNĐ)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Yêu cầu / Ghi chú</label>
+                        <textarea name="Note" class="form-control" rows="3" placeholder="Ví dụ: Siêu âm ổ bụng tổng quát..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning text-dark"><i class="fas fa-save"></i> Lưu Chỉ định</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: "-- Tìm mã ICD-10 --",
+                allowClear: true,
+                width: '100%'
+            });
+            
+            $('.select2-modal').each(function() {
+                $(this).select2({
+                    width: '100%',
+                    dropdownParent: $(this).closest('.modal')
+                });
+            });
+        });
+
+        function addMedicineRow() {
+            var firstRow = $('.medicine-row:first').clone();
+            firstRow.find('input[type="number"]').val('1');
+            firstRow.find('input[type="text"]').val('');
+            
+            // Remove select2 artifacts from clone
+            var sel = firstRow.find('select');
+            sel.removeClass('select2-hidden-accessible');
+            sel.find('option:selected').removeAttr("selected");
+            firstRow.find('.select2-container').remove();
+            
+            $('#medicine-list').append(firstRow);
+            
+            // Re-init select2 on the new row
+            firstRow.find('select').select2({
+                width: '100%',
+                dropdownParent: $('#modalPrescription')
+            });
+        }
+    </script>
+}

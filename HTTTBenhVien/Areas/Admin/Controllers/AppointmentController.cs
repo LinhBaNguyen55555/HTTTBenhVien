@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,6 +29,15 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .Include(a => a.Doctor)
                 .Include(a => a.Patient)
                 .AsQueryable();
+
+            if (User.IsInRole("BacSi") || User.IsInRole("Doctor") || User.IsInRole("Bác sĩ"))
+            {
+                var empIdClaim = User.FindFirst("EmpId");
+                if (empIdClaim != null && int.TryParse(empIdClaim.Value, out int empId))
+                {
+                    appointments = appointments.Where(a => a.DoctorId == empId);
+                }
+            }
 
             if (!string.IsNullOrEmpty(searchString))
             {

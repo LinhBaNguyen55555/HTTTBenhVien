@@ -31,6 +31,15 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .OrderByDescending(m => m.VisitDate)
                 .AsQueryable();
 
+            if (User.IsInRole("BacSi") || User.IsInRole("Doctor") || User.IsInRole("Bác sĩ"))
+            {
+                var empIdClaim = User.FindFirst("EmpId");
+                if (empIdClaim != null && int.TryParse(empIdClaim.Value, out int empId))
+                {
+                    records = records.Where(m => m.DoctorId == empId);
+                }
+            }
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 records = records.Where(m =>

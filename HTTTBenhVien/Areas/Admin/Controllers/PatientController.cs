@@ -30,6 +30,18 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             var patients = _context.Patients.AsQueryable();
 
+            if (User.IsInRole("BacSi") || User.IsInRole("Doctor") || User.IsInRole("Bác sĩ"))
+            {
+                var empIdClaim = User.FindFirst("EmpId");
+                if (empIdClaim != null && int.TryParse(empIdClaim.Value, out int empId))
+                {
+                    patients = patients.Where(p => 
+                        _context.Appointments.Any(a => a.PatientId == p.PatientId && a.DoctorId == empId) ||
+                        _context.MedicalRecords.Any(m => m.PatientId == p.PatientId && m.DoctorId == empId)
+                    );
+                }
+            }
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 patients = patients.Where(p => 

@@ -105,6 +105,8 @@
 </div>
 
 @section Scripts {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         var medicineOptions = `<option value="">-- Chọn thuốc --</option>
         @foreach (var m in medicines)
@@ -112,21 +114,30 @@
             @Html.Raw($"<option value=\"{m.MedicineId}\">{m.MedicineName} ({m.Unit}) - Tồn: {m.StockQuantity} - {m.Price.ToString("N0")}đ</option>")
         }`;
 
-        function addRow() {
-            var html = `<div class="detail-row">
-                <div style="flex: 4;"><select name="MedicineIds" class="form-control" required>${medicineOptions}</select></div>
-                <div style="flex: 1;"><input type="number" name="Quantities" class="form-control" placeholder="SL" min="1" value="1" required /></div>
-                <div style="flex: 3;"><input type="text" name="Dosages" class="form-control" placeholder="Liều dùng: VD: 2 viên/lần x 3 lần/ngày" /></div>
-                <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Xóa dòng"><i class="fas fa-times"></i></button>
-            </div>`;
-            document.getElementById('detailRows').insertAdjacentHTML('beforeend', html);
-        }
-
         function removeRow(btn) {
             var rows = document.querySelectorAll('.detail-row');
             if (rows.length > 1) {
                 btn.closest('.detail-row').remove();
             }
+        }
+        
+        $(document).ready(function() {
+            $('select').select2({
+                width: '100%',
+                placeholder: '-- Tìm kiếm và chọn --'
+            });
+        });
+        
+        // Cập nhật lại addRow để hỗ trợ Select2
+        function addRow() {
+            var html = `<div class="detail-row">
+                <div style="flex: 4;"><select name="MedicineIds" class="form-control select2-new" required>${medicineOptions}</select></div>
+                <div style="flex: 1;"><input type="number" name="Quantities" class="form-control" placeholder="SL" min="1" value="1" required /></div>
+                <div style="flex: 3;"><input type="text" name="Dosages" class="form-control" placeholder="Liều dùng: VD: 2 viên/lần x 3 lần/ngày" /></div>
+                <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Xóa dòng"><i class="fas fa-times"></i></button>
+            </div>`;
+            $('#detailRows').append(html);
+            $('.select2-new').select2({ width: '100%' }).removeClass('select2-new');
         }
     </script>
 }

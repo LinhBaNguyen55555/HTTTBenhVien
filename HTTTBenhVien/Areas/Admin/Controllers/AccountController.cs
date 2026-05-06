@@ -115,7 +115,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             
             var authProperties = new AuthenticationProperties
             {
-                IsPersistent = true,
+                IsPersistent = false,
                 ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
             };
 
@@ -123,6 +123,16 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
+
+            if (account.RoleName == "Bác sĩ" || account.RoleName == "BacSi" || account.RoleName == "Doctor")
+            {
+                return RedirectToAction("Index", "DoctorWorkspace", new { area = "Admin" });
+            }
+
+            if (account.RoleName == "Lễ tân" || account.RoleName == "LeTan" || account.RoleName == "Receptionist")
+            {
+                return RedirectToAction("Index", "ReceptionWorkspace", new { area = "Admin" });
+            }
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
