@@ -1,0 +1,497 @@
+@{
+    ViewData["Title"] = "Không gian Cận lâm sàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var pendingRequests = ViewBag.PendingRequests as IEnumerable<HTTTBenhVien.Models.RecordService>;
+    var inProgressRequests = ViewBag.InProgressRequests as IEnumerable<HTTTBenhVien.Models.RecordService>;
+    var completedRequests = ViewBag.CompletedRequests as IEnumerable<HTTTBenhVien.Models.RecordService>;
+    var serviceNames = ViewBag.ServiceStatNames as List<string> ?? new List<string>();
+    var serviceCounts = ViewBag.ServiceStatCounts as List<int> ?? new List<int>();
+}
+
+<style>
+    /* ═══ Cyan/Dark Teal theme cho Cận lâm sàng ═══ */
+    .lab-bg { background-color: #f0fdfa; }
+    .text-cyan { color: #0891b2 !important; }
+    .bg-cyan { background-color: #0891b2 !important; }
+    .stat-card-cyan {
+        background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
+        color: white; border: none; border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-cyan:hover { transform: translateY(-5px); }
+    .stat-card-sky {
+        background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+        color: white; border: none; border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-sky:hover { transform: translateY(-5px); }
+    .stat-card-emerald {
+        background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+        color: white; border: none; border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-emerald:hover { transform: translateY(-5px); }
+    .stat-card-orange {
+        background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+        color: white; border: none; border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-orange:hover { transform: translateY(-5px); }
+    .btn-cyan {
+        background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
+        color: white; border: none; transition: all 0.3s;
+    }
+    .btn-cyan:hover {
+        background: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);
+        color: white; box-shadow: 0 5px 15px rgba(8, 145, 178, 0.4);
+    }
+    .nav-tabs .nav-link { color: #0891b2; font-weight: 600; border: none; border-bottom: 3px solid transparent; }
+    .nav-tabs .nav-link.active { color: #164e63; background-color: transparent; border-color: #0891b2; }
+    .table-hover tbody tr:hover { background-color: #ecfeff; }
+    .badge-pending { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; }
+    .badge-progress { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; }
+    .badge-done { background: linear-gradient(135deg, #34d399, #059669); color: #fff; }
+    .result-card { border-radius: 0.75rem; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1); }
+</style>
+
+<div class="container-fluid lab-bg py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="font-weight-bold" style="color: #164e63 !important;">
+            <i class="fas fa-microscope mr-2"></i>Bàn Cận Lâm Sàng — Xét Nghiệm & Chẩn Đoán Hình Ảnh
+        </h3>
+        <span class="text-muted"><i class="fas fa-clock mr-1"></i> @DateTime.Now.ToString("dddd, dd/MM/yyyy HH:mm")</span>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 0.5rem; background-color: #cffafe; border-color: #22d3ee; color: #164e63;">
+            <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 0.5rem;">
+            <i class="fas fa-exclamation-triangle mr-2"></i>@TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <!-- ═══════ THỐNG KÊ TỔNG QUAN ═══════ -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-orange shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Chờ thực hiện</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.PendingCount phiếu</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-clipboard-list fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-sky shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Đang thực hiện</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.InProgressCount phiếu</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-flask fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-emerald shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Đã trả kết quả hôm nay</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.CompletedTodayCount phiếu</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-check-double fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-cyan shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Tổng đã hoàn thành</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalCompletedCount phiếu</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-archive fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TABS CHÍNH ═══════ -->
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none;">
+        <div class="card-header py-3 bg-white" style="border-bottom: 2px solid #0891b2; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+            <ul class="nav nav-tabs card-header-tabs" id="labTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#tabPending" role="tab">
+                        <i class="fas fa-hourglass-half mr-1"></i> Chờ thực hiện
+                        @if (ViewBag.PendingCount > 0)
+                        {
+                            <span class="badge badge-danger ml-1">@ViewBag.PendingCount</span>
+                        }
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabInProgress" role="tab">
+                        <i class="fas fa-flask mr-1"></i> Đang thực hiện
+                        @if (ViewBag.InProgressCount > 0)
+                        {
+                            <span class="badge badge-primary ml-1">@ViewBag.InProgressCount</span>
+                        }
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabCompleted" role="tab">
+                        <i class="fas fa-check-circle mr-1"></i> Đã có kết quả
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabStats" role="tab">
+                        <i class="fas fa-chart-bar mr-1"></i> Thống kê
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+
+                <!-- ═══ TAB 1: CHỜ THỰC HIỆN ═══ -->
+                <div class="tab-pane fade show active" id="tabPending" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered dataTable" width="100%">
+                            <thead style="background-color: #fff7ed; color: #9a3412;">
+                                <tr>
+                                    <th>Mã</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Dịch vụ cần thực hiện</th>
+                                    <th>BS chỉ định</th>
+                                    <th>Ngày chỉ định</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (pendingRequests != null && pendingRequests.Any())
+                                {
+                                    foreach (var item in pendingRequests)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold text-cyan">#@item.RsId</td>
+                                            <td class="font-weight-bold text-dark">@item.Record?.Patient?.FullName</td>
+                                            <td>
+                                                <span class="font-weight-bold">@item.Service?.ServiceName</span>
+                                                <br><small class="text-muted">@item.Service?.Description</small>
+                                            </td>
+                                            <td>@item.Doctor?.FullName</td>
+                                            <td>@(item.ExecuteDate?.ToString("dd/MM/yyyy HH:mm") ?? "—")</td>
+                                            <td class="text-center align-middle">
+                                                <form asp-action="AcceptRequest" method="post" style="display:inline;">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="rsId" value="@item.RsId" />
+                                                    <button type="submit" class="btn btn-sm btn-cyan shadow-sm px-3 py-2 font-weight-bold"
+                                                            onclick="return confirm('Xác nhận nhận phiếu #@item.RsId để thực hiện?');">
+                                                        <i class="fas fa-play-circle mr-1"></i> Nhận phiếu
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">
+                                            <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
+                                            Không có phiếu nào đang chờ. Tuyệt vời!
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ═══ TAB 2: ĐANG THỰC HIỆN ═══ -->
+                <div class="tab-pane fade" id="tabInProgress" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered dataTable" width="100%">
+                            <thead style="background-color: #f0f9ff; color: #0369a1;">
+                                <tr>
+                                    <th>Mã</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Dịch vụ</th>
+                                    <th>BS chỉ định</th>
+                                    <th>Thời gian nhận</th>
+                                    <th class="text-center">Nhập kết quả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (inProgressRequests != null && inProgressRequests.Any())
+                                {
+                                    foreach (var item in inProgressRequests)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold text-cyan">#@item.RsId</td>
+                                            <td class="font-weight-bold text-dark">@item.Record?.Patient?.FullName</td>
+                                            <td class="font-weight-bold">@item.Service?.ServiceName</td>
+                                            <td>@item.Doctor?.FullName</td>
+                                            <td>@(item.ExecuteDate?.ToString("dd/MM/yyyy HH:mm"))</td>
+                                            <td class="text-center align-middle">
+                                                <button type="button" class="btn btn-sm btn-success shadow-sm px-3 py-2 font-weight-bold"
+                                                        onclick="openResultModal(@item.RsId, '@item.Service?.ServiceName', '@item.Record?.Patient?.FullName')">
+                                                    <i class="fas fa-file-medical mr-1"></i> Nhập kết quả
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">Không có phiếu nào đang thực hiện.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ═══ TAB 3: ĐÃ CÓ KẾT QUẢ ═══ -->
+                <div class="tab-pane fade" id="tabCompleted" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered dataTable" width="100%">
+                            <thead style="background-color: #f0fdf4; color: #047857;">
+                                <tr>
+                                    <th>Mã</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Dịch vụ</th>
+                                    <th>Kết quả</th>
+                                    <th>Thời gian trả KQ</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (completedRequests != null && completedRequests.Any())
+                                {
+                                    foreach (var item in completedRequests)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold">#@item.RsId</td>
+                                            <td class="font-weight-bold text-dark">@item.Record?.Patient?.FullName</td>
+                                            <td>@item.Service?.ServiceName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(item.ResultValue))
+                                                {
+                                                    <span class="text-success"><i class="fas fa-file-alt mr-1"></i> @(item.ResultValue.Length > 80 ? item.ResultValue.Substring(0, 80) + "..." : item.ResultValue)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">—</span>
+                                                }
+                                            </td>
+                                            <td>@(item.ExecuteDate?.ToString("dd/MM/yyyy HH:mm"))</td>
+                                            <td class="text-center align-middle">
+                                                <a href="@Url.Action("PrintResult", "LabWorkspace", new { id = item.RsId })" target="_blank"
+                                                   class="btn btn-sm btn-outline-info shadow-sm" title="In phiếu kết quả">
+                                                    <i class="fas fa-print"></i> In KQ
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">Chưa có phiếu nào hoàn thành.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ═══ TAB 4: THỐNG KÊ ═══ -->
+                <div class="tab-pane fade" id="tabStats" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card result-card mb-4">
+                                <div class="card-header bg-white py-3">
+                                    <h6 class="m-0 font-weight-bold text-cyan"><i class="fas fa-chart-bar mr-2"></i>Top Dịch Vụ Được Chỉ Định Nhiều Nhất</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="chartServiceStats" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card result-card mb-4">
+                                <div class="card-header bg-white py-3">
+                                    <h6 class="m-0 font-weight-bold text-cyan"><i class="fas fa-info-circle mr-2"></i>Tóm Tắt Hôm Nay</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="font-weight-bold">Chờ thực hiện</span>
+                                            <span class="badge badge-pending px-3 py-1">@ViewBag.PendingCount</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px; border-radius: 4px;">
+                                            <div class="progress-bar bg-warning" style="width: @(ViewBag.PendingCount > 0 ? "100" : "0")%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="font-weight-bold">Đang thực hiện</span>
+                                            <span class="badge badge-progress px-3 py-1">@ViewBag.InProgressCount</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px; border-radius: 4px;">
+                                            <div class="progress-bar bg-info" style="width: @(ViewBag.InProgressCount > 0 ? "100" : "0")%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="font-weight-bold">Đã trả kết quả hôm nay</span>
+                                            <span class="badge badge-done px-3 py-1">@ViewBag.CompletedTodayCount</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px; border-radius: 4px;">
+                                            <div class="progress-bar bg-success" style="width: @(ViewBag.CompletedTodayCount > 0 ? "100" : "0")%"></div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="text-center">
+                                        <h6 class="text-muted">Tổng phiếu hoàn thành mọi lúc</h6>
+                                        <h3 class="text-cyan font-weight-bold">@ViewBag.TotalCompletedCount</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════ MODAL NHẬP KẾT QUẢ ═══════ -->
+<div class="modal fade" id="modalResult" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <form asp-action="SubmitResult" method="post">
+            <div class="modal-content" style="border-radius: 1rem; border: none;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%); color: white;">
+                    <h5 class="modal-title font-weight-bold"><i class="fas fa-file-medical mr-2"></i>Nhập Kết Quả Cận Lâm Sàng</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body p-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="resultRsId" name="rsId" />
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="font-weight-bold text-muted text-uppercase small">Bệnh nhân</label>
+                            <h5 id="resultPatientName" class="text-dark font-weight-bold"></h5>
+                        </div>
+                        <div class="col-6">
+                            <label class="font-weight-bold text-muted text-uppercase small">Dịch vụ</label>
+                            <h5 id="resultServiceName" class="text-cyan font-weight-bold"></h5>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold"><i class="fas fa-notes-medical mr-1"></i> Kết quả xét nghiệm / Mô tả kết quả</label>
+                        <textarea name="resultValue" id="resultValueInput" class="form-control" rows="6"
+                                  placeholder="Nhập mô tả kết quả xét nghiệm, chẩn đoán hình ảnh...&#10;Ví dụ: Chỉ số glucose: 5.2 mmol/L (Bình thường)&#10;Hoặc: Hình ảnh phổi sáng, không thấy tổn thương..."
+                                  style="border-radius: 0.5rem;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold"><i class="fas fa-images mr-1"></i> Link hình ảnh kết quả (nếu có)</label>
+                        <input type="text" name="resultImages" class="form-control" placeholder="URL hình ảnh kết quả (X-Quang, CT, MRI...)" style="border-radius: 0.5rem;" />
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-cyan px-4 font-weight-bold"><i class="fas fa-paper-plane mr-1"></i> Trả kết quả</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function openResultModal(rsId, serviceName, patientName) {
+            $('#resultRsId').val(rsId);
+            $('#resultServiceName').text(serviceName);
+            $('#resultPatientName').text(patientName);
+            $('#resultValueInput').val('');
+            $('#modalResult').modal('show');
+        }
+
+        $(document).ready(function () {
+            $('.dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Vietnamese.json"
+                },
+                "order": [[0, "desc"]]
+            });
+
+            // Chart.js - Top dịch vụ
+            var names = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(serviceNames));
+            var counts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(serviceCounts));
+
+            if (names.length > 0) {
+                var ctx = document.getElementById('chartServiceStats').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: names,
+                        datasets: [{
+                            label: 'Số lượt chỉ định',
+                            data: counts,
+                            backgroundColor: [
+                                'rgba(8, 145, 178, 0.8)',
+                                'rgba(56, 189, 248, 0.8)',
+                                'rgba(34, 211, 238, 0.8)',
+                                'rgba(52, 211, 153, 0.8)',
+                                'rgba(251, 146, 60, 0.8)'
+                            ],
+                            borderColor: [
+                                '#0891b2', '#38bdf8', '#22d3ee', '#34d399', '#fb923c'
+                            ],
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

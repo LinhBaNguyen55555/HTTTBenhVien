@@ -383,6 +383,11 @@ public partial class HtttbenhvienContext : DbContext
                 .HasForeignKey(d => d.RecordId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Pre_Rec");
+
+            entity.HasOne(d => d.Doctor).WithMany()
+                .HasForeignKey(d => d.DoctorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Pre_Doctor");
         });
 
         modelBuilder.Entity<PrescriptionDetail>(entity =>

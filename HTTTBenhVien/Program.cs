@@ -56,6 +56,9 @@ builder.Services.AddAuthorization(options =>
 // Đăng ký IMemoryCache cho session
 builder.Services.AddMemoryCache();
 
+// Connect VNPay API
+builder.Services.AddScoped<HTTTBenhVien.Services.IVnPayService, HTTTBenhVien.Services.VnPayService>();
+
 // MVC
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();

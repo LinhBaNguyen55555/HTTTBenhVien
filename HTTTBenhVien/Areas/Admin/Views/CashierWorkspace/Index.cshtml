@@ -1,0 +1,401 @@
+@{
+    ViewData["Title"] = "Không gian Thu ngân";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    
+    var unpaidInvoices = ViewBag.UnpaidInvoices as IEnumerable<HTTTBenhVien.Models.Invoice>;
+    var paidInvoices = ViewBag.PaidInvoices as IEnumerable<HTTTBenhVien.Models.Invoice>;
+}
+
+<style>
+    /* Teal/Emerald theme cho Thu ngân */
+    .cashier-bg {
+        background-color: #f0fdf4;
+    }
+    .card-cashier-gradient {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    .stat-card-teal {
+        background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-teal:hover {
+        transform: translateY(-5px);
+    }
+    .stat-card-blue {
+        background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-blue:hover {
+        transform: translateY(-5px);
+    }
+    .btn-teal {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        transition: all 0.3s;
+    }
+    .btn-teal:hover {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+    }
+    .table-hover tbody tr:hover {
+        background-color: #ecfdf5;
+    }
+    .nav-tabs .nav-link {
+        color: #047857;
+        font-weight: 600;
+        border: none;
+        border-bottom: 3px solid transparent;
+    }
+    .nav-tabs .nav-link.active {
+        color: #064e3b;
+        background-color: transparent;
+        border-color: #10b981;
+    }
+</style>
+
+<div class="container-fluid cashier-bg py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-gray-800 font-weight-bold" style="color: #047857 !important;">
+            <i class="fas fa-cash-register mr-2"></i>Bàn Thanh Toán & Quản Lý Doanh Thu
+        </h3>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 0.5rem; background-color: #d1fae5; border-color: #34d399; color: #065f46;">
+            <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 0.5rem;">
+            <i class="fas fa-exclamation-triangle mr-2"></i>@TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-teal shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Chưa thu tiền</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalUnpaidCount hóa đơn</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-teal shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Dự kiến thu</div>
+                            <div class="h5 mb-0 font-weight-bold">@String.Format("{0:N0}", ViewBag.TotalUnpaidAmount) đ</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-hourglass-half fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-blue shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Đã thu hôm nay</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalPaidCount hóa đơn</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-receipt fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-blue shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Thực thu trong ngày</div>
+                            <div class="h5 mb-0 font-weight-bold">@String.Format("{0:N0}", ViewBag.TotalRevenueToday) đ</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-coins fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hóa đơn Tabs -->
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none;">
+        <div class="card-header py-3 bg-white" style="border-bottom: 2px solid #10b981; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+            <ul class="nav nav-tabs card-header-tabs" id="invoiceTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="unpaid-tab" data-toggle="tab" href="#unpaid" role="tab" aria-controls="unpaid" aria-selected="true">
+                        <i class="fas fa-exclamation-circle mr-1"></i> Chờ thanh toán
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="paid-tab" data-toggle="tab" href="#paid" role="tab" aria-controls="paid" aria-selected="false">
+                        <i class="fas fa-check-double mr-1"></i> Đã thu tiền hôm nay
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="invoiceTabsContent">
+                
+                <!-- Tab: Chờ thanh toán -->
+                <div class="tab-pane fade show active" id="unpaid" role="tabpanel" aria-labelledby="unpaid-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered dataTable" width="100%" cellspacing="0">
+                            <thead style="background-color: #ecfdf5; color: #047857;">
+                                <tr>
+                                    <th>Mã HĐ</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>SĐT</th>
+                                    <th>Chi tiết dịch vụ/thuốc</th>
+                                    <th>Tổng tiền</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (unpaidInvoices != null)
+                                {
+                                    foreach (var item in unpaidInvoices)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold">#@item.InvoiceId</td>
+                                            <td class="font-weight-bold text-primary">@item.Patient?.FullName</td>
+                                            <td>@item.Patient?.Phone</td>
+                                            <td>
+                                                <ul class="mb-0 pl-3">
+                                                    @foreach(var detail in item.InvoiceDetails)
+                                                    {
+                                                        <li>@detail.ItemName <span class="text-muted">(x@detail.Quantity)</span></li>
+                                                    }
+                                                </ul>
+                                            </td>
+                                            <td class="font-weight-bold text-danger">@String.Format("{0:N0}", item.TotalAmount) đ</td>
+                                            <td class="text-center align-middle">
+                                                <button type="button" class="btn btn-sm btn-teal shadow-sm px-3 py-2 font-weight-bold" 
+                                                        onclick="openPaymentModal(@item.InvoiceId, '@item.Patient?.FullName', @(item.TotalAmount ?? 0), @(item.BhytAmount ?? 0), @(item.DiscountAmount ?? 0))" 
+                                                        title="Thanh toán ngay">
+                                                    <i class="fas fa-hand-holding-usd mr-1"></i> Thanh toán
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Tab: Đã thu tiền -->
+                <div class="tab-pane fade" id="paid" role="tabpanel" aria-labelledby="paid-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered dataTable" width="100%" cellspacing="0">
+                            <thead style="background-color: #f0f9ff; color: #0369a1;">
+                                <tr>
+                                    <th>Mã HĐ</th>
+                                    <th>Thời gian thu</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Phương thức</th>
+                                    <th>Tổng tiền</th>
+                                    <th>BHYT/Giảm</th>
+                                    <th>Khách đã trả</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (paidInvoices != null)
+                                {
+                                    foreach (var item in paidInvoices)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold">#@item.InvoiceId</td>
+                                            <td>@(item.PaymentDate?.ToString("dd/MM/yyyy HH:mm"))</td>
+                                            <td class="font-weight-bold text-dark">@item.Patient?.FullName</td>
+                                            <td>
+                                                <span class="badge badge-primary px-2 py-1">@item.PaymentMethod</span>
+                                            </td>
+                                            <td>@String.Format("{0:N0}", item.TotalAmount) đ</td>
+                                            <td>@String.Format("{0:N0}", (item.BhytAmount ?? 0) + (item.DiscountAmount ?? 0)) đ</td>
+                                            <td class="font-weight-bold text-success">@String.Format("{0:N0}", item.PatientAmount) đ</td>
+                                            <td class="text-center align-middle">
+                                                <a href="@Url.Action("PrintInvoice", "CashierWorkspace", new { id = item.InvoiceId })" target="_blank" class="btn btn-sm btn-outline-info shadow-sm" title="In biên lai">
+                                                    <i class="fas fa-print"></i> In HĐ
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thanh Toán (Live Calculator) -->
+<div class="modal fade" id="modalPayment" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form asp-action="ProcessPayment" method="post">
+            <div class="modal-content" style="border-radius: 1rem; border: none;">
+                <div class="modal-header card-cashier-gradient">
+                    <h5 class="modal-title font-weight-bold"><i class="fas fa-file-invoice-dollar mr-2"></i>Thanh Toán Viện Phí</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="payInvoiceId" name="invoiceId" />
+                    <input type="hidden" id="payTotalAmountHidden" />
+                    
+                    <div class="text-center mb-4">
+                        <h6 class="text-uppercase text-muted font-weight-bold">Bệnh nhân</h6>
+                        <h4 id="payPatientName" class="text-primary font-weight-bold"></h4>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6 text-right font-weight-bold text-gray-800">Tổng chi phí:</div>
+                        <div class="col-6 text-left font-weight-bold text-danger" id="payTotalAmountDisplay">0 đ</div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label class="col-sm-6 col-form-label text-right font-weight-bold text-success">BHYT chi trả (VNĐ):</label>
+                        <div class="col-sm-6">
+                            <input type="number" class="form-control calc-input" id="payBhytAmount" name="bhytAmount" value="0" min="0" step="1000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label class="col-sm-6 col-form-label text-right font-weight-bold text-warning">Khuyến mãi / Giảm giá (VNĐ):</label>
+                        <div class="col-sm-6">
+                            <input type="number" class="form-control calc-input" id="payDiscountAmount" name="discountAmount" value="0" min="0" step="1000">
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-3 align-items-center bg-light p-3 rounded">
+                        <div class="col-6 text-right font-weight-bold text-uppercase h5 mb-0">Khách cần trả:</div>
+                        <div class="col-6 text-left font-weight-bold text-success h4 mb-0" id="payFinalAmountDisplay">0 đ</div>
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <label class="font-weight-bold">Phương thức thanh toán</label>
+                        <select name="paymentMethod" id="paymentMethodSelect" class="form-control custom-select" onchange="toggleVnPayNotice()">
+                            <option value="Tiền mặt">💵 Tiền mặt</option>
+                            <option value="Chuyển khoản">🏦 Chuyển khoản ngân hàng</option>
+                            <option value="Thẻ tín dụng">💳 Quẹt thẻ (POS)</option>
+                            <option value="VNPay">🔵 Thanh toán qua VNPay</option>
+                        </select>
+                    </div>
+
+                    <!-- VNPay Notice -->
+                    <div id="vnpayNotice" class="alert alert-info mt-2" style="display:none; border-radius: 0.5rem; background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border: 1px solid #38bdf8;">
+                        <div class="d-flex align-items-center">
+                            <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-VNPAY-QR-1.png" alt="VNPay" style="height: 30px; margin-right: 10px;" onerror="this.style.display='none'">
+                            <div>
+                                <strong style="color: #0369a1;">Thanh toán qua cổng VNPay</strong><br>
+                                <small class="text-muted">Bạn sẽ được chuyển tới trang thanh toán an toàn của VNPay. Hỗ trợ: ATM nội địa, Visa, MasterCard, QR Code.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" id="btnSubmitPayment" class="btn btn-teal px-4 font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Xác nhận Đã Thu Tiền</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openPaymentModal(id, name, totalAmount, bhytAmount, discountAmount) {
+            $('#payInvoiceId').val(id);
+            $('#payPatientName').text(name);
+            
+            // Set values
+            $('#payTotalAmountHidden').val(totalAmount);
+            $('#payTotalAmountDisplay').text(new Intl.NumberFormat('vi-VN').format(totalAmount) + ' đ');
+            
+            // Điền sẵn số tiền BHYT và Giảm giá đã có trong hóa đơn
+            var bh = bhytAmount || 0;
+            var dc = discountAmount || 0;
+            $('#payBhytAmount').val(bh);
+            $('#payDiscountAmount').val(dc);
+            
+            // Tự động tính số tiền khách cần trả
+            calculateFinalAmount();
+            
+            $('#modalPayment').modal('show');
+        }
+        
+        function calculateFinalAmount() {
+            var total = parseFloat($('#payTotalAmountHidden').val()) || 0;
+            var bhyt = parseFloat($('#payBhytAmount').val()) || 0;
+            var discount = parseFloat($('#payDiscountAmount').val()) || 0;
+            
+            var finalAmount = total - bhyt - discount;
+            if(finalAmount < 0) finalAmount = 0;
+            
+            $('#payFinalAmountDisplay').text(new Intl.NumberFormat('vi-VN').format(finalAmount) + ' đ');
+        }
+        
+        function toggleVnPayNotice() {
+            var method = $('#paymentMethodSelect').val();
+            if (method === 'VNPay') {
+                $('#vnpayNotice').slideDown(200);
+                $('#btnSubmitPayment').html('<i class="fas fa-external-link-alt mr-1"></i> Chuyển tới VNPay thanh toán');
+                $('#btnSubmitPayment').removeClass('btn-teal').addClass('btn-primary');
+            } else {
+                $('#vnpayNotice').slideUp(200);
+                $('#btnSubmitPayment').html('<i class="fas fa-check-circle mr-1"></i> Xác nhận Đã Thu Tiền');
+                $('#btnSubmitPayment').removeClass('btn-primary').addClass('btn-teal');
+            }
+        }
+        
+        $(document).ready(function() {
+            $('.dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Vietnamese.json"
+                },
+                "order": [[0, "desc"]] // Mã HĐ mới nhất lên đầu
+            });
+            
+            // Live calculation event
+            $('.calc-input').on('input change', function() {
+                calculateFinalAmount();
+            });
+        });
+    </script>
+}

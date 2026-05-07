@@ -42,7 +42,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            @if (!User.IsInRole("BacSi") && !User.IsInRole("Doctor") && !User.IsInRole("Bác sĩ"))
+            @if (!User.IsInRole("BacSi") && !User.IsInRole("Doctor") && !User.IsInRole("Bác sĩ") && !User.IsInRole("Thu ngân") && !User.IsInRole("Kế toán") && !User.IsInRole("ThuNgan") && !User.IsInRole("KeToan") && !User.IsInRole("Cashier") && !User.IsInRole("DuocSi") && !User.IsInRole("Dược sĩ") && !User.IsInRole("Pharmacist") && !User.IsInRole("KyThuat") && !User.IsInRole("Kỹ thuật") && !User.IsInRole("Technician") && !User.IsInRole("CanLamSang"))
             {
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "Home", new { area = "Admin" })">
@@ -119,6 +119,105 @@
                     <a class="nav-link pb-1" href="@Url.Action("Index", "Patient", new { area = "Admin" })">
                         <i class="fas fa-fw fa-users"></i>
                         <span>Danh sách bệnh nhân</span>
+                    </a>
+                </li>
+            }
+
+            @if (User.IsInRole("Thu ngân") || User.IsInRole("Kế toán") || User.IsInRole("ThuNgan") || User.IsInRole("KeToan") || User.IsInRole("Cashier"))
+            {
+                <!-- ═══════ THU NGÂN ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading" style="color: #f8f9fc; font-weight: bold; letter-spacing: 0.5px;">TÀI CHÍNH</div>
+
+                <li class="nav-item @(currentController == "CashierWorkspace" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "CashierWorkspace", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-cash-register"></i>
+                        <span>Bàn thanh toán hôm nay</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item @(currentController == "FinancialReport" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "FinancialReport", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-chart-line"></i>
+                        <span>Báo cáo doanh thu</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item @(currentController == "Invoice" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "Invoice", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                        <span>Tra cứu toàn bộ hóa đơn</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item @(currentController == "Patient" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "Patient", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>Danh sách bệnh nhân</span>
+                    </a>
+                </li>
+            }
+
+            @if (User.IsInRole("DuocSi") || User.IsInRole("Dược sĩ") || User.IsInRole("Pharmacist"))
+            {
+                <!-- ═══════ DƯỢC & VẬT TƯ ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading" style="color: #f8f9fc; font-weight: bold; letter-spacing: 0.5px;">DƯỢC & VẬT TƯ</div>
+
+                <li class="nav-item @(currentController == "PharmacyWorkspace" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "PharmacyWorkspace", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-pills"></i>
+                        <span>Bàn cấp phát thuốc</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "Medicine" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "Medicine", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-capsules"></i>
+                        <span>Quản lý kho thuốc</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "MedicalSupply" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "MedicalSupply", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-syringe"></i>
+                        <span>Quản lý vật tư y tế</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "Prescription" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "Prescription", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-file-prescription"></i>
+                        <span>Tra cứu đơn thuốc</span>
+                    </a>
+                </li>
+
+            }
+
+            @if (User.IsInRole("KyThuat") || User.IsInRole("Kỹ thuật") || User.IsInRole("Technician") || User.IsInRole("CanLamSang"))
+            {
+                <!-- ═══════ CẬN LÂM SÀNG ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading" style="color: #f8f9fc; font-weight: bold; letter-spacing: 0.5px;">CẬN LÂM SÀNG</div>
+
+                <li class="nav-item @(currentController == "LabWorkspace" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "LabWorkspace", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-microscope"></i>
+                        <span>Bàn xét nghiệm & CĐHA</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "RecordService" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "RecordService", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-vials"></i>
+                        <span>Tra cứu phiếu dịch vụ</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "MedicalService" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "MedicalService", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-list-alt"></i>
+                        <span>Danh mục dịch vụ</span>
                     </a>
                 </li>
             }

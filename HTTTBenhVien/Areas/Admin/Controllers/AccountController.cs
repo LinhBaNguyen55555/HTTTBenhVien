@@ -134,6 +134,21 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction("Index", "ReceptionWorkspace", new { area = "Admin" });
             }
 
+            if (account.RoleName == "Thu ngân" || account.RoleName == "Kế toán" || account.RoleName == "ThuNgan" || account.RoleName == "KeToan" || account.RoleName == "Cashier")
+            {
+                return RedirectToAction("Index", "CashierWorkspace", new { area = "Admin" });
+            }
+
+            if (account.RoleName == "Dược sĩ" || account.RoleName == "DuocSi" || account.RoleName == "Pharmacist")
+            {
+                return RedirectToAction("Index", "PharmacyWorkspace", new { area = "Admin" });
+            }
+
+            if (account.RoleName == "Kỹ thuật" || account.RoleName == "KyThuat" || account.RoleName == "Technician" || account.RoleName == "CanLamSang" || account.RoleName == "Cận lâm sàng")
+            {
+                return RedirectToAction("Index", "LabWorkspace", new { area = "Admin" });
+            }
+
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);

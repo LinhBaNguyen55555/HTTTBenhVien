@@ -1,0 +1,455 @@
+@{
+    ViewData["Title"] = "Không gian Dược & Vật tư";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var pendingPrescriptions = ViewBag.PendingPrescriptions as IEnumerable<HTTTBenhVien.Models.Prescription>;
+    var dispensedToday = ViewBag.DispensedToday as IEnumerable<HTTTBenhVien.Models.Prescription>;
+    var lowStockMedicines = ViewBag.LowStockMedicines as IEnumerable<HTTTBenhVien.Models.Medicine>;
+    var expiringMedicines = ViewBag.ExpiringMedicines as IEnumerable<HTTTBenhVien.Models.Medicine>;
+    var expiredMedicines = ViewBag.ExpiredMedicines as IEnumerable<HTTTBenhVien.Models.Medicine>;
+    var lowStockSupplies = ViewBag.LowStockSupplies as IEnumerable<HTTTBenhVien.Models.MedicalSupply>;
+}
+
+<style>
+    /* ═══ Indigo/Purple theme cho Dược ═══ */
+    .pharmacy-bg { background-color: #faf5ff; }
+    .text-indigo { color: #6366f1 !important; }
+    .bg-indigo { background-color: #6366f1 !important; }
+    .stat-card-indigo {
+        background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+        color: white; border: none; border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-indigo:hover { transform: translateY(-5px); }
+    .stat-card-purple {
+        background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+        color: white; border: none; border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-purple:hover { transform: translateY(-5px); }
+    .stat-card-rose {
+        background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+        color: white; border: none; border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-rose:hover { transform: translateY(-5px); }
+    .stat-card-amber {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white; border: none; border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+    .stat-card-amber:hover { transform: translateY(-5px); }
+    .btn-indigo {
+        background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+        color: white; border: none; transition: all 0.3s;
+    }
+    .btn-indigo:hover {
+        background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+        color: white; box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+    }
+    .nav-tabs .nav-link { color: #6366f1; font-weight: 600; border: none; border-bottom: 3px solid transparent; }
+    .nav-tabs .nav-link.active { color: #4338ca; background-color: transparent; border-color: #6366f1; }
+    .table-hover tbody tr:hover { background-color: #f5f3ff; }
+    .alert-card {
+        border-radius: 0.75rem; border: none;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    }
+    .badge-expired { background-color: #ef4444; color: white; }
+    .badge-expiring { background-color: #f59e0b; color: white; }
+    .badge-low { background-color: #f97316; color: white; }
+</style>
+
+<div class="container-fluid pharmacy-bg py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="font-weight-bold" style="color: #4338ca !important;">
+            <i class="fas fa-pills mr-2"></i>Bàn Dược & Quản Lý Vật Tư Y Tế
+        </h3>
+        <span class="text-muted"><i class="fas fa-clock mr-1"></i> @DateTime.Now.ToString("dddd, dd/MM/yyyy HH:mm")</span>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 0.5rem; background-color: #ede9fe; border-color: #a78bfa; color: #4338ca;">
+            <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 0.5rem;">
+            <i class="fas fa-exclamation-triangle mr-2"></i>@TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <!-- ═══════ THỐNG KÊ TỔNG QUAN ═══════ -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-indigo shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Đơn chờ cấp phát</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.PendingCount đơn thuốc</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-prescription-bottle-alt fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-purple shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Tổng mặt hàng thuốc</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalMedicines loại</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-pills fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-amber shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Sắp hết tồn kho</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.LowStockCount thuốc ⚠️</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card-rose shadow py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Sắp hết hạn / Đã hết hạn</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.ExpiringCount / @ViewBag.ExpiredCount 🔴</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-calendar-times fa-2x text-white-50"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TABS CHÍNH ═══════ -->
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none;">
+        <div class="card-header py-3 bg-white" style="border-bottom: 2px solid #6366f1; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+            <ul class="nav nav-tabs card-header-tabs" id="pharmacyTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#tabPending" role="tab">
+                        <i class="fas fa-clipboard-list mr-1"></i> Đơn chờ cấp phát
+                        @if (ViewBag.PendingCount > 0)
+                        {
+                            <span class="badge badge-danger ml-1">@ViewBag.PendingCount</span>
+                        }
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabDispensed" role="tab">
+                        <i class="fas fa-check-double mr-1"></i> Đã cấp phát
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabAlerts" role="tab">
+                        <i class="fas fa-bell mr-1"></i> Cảnh báo tồn kho
+                        @{
+                            int totalAlerts = (ViewBag.LowStockCount ?? 0) + (ViewBag.ExpiringCount ?? 0) + (ViewBag.ExpiredCount ?? 0);
+                        }
+                        @if (totalAlerts > 0)
+                        {
+                            <span class="badge badge-warning ml-1">@totalAlerts</span>
+                        }
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+
+                <!-- ═══ TAB 1: ĐƠN CHỜ CẤP PHÁT ═══ -->
+                <div class="tab-pane fade show active" id="tabPending" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered dataTable" width="100%">
+                            <thead style="background-color: #f5f3ff; color: #4338ca;">
+                                <tr>
+                                    <th>Mã ĐT</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Bác sĩ kê</th>
+                                    <th>Ngày kê</th>
+                                    <th>Chi tiết thuốc</th>
+                                    <th>Ghi chú</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (pendingPrescriptions != null && pendingPrescriptions.Any())
+                                {
+                                    foreach (var item in pendingPrescriptions)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold text-indigo">#@item.PrescriptionId</td>
+                                            <td class="font-weight-bold text-dark">@item.Record?.Patient?.FullName</td>
+                                            <td>@item.Doctor?.FullName</td>
+                                            <td>@(item.CreateDate?.ToString("dd/MM/yyyy HH:mm"))</td>
+                                            <td>
+                                                <ul class="mb-0 pl-3">
+                                                    @foreach (var detail in item.PrescriptionDetails)
+                                                    {
+                                                        var med = detail.Medicine;
+                                                        var isLow = med != null && med.StockQuantity < (detail.Quantity ?? 0);
+                                                        <li>
+                                                            <strong>@med?.MedicineName</strong>
+                                                            <span class="text-muted">(x@detail.Quantity - @detail.Dosage)</span>
+                                                            @if (isLow)
+                                                            {
+                                                                <span class="badge badge-danger ml-1">Thiếu kho!</span>
+                                                            }
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </td>
+                                            <td><small class="text-muted">@item.Note</small></td>
+                                            <td class="text-center align-middle">
+                                                <form asp-action="DispensePrescription" method="post" style="display:inline;">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="prescriptionId" value="@item.PrescriptionId" />
+                                                    <button type="submit" class="btn btn-sm btn-indigo shadow-sm px-3 py-2 font-weight-bold"
+                                                            onclick="return confirm('Xác nhận đã cấp phát thuốc cho đơn #@item.PrescriptionId?');">
+                                                        <i class="fas fa-hand-holding-medical mr-1"></i> Cấp phát
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">
+                                            <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
+                                            Không có đơn thuốc nào chờ cấp phát. Tuyệt vời!
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ═══ TAB 2: ĐÃ CẤP PHÁT ═══ -->
+                <div class="tab-pane fade" id="tabDispensed" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered dataTable" width="100%">
+                            <thead style="background-color: #f0fdf4; color: #047857;">
+                                <tr>
+                                    <th>Mã ĐT</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Bác sĩ kê</th>
+                                    <th>Ngày kê</th>
+                                    <th>Thuốc đã cấp</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (dispensedToday != null && dispensedToday.Any())
+                                {
+                                    foreach (var item in dispensedToday)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold">#@item.PrescriptionId</td>
+                                            <td class="font-weight-bold text-dark">@item.Record?.Patient?.FullName</td>
+                                            <td>@item.Doctor?.FullName</td>
+                                            <td>@(item.CreateDate?.ToString("dd/MM/yyyy HH:mm"))</td>
+                                            <td>
+                                                <ul class="mb-0 pl-3">
+                                                    @foreach (var detail in item.PrescriptionDetails)
+                                                    {
+                                                        <li>@detail.Medicine?.MedicineName <span class="text-muted">(x@detail.Quantity)</span></li>
+                                                    }
+                                                </ul>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <a href="@Url.Action("PrintPrescription", "PharmacyWorkspace", new { id = item.PrescriptionId })" target="_blank"
+                                                   class="btn btn-sm btn-outline-info shadow-sm" title="In phiếu xuất thuốc">
+                                                    <i class="fas fa-print"></i> In phiếu
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">Chưa có đơn nào được cấp phát.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ═══ TAB 3: CẢNH BÁO TỒN KHO ═══ -->
+                <div class="tab-pane fade" id="tabAlerts" role="tabpanel">
+
+                    <!-- Thuốc hết hạn -->
+                    @if (expiredMedicines != null && expiredMedicines.Any())
+                    {
+                        <div class="card alert-card mb-4 border-left-danger" style="border-left: 4px solid #ef4444;">
+                            <div class="card-header bg-white py-2">
+                                <h6 class="m-0 font-weight-bold text-danger"><i class="fas fa-skull-crossbones mr-1"></i> Thuốc ĐÃ HẾT HẠN (@ViewBag.ExpiredCount mặt hàng)</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr><th>Tên thuốc</th><th>Đơn vị</th><th>Tồn kho</th><th>Hạn dùng</th><th>Trạng thái</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var med in expiredMedicines)
+                                        {
+                                            <tr class="table-danger">
+                                                <td class="font-weight-bold">@med.MedicineName</td>
+                                                <td>@med.Unit</td>
+                                                <td>@med.StockQuantity</td>
+                                                <td>@(med.ExpiryDate?.ToString("dd/MM/yyyy"))</td>
+                                                <td><span class="badge badge-expired px-2 py-1">HẾT HẠN</span></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Thuốc sắp hết hạn (<90 ngày) -->
+                    @if (expiringMedicines != null && expiringMedicines.Any())
+                    {
+                        <div class="card alert-card mb-4" style="border-left: 4px solid #f59e0b;">
+                            <div class="card-header bg-white py-2">
+                                <h6 class="m-0 font-weight-bold text-warning"><i class="fas fa-clock mr-1"></i> Thuốc SẮP HẾT HẠN trong 90 ngày (@ViewBag.ExpiringCount mặt hàng)</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr><th>Tên thuốc</th><th>Đơn vị</th><th>Tồn kho</th><th>Hạn dùng</th><th>Còn lại</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var med in expiringMedicines)
+                                        {
+                                            var daysLeft = med.ExpiryDate.HasValue ? (med.ExpiryDate.Value - DateTime.Now).Days : 0;
+                                            <tr class="@(daysLeft < 30 ? "table-warning" : "")">
+                                                <td class="font-weight-bold">@med.MedicineName</td>
+                                                <td>@med.Unit</td>
+                                                <td>@med.StockQuantity</td>
+                                                <td>@(med.ExpiryDate?.ToString("dd/MM/yyyy"))</td>
+                                                <td>
+                                                    @if (daysLeft < 0)
+                                                    {
+                                                        <span class="badge badge-expired px-2">Đã hết hạn</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-expiring px-2">@daysLeft ngày</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Thuốc sắp hết tồn kho -->
+                    @if (lowStockMedicines != null && lowStockMedicines.Any())
+                    {
+                        <div class="card alert-card mb-4" style="border-left: 4px solid #f97316;">
+                            <div class="card-header bg-white py-2">
+                                <h6 class="m-0 font-weight-bold text-orange"><i class="fas fa-box-open mr-1"></i> Thuốc SẮP HẾT TỒN KHO (≤50 đơn vị) - @ViewBag.LowStockCount mặt hàng</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr><th>Tên thuốc</th><th>Hoạt chất</th><th>Đơn vị</th><th>Tồn kho</th><th>Đơn giá</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var med in lowStockMedicines)
+                                        {
+                                            <tr class="@(med.StockQuantity <= 10 ? "table-danger" : "table-warning")">
+                                                <td class="font-weight-bold">@med.MedicineName</td>
+                                                <td>@med.ActiveIngredient</td>
+                                                <td>@med.Unit</td>
+                                                <td>
+                                                    <span class="font-weight-bold @(med.StockQuantity <= 10 ? "text-danger" : "text-warning")">
+                                                        @med.StockQuantity
+                                                    </span>
+                                                </td>
+                                                <td>@String.Format("{0:N0}", med.Price) đ</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Vật tư sắp hết -->
+                    @if (lowStockSupplies != null && lowStockSupplies.Any())
+                    {
+                        <div class="card alert-card mb-4" style="border-left: 4px solid #8b5cf6;">
+                            <div class="card-header bg-white py-2">
+                                <h6 class="m-0 font-weight-bold text-indigo"><i class="fas fa-syringe mr-1"></i> Vật tư y tế SẮP HẾT (≤20 đơn vị) - @ViewBag.LowStockSupplyCount mặt hàng</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr><th>Tên vật tư</th><th>Đơn vị</th><th>Tồn kho</th><th>Nhà cung cấp</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var sup in lowStockSupplies)
+                                        {
+                                            <tr class="@(sup.StockQuantity <= 5 ? "table-danger" : "table-warning")">
+                                                <td class="font-weight-bold">@sup.SupplyName</td>
+                                                <td>@sup.Unit</td>
+                                                <td class="font-weight-bold text-danger">@sup.StockQuantity</td>
+                                                <td>@sup.Supplier</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    @if (totalAlerts == 0)
+                    {
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3 d-block"></i>
+                            <h5>Tồn kho ổn định, không có cảnh báo nào!</h5>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Vietnamese.json"
+                },
+                "order": [[0, "desc"]]
+            });
+        });
+    </script>
+}

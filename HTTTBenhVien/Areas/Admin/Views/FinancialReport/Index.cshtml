@@ -1,0 +1,497 @@
+@{
+    ViewData["Title"] = "Báo cáo Doanh thu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    
+    var topTransactions = ViewBag.TopTransactions as IEnumerable<HTTTBenhVien.Models.Invoice>;
+    var currentYear = ViewBag.CurrentYear ?? DateTime.Now.Year;
+    var currentMonth = ViewBag.CurrentMonth ?? DateTime.Now.Month;
+    var timeRange = ViewBag.CurrentTimeRange as string;
+}
+
+<!-- Custom styles for this template-->
+<style>
+    .finance-bg {
+        background-color: #f8f9fa;
+    }
+    .text-teal {
+        color: #0d9488 !important;
+    }
+    .bg-teal {
+        background-color: #0d9488 !important;
+    }
+    .btn-teal {
+        background-color: #0d9488;
+        color: white;
+        border: 1px solid #0d9488;
+    }
+    .btn-teal:hover {
+        background-color: #0f766e;
+        color: white;
+    }
+    .border-left-teal {
+        border-left: 0.25rem solid #0d9488 !important;
+    }
+    .card-stat {
+        border-radius: 0.75rem;
+        border: none;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        transition: transform 0.2s ease-in-out;
+    }
+    .card-stat:hover {
+        transform: translateY(-5px);
+    }
+    .chart-area {
+        position: relative;
+        height: 20rem;
+        width: 100%;
+    }
+    .chart-pie {
+        position: relative;
+        height: 15rem;
+        width: 100%;
+    }
+    .filter-card {
+        border-radius: 1rem;
+        border: none;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        margin-bottom: 2rem;
+    }
+</style>
+
+<div class="container-fluid finance-bg py-4">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-chart-line text-teal mr-2"></i> Báo Cáo Doanh Thu (@ViewBag.ReportTitle)
+        </h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-teal shadow-sm text-white bg-teal" onclick="window.print()">
+            <i class="fas fa-download fa-sm text-white-50"></i> Xuất báo cáo
+        </a>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card filter-card">
+        <div class="card-body py-3">
+            <form method="get" action="@Url.Action("Index", "FinancialReport")" class="form-inline">
+                <div class="form-group mr-4">
+                    <label class="mr-2 font-weight-bold">Thời gian:</label>
+                    <select name="timeRange" id="timeRange" class="form-control custom-select" onchange="toggleCustomMonth()">
+                        @if (timeRange == "this_month" || string.IsNullOrEmpty(timeRange))
+                        {
+                            <option value="this_month" selected>Tháng này</option>
+                        }
+                        else
+                        {
+                            <option value="this_month">Tháng này</option>
+                        }
+                        
+                        @if (timeRange == "this_year")
+                        {
+                            <option value="this_year" selected>Năm nay</option>
+                        }
+                        else
+                        {
+                            <option value="this_year">Năm nay</option>
+                        }
+                        
+                        @if (timeRange == "custom_month")
+                        {
+                            <option value="custom_month" selected>Chọn tháng cụ thể</option>
+                        }
+                        else
+                        {
+                            <option value="custom_month">Chọn tháng cụ thể</option>
+                        }
+                        
+                        @if (timeRange == "all_time")
+                        {
+                            <option value="all_time" selected>Toàn thời gian (Từ trước tới nay)</option>
+                        }
+                        else
+                        {
+                            <option value="all_time">Toàn thời gian (Từ trước tới nay)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group mr-4" id="customMonthGroup" style="@(timeRange == "custom_month" ? "" : "display:none;")">
+                    <label class="mr-2 font-weight-bold">Tháng:</label>
+                    <select name="month" class="form-control custom-select mr-2">
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            if (currentMonth == i)
+                            {
+                                <option value="@i" selected>Tháng @i</option>
+                            }
+                            else
+                            {
+                                <option value="@i">Tháng @i</option>
+                            }
+                        }
+                    </select>
+                    <label class="mr-2 font-weight-bold">Năm:</label>
+                    <select name="year" class="form-control custom-select">
+                        @for (int i = DateTime.Now.Year; i >= 2020; i--)
+                        {
+                            if (currentYear == i)
+                            {
+                                <option value="@i" selected>@i</option>
+                            }
+                            else
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-teal text-white"><i class="fas fa-filter"></i> Lọc dữ liệu</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+
+        <!-- Tổng doanh thu -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-teal card-stat h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-teal text-uppercase mb-1">
+                                Tổng Doanh Thu
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @String.Format("{0:N0}", ViewBag.TotalRevenue) đ
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-coins fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Giao dịch -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success card-stat h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Số lượt thanh toán
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @String.Format("{0:N0}", ViewBag.TotalTransactions) Hóa đơn
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-receipt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tiền nợ -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning card-stat h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Chưa thu tiền (Công nợ tổng)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @String.Format("{0:N0}", ViewBag.TotalUnpaid) đ
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BHYT chi trả -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info card-stat h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                BHYT / Giảm giá đã cấp
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @String.Format("{0:N0}", ViewBag.TotalDiscount) đ
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-notes-medical fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+
+        <!-- Area Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4" style="border-radius: 1rem;">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h6 class="m-0 font-weight-bold text-teal">@ViewBag.ChartTitle</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4" style="border-radius: 1rem;">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h6 class="m-0 font-weight-bold text-teal">Cơ cấu phương thức thanh toán</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="paymentMethodChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small" id="pieChartLegend">
+                        <!-- Legend will be generated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Transactions Row -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4" style="border-radius: 1rem;">
+                <div class="card-header py-3 bg-white" style="border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h6 class="m-0 font-weight-bold text-teal">Top Giao dịch lớn nhất</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0">Mã HĐ</th>
+                                    <th class="border-0">Ngày thanh toán</th>
+                                    <th class="border-0">Bệnh nhân</th>
+                                    <th class="border-0">Phương thức</th>
+                                    <th class="border-0 text-right">Tổng thanh toán</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (topTransactions != null && topTransactions.Any())
+                                {
+                                    foreach (var item in topTransactions)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold align-middle">#@item.InvoiceId</td>
+                                            <td class="align-middle">@(item.PaymentDate?.ToString("dd/MM/yyyy HH:mm"))</td>
+                                            <td class="font-weight-bold text-dark align-middle">@item.Patient?.FullName</td>
+                                            <td class="align-middle">
+                                                <span class="badge badge-info px-2 py-1">@item.PaymentMethod</span>
+                                            </td>
+                                            <td class="text-right font-weight-bold text-success align-middle">
+                                                @String.Format("{0:N0}", item.PatientAmount) đ
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">Chưa có dữ liệu giao dịch.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <!-- Page level plugins -->
+    <script src="~/admin/vendor/chart.js/Chart.min.js"></script>
+
+    <script>
+        function toggleCustomMonth() {
+            if ($('#timeRange').val() === 'custom_month') {
+                $('#customMonthGroup').show();
+            } else {
+                $('#customMonthGroup').hide();
+            }
+        }
+
+        // Set new default font family and font color to mimic Bootstrap's default styling
+        Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+        Chart.defaults.global.defaultFontColor = '#858796';
+
+        function number_format(number, decimals, dec_point, thousands_sep) {
+            number = (number + '').replace(',', '').replace(' ', '');
+            var n = !isFinite(+number) ? 0 : +number,
+                prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                sep = (typeof thousands_sep === 'undefined') ? '.' : thousands_sep,
+                dec = (typeof dec_point === 'undefined') ? ',' : dec_point,
+                s = '',
+                toFixedFix = function(n, prec) {
+                    var k = Math.pow(10, prec);
+                    return '' + Math.round(n * k) / k;
+                };
+            s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+            if (s[0].length > 3) {
+                s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+            }
+            if ((s[1] || '').length < prec) {
+                s[1] = s[1] || '';
+                s[1] += new Array(prec - s[1].length + 1).join('0');
+            }
+            return s.join(dec);
+        }
+
+        // Dữ liệu từ Controller
+        var lineLabels = @Html.Raw(Json.Serialize(ViewBag.ChartLabels));
+        var lineData = @Html.Raw(Json.Serialize(ViewBag.ChartData));
+
+        // Area Chart (Doanh thu)
+        var ctx = document.getElementById("revenueChart");
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: lineLabels,
+                datasets: [{
+                    label: "Doanh thu",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(13, 148, 136, 0.05)",
+                    borderColor: "rgba(13, 148, 136, 1)",
+                    pointRadius: 3,
+                    pointBackgroundColor: "rgba(13, 148, 136, 1)",
+                    pointBorderColor: "rgba(13, 148, 136, 1)",
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgba(13, 148, 136, 1)",
+                    pointHoverBorderColor: "rgba(13, 148, 136, 1)",
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    data: lineData,
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                    padding: { left: 10, right: 25, top: 25, bottom: 0 }
+                },
+                scales: {
+                    xAxes: [{
+                        time: { unit: 'date' },
+                        gridLines: { display: false, drawBorder: false },
+                        ticks: { maxTicksLimit: 12 }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            callback: function(value, index, values) {
+                                return number_format(value) + ' đ';
+                            }
+                        },
+                        gridLines: {
+                            color: "rgb(234, 236, 244)",
+                            zeroLineColor: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                        }
+                    }],
+                },
+                legend: { display: false },
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    titleMarginBottom: 10,
+                    titleFontColor: '#6e707e',
+                    titleFontSize: 14,
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    intersect: false,
+                    mode: 'index',
+                    caretPadding: 10,
+                    callbacks: {
+                        label: function(tooltipItem, chart) {
+                            var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                            return datasetLabel + ': ' + number_format(tooltipItem.yLabel) + ' đ';
+                        }
+                    }
+                }
+            }
+        });
+
+        // Dữ liệu từ Controller
+        var pieLabels = @Html.Raw(Json.Serialize(ViewBag.PieLabels));
+        var pieData = @Html.Raw(Json.Serialize(ViewBag.PieData));
+        var pieColors = ['#0d9488', '#38bdf8', '#fbbf24', '#f43f5e', '#8b5cf6'];
+        
+        // Tạo Legend HTML
+        var legendHtml = '';
+        for(var i = 0; i < pieLabels.length; i++) {
+            var color = pieColors[i % pieColors.length];
+            legendHtml += '<span class="mr-2"><i class="fas fa-circle" style="color: '+color+'"></i> '+pieLabels[i]+'</span>';
+        }
+        document.getElementById('pieChartLegend').innerHTML = legendHtml;
+
+        // Pie Chart
+        var ctx2 = document.getElementById("paymentMethodChart");
+        var myPieChart = new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    data: pieData,
+                    backgroundColor: pieColors,
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                    callbacks: {
+                        label: function(tooltipItem, chart) {
+                            var datasetLabel = chart.labels[tooltipItem.index] || '';
+                            var value = chart.datasets[0].data[tooltipItem.index];
+                            return datasetLabel + ': ' + number_format(value) + ' đ';
+                        }
+                    }
+                },
+                legend: { display: false },
+                cutoutPercentage: 70,
+            },
+        });
+    </script>
+}

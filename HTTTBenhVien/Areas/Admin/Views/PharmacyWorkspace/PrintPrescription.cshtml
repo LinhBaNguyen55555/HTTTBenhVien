@@ -1,0 +1,133 @@
+@model HTTTBenhVien.Models.Prescription
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Phiếu Xuất Thuốc #@Model.PrescriptionId</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Times New Roman', serif; font-size: 14px; color: #333; padding: 20px; }
+        .print-container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #6366f1; padding-bottom: 15px; }
+        .header h2 { color: #6366f1; margin-bottom: 5px; }
+        .header h3 { font-size: 18px; color: #333; text-transform: uppercase; letter-spacing: 1px; }
+        .header p { color: #666; font-size: 13px; }
+        .info-section { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .info-section .col { width: 48%; }
+        .info-row { margin-bottom: 5px; }
+        .info-row label { font-weight: bold; min-width: 120px; display: inline-block; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f5f3ff; color: #4338ca; font-weight: bold; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .signature-section { display: flex; justify-content: space-between; margin-top: 40px; text-align: center; }
+        .signature-section .sig { width: 30%; }
+        .signature-section .sig p:first-child { font-weight: bold; }
+        .signature-section .sig p:last-child { margin-top: 60px; font-style: italic; }
+        .note-section { background-color: #f5f3ff; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+        .btn-actions { text-align: center; margin-top: 20px; }
+        .btn-actions button { padding: 10px 30px; font-size: 14px; cursor: pointer; margin: 0 5px; border-radius: 5px; border: none; }
+        .btn-print { background-color: #6366f1; color: white; }
+        .btn-close { background-color: #999; color: white; }
+        @@media print {
+            .btn-actions { display: none; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <div class="header">
+            <h2>🏥 BỆNH VIỆN VINHUNI HIS</h2>
+            <p>Địa chỉ: 123 Nguyễn Văn Linh, TP. Vinh, Nghệ An | ĐT: 0238.123.4567</p>
+            <h3>PHIẾU XUẤT THUỐC</h3>
+            <p>Số: <strong>#@Model.PrescriptionId</strong> | Ngày xuất: <strong>@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</strong></p>
+        </div>
+
+        <div class="info-section">
+            <div class="col">
+                <div class="info-row"><label>Bệnh nhân:</label> <strong>@Model.Record?.Patient?.FullName</strong></div>
+                <div class="info-row"><label>Mã bệnh nhân:</label> @Model.Record?.Patient?.PatientCode</div>
+                <div class="info-row"><label>Điện thoại:</label> @Model.Record?.Patient?.Phone</div>
+            </div>
+            <div class="col">
+                <div class="info-row"><label>Bác sĩ kê đơn:</label> <strong>@Model.Doctor?.FullName</strong></div>
+                <div class="info-row"><label>Mã hồ sơ:</label> BA#@Model.RecordId</div>
+                <div class="info-row"><label>Ngày kê đơn:</label> @(Model.CreateDate?.ToString("dd/MM/yyyy HH:mm"))</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 40px;">STT</th>
+                    <th>Tên thuốc</th>
+                    <th>Đơn vị</th>
+                    <th class="text-center">SL</th>
+                    <th>Liều dùng</th>
+                    <th class="text-right">Đơn giá</th>
+                    <th class="text-right">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int stt = 1;
+                    decimal grandTotal = 0;
+                }
+                @foreach (var detail in Model.PrescriptionDetails)
+                {
+                    var lineTotal = (detail.Quantity ?? 0) * (detail.Medicine?.Price ?? 0);
+                    grandTotal += lineTotal;
+                    <tr>
+                        <td class="text-center">@stt</td>
+                        <td><strong>@detail.Medicine?.MedicineName</strong></td>
+                        <td>@detail.Medicine?.Unit</td>
+                        <td class="text-center">@detail.Quantity</td>
+                        <td>@detail.Dosage</td>
+                        <td class="text-right">@String.Format("{0:N0}", detail.Medicine?.Price)</td>
+                        <td class="text-right"><strong>@String.Format("{0:N0}", lineTotal)</strong></td>
+                    </tr>
+                    stt++;
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6" class="text-right"><strong>TỔNG CỘNG:</strong></td>
+                    <td class="text-right"><strong style="color: #6366f1; font-size: 16px;">@String.Format("{0:N0}", grandTotal) đ</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        @if (!string.IsNullOrEmpty(Model.Note))
+        {
+            <div class="note-section">
+                <strong>📝 Ghi chú của bác sĩ:</strong> @Model.Note
+            </div>
+        }
+
+        <div class="signature-section">
+            <div class="sig">
+                <p>Bác sĩ kê đơn</p>
+                <p>(Ký, ghi rõ họ tên)</p>
+            </div>
+            <div class="sig">
+                <p>Dược sĩ cấp phát</p>
+                <p>(Ký, ghi rõ họ tên)</p>
+            </div>
+            <div class="sig">
+                <p>Người nhận thuốc</p>
+                <p>(Ký, ghi rõ họ tên)</p>
+            </div>
+        </div>
+
+        <div class="btn-actions">
+            <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> 🖨️ In phiếu</button>
+            <button class="btn-close" onclick="window.close()">✖ Đóng</button>
+        </div>
+    </div>
+</body>
+</html>
