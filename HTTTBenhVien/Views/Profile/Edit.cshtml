@@ -1,0 +1,97 @@
+@model HTTTBenhVien.Models.Patient
+@{
+    ViewData["Title"] = "Cập nhật thông tin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center mb-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary rounded-circle me-3">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <h3 class="mb-0">Cập nhật thông tin cá nhân</h3>
+                    </div>
+
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <img src="@Model.AvatarUrlFull" class="rounded-circle img-thumbnail mb-3" style="width: 150px; height: 150px; object-fit: cover;" id="avatarPreview" />
+                                <div class="mb-3">
+                                    <label for="avatarFile" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-camera me-1"></i> Thay ảnh
+                                    </label>
+                                    <input type="file" id="avatarFile" name="avatarFile" class="d-none" accept="image/*" onchange="previewImage(this)" />
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Họ và tên</label>
+                                        <input asp-for="FullName" class="form-control" required />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Ngày sinh</label>
+                                        <input asp-for="Dob" type="date" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Giới tính</label>
+                                        <select asp-for="Gender" class="form-select">
+                                            <option value="true">Nam</option>
+                                            <option value="false">Nữ</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input asp-for="Email" type="email" class="form-control" />
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Địa chỉ</label>
+                                        <input asp-for="Address" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nghề nghiệp</label>
+                                        <input asp-for="Occupation" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nơi làm việc/Trường học</label>
+                                        <input asp-for="WorkplaceOrSchool" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-3">
+                            <label class="form-label">Tiền sử bệnh lý bản thân</label>
+                            <textarea asp-for="PersonalMedicalHistory" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">LƯU THAY ĐỔI</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

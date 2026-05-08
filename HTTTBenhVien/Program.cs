@@ -51,6 +51,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("DoctorOrAdmin", policy => policy.RequireRole("Admin", "BacSi"));
     options.AddPolicy("TechnicianOnly", policy => policy.RequireRole("Admin", "KyThuat"));
     options.AddPolicy("CashierOnly", policy => policy.RequireRole("Admin", "ThuNgan"));
+    options.AddPolicy("PatientOnly", policy => policy.RequireRole("Patient"));
 });
 
 // Đăng ký IMemoryCache cho session

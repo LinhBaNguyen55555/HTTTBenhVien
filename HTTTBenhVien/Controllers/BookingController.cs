@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using HTTTBenhVien.Models;
 
 namespace HTTTBenhVien.Controllers;
 
+[Authorize(Roles = "Patient")]
 public class BookingController : Controller
 {
     private readonly HtttbenhvienContext _context;
@@ -62,8 +65,10 @@ public class BookingController : Controller
             return View(model);
         }
 
+        model.PatientId = int.Parse(User.FindFirstValue("PatientId") ?? "0");
         model.Status = "DaXacNhan";
         model.CreatedDate = DateTime.Now;
+        
         _context.Appointments.Add(model);
         await _context.SaveChangesAsync();
 

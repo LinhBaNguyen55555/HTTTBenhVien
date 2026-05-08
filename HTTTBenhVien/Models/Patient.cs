@@ -39,4 +39,5 @@ public partial class Patient
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     public virtual ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
+    public virtual PatientAccount? PatientAccount { get; set; }
 }

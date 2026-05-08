@@ -1,0 +1,145 @@
+@model HTTTBenhVien.Models.Patient
+@{
+    ViewData["Title"] = "Hồ sơ sức khỏe";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="profile-header py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center">
+                <img src="@Model.AvatarUrlFull" class="rounded-circle profile-img shadow" alt="@Model.FullName" />
+            </div>
+            <div class="col-md-7">
+                <h2 class="text-white mb-1">@Model.FullName</h2>
+                <p class="text-white-50 mb-0"><i class="fas fa-id-card me-2"></i>Mã bệnh nhân: @Model.PatientCode</p>
+                <p class="text-white-50"><i class="fas fa-phone me-2"></i>@Model.Phone</p>
+            </div>
+            <div class="col-md-3 text-md-end">
+                <a asp-action="Edit" class="btn btn-light rounded-pill px-4"><i class="fas fa-edit me-2"></i>Sửa hồ sơ</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="profile-nav card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="list-group list-group-flush">
+                    <a asp-action="Index" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-columns me-2"></i> Tổng quan
+                    </a>
+                    <a asp-action="MedicalHistory" class="list-group-item list-group-item-action">
+                        <i class="fas fa-history me-2"></i> Lịch sử khám bệnh
+                    </a>
+                    <a asp-controller="Booking" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-calendar-plus me-2"></i> Đặt lịch khám mới
+                    </a>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="list-group-item list-group-item-action text-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card p-4 rounded-4 shadow-sm text-center">
+                        <div class="icon bg-primary-light text-primary mb-3 mx-auto">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h3>@Model.Appointments.Count</h3>
+                        <p class="text-muted mb-0">Cuộc hẹn</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card p-4 rounded-4 shadow-sm text-center">
+                        <div class="icon bg-success-light text-success mb-3 mx-auto">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                        <h3>@Model.MedicalRecords.Count</h3>
+                        <p class="text-muted mb-0">Lượt khám</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card p-4 rounded-4 shadow-sm text-center">
+                        <div class="icon bg-warning-light text-warning mb-3 mx-auto">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <h3>@Model.MedicalRecords.SelectMany(r => r.Prescriptions).Count()</h3>
+                        <p class="text-muted mb-0">Đơn thuốc</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <h4 class="mb-4">Thông tin cá nhân</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="text-muted small d-block">Ngày sinh</label>
+                        <span class="fw-bold">@(Model.Dob?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="text-muted small d-block">Giới tính</label>
+                        <span class="fw-bold">@(Model.Gender ? "Nam" : "Nữ")</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="text-muted small d-block">Email</label>
+                        <span class="fw-bold">@(Model.Email ?? "Chưa cập nhật")</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="text-muted small d-block">Số CCCD</label>
+                        <span class="fw-bold">@(Model.CitizenId ?? "Chưa cập nhật")</span>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="text-muted small d-block">Địa chỉ</label>
+                        <span class="fw-bold">@(Model.Address ?? "Chưa cập nhật")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-header {
+        background: linear-gradient(45deg, #0d6efd, #00d2ff);
+        margin-top: 68px;
+    }
+    .profile-img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 4px solid white;
+    }
+    .stat-card {
+        background: white;
+        transition: transform 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-card .icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 24px;
+    }
+    .bg-primary-light { background: rgba(13, 110, 253, 0.1); }
+    .bg-success-light { background: rgba(40, 167, 69, 0.1); }
+    .bg-warning-light { background: rgba(255, 193, 7, 0.1); }
+    .profile-nav .list-group-item {
+        padding: 15px 20px;
+        border: none;
+    }
+    .profile-nav .list-group-item.active {
+        background: #0d6efd;
+    }
+</style>
