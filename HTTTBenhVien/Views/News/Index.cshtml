@@ -84,7 +84,7 @@
                                     @article.Category
                                 </div>
                                 <h2 class="featured-title">
-                                    <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })">@article.Title</a>
+                                    <a href="@Url.Action("Details", "News", new { slug = article.Slug })">@article.Title</a>
                                 </h2>
                                 <p class="featured-summary">@article.Summary</p>
                                 <div class="article-meta">
@@ -95,7 +95,7 @@
                                     <span class="meta-date"><i class="bi bi-calendar3"></i> @(article.PublishDate?.ToString("dd MMM yyyy") ?? "")</span>
                                     <span class="meta-views"><i class="bi bi-eye"></i> @(article.ViewCount ?? 0) lượt xem</span>
                                 </div>
-                                <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })" class="btn-read-featured">
+                                <a href="@Url.Action("Details", "News", new { slug = article.Slug })" class="btn-read-featured">
                                     Đọc bài viết <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
@@ -122,7 +122,7 @@
                                     </div>
                                 }
                                 <div class="article-overlay">
-                                    <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })" class="overlay-read">
+                                    <a href="@Url.Action("Details", "News", new { slug = article.Slug })" class="overlay-read">
                                         <i class="bi bi-book"></i> Đọc ngay
                                     </a>
                                 </div>
@@ -130,7 +130,7 @@
                             <div class="article-card-body">
                                 <div class="article-category-small">@article.Category</div>
                                 <h3 class="article-card-title">
-                                    <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })">@article.Title</a>
+                                    <a href="@Url.Action("Details", "News", new { slug = article.Slug })">@article.Title</a>
                                 </h3>
                                 <p class="article-card-summary">@article.Summary</p>
                                 <div class="article-card-footer">
@@ -138,7 +138,7 @@
                                         <span><i class="bi bi-calendar3"></i> @(article.PublishDate?.ToString("dd/MM/yyyy") ?? "")</span>
                                         <span><i class="bi bi-eye"></i> @(article.ViewCount ?? 0)</span>
                                     </div>
-                                    <a href="@Url.Action("Details", "TinTuc", new { slug = article.Slug })" class="card-read-more">
+                                    <a href="@Url.Action("Details", "News", new { slug = article.Slug })" class="card-read-more">
                                         Xem thêm <i class="bi bi-arrow-right-short"></i>
                                     </a>
                                 </div>
@@ -233,6 +233,7 @@
         margin-top: 20px;
     }
 </style>
+
 
 
 

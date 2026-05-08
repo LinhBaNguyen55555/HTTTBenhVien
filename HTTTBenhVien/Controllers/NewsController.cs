@@ -4,11 +4,11 @@ using HTTTBenhVien.Models;
 
 namespace HTTTBenhVien.Controllers;
 
-public class TinTucController : Controller
+public class NewsController : Controller
 {
     private readonly HtttbenhvienContext _context;
 
-    public TinTucController(HtttbenhvienContext context)
+    public NewsController(HtttbenhvienContext context)
     {
         _context = context;
     }

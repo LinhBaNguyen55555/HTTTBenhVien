@@ -4,11 +4,11 @@ using HTTTBenhVien.Models;
 
 namespace HTTTBenhVien.Controllers;
 
-public class ChuyenKhoaController : Controller
+public class SpecialtyController : Controller
 {
     private readonly HtttbenhvienContext _context;
 
-    public ChuyenKhoaController(HtttbenhvienContext context)
+    public SpecialtyController(HtttbenhvienContext context)
     {
         _context = context;
     }

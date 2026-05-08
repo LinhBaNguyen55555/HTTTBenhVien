@@ -28,8 +28,8 @@
                                     <p class="specialty">@doctor.Specialty</p>
                                     <p class="department"><i class="fas fa-hospital me-1"></i> @doctor.Dept?.DeptName</p>
                                     <div class="doctor-actions">
-                                        <a href="@Url.Action("Details", "BacSi", new { id = doctor.EmpId })" class="btn btn-sm btn-primary">Xem chi tiết</a>
-                                        <a href="@Url.Action("Index", "DatLich")" class="btn btn-sm btn-outline-primary">Đặt lịch</a>
+                                        <a href="@Url.Action("Details", "Doctor", new { id = doctor.EmpId })" class="btn btn-sm btn-primary">Xem chi tiết</a>
+                                        <a href="@Url.Action("Index", "Booking")" class="btn btn-sm btn-outline-primary">Đặt lịch</a>
                                     </div>
                                 </div>
                             </div>

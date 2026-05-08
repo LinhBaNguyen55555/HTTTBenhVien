@@ -4,11 +4,11 @@ using HTTTBenhVien.Models;
 
 namespace HTTTBenhVien.Controllers;
 
-public class GioiThieuController : Controller
+public class AboutController : Controller
 {
     private readonly HtttbenhvienContext _context;
 
-    public GioiThieuController(HtttbenhvienContext context)
+    public AboutController(HtttbenhvienContext context)
     {
         _context = context;
     }

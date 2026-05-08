@@ -4,11 +4,11 @@ using HTTTBenhVien.Models;
 
 namespace HTTTBenhVien.Controllers;
 
-public class DatLichController : Controller
+public class BookingController : Controller
 {
     private readonly HtttbenhvienContext _context;
 
-    public DatLichController(HtttbenhvienContext context)
+    public BookingController(HtttbenhvienContext context)
     {
         _context = context;
     }

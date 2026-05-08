@@ -220,23 +220,23 @@ async Task SeedData(HtttbenhvienContext context)
         var trangChu = new WebMenu { MenuName = "Trang chủ", MenuUrl = "/", DisplayOrder = 1, IconClass = "bi bi-house" };
         context.WebMenus.Add(trangChu);
 
-        var gioiThieu = new WebMenu { MenuName = "Giới thiệu", MenuUrl = "/GioiThieu", DisplayOrder = 2, IconClass = "bi bi-info-circle" };
+        var gioiThieu = new WebMenu { MenuName = "Giới thiệu", MenuUrl = "/About", DisplayOrder = 2, IconClass = "bi bi-info-circle" };
         context.WebMenus.Add(gioiThieu);
         await context.SaveChangesAsync();
 
         var gioiThieuChildren = new List<WebMenu>
         {
-            new() { MenuName = "Lịch sử hình thành", MenuUrl = "/GioiThieu/LichSu", ParentId = gioiThieu.MenuId, DisplayOrder = 1 },
-            new() { MenuName = "Tầm nhìn & sứ mệnh", MenuUrl = "/GioiThieu/TamNhinSuMenh", ParentId = gioiThieu.MenuId, DisplayOrder = 2 },
-            new() { MenuName = "Cơ sở vật chất", MenuUrl = "/GioiThieu/CoSoVatChat", ParentId = gioiThieu.MenuId, DisplayOrder = 3 },
+            new() { MenuName = "Lịch sử hình thành", MenuUrl = "/About/LichSu", ParentId = gioiThieu.MenuId, DisplayOrder = 1 },
+            new() { MenuName = "Tầm nhìn & sứ mệnh", MenuUrl = "/About/TamNhinSuMenh", ParentId = gioiThieu.MenuId, DisplayOrder = 2 },
+            new() { MenuName = "Cơ sở vật chất", MenuUrl = "/About/CoSoVatChat", ParentId = gioiThieu.MenuId, DisplayOrder = 3 },
         };
         context.WebMenus.AddRange(gioiThieuChildren);
 
-        var chuyenKhoa = new WebMenu { MenuName = "Chuyên khoa", MenuUrl = "/ChuyenKhoa", DisplayOrder = 3, IconClass = "bi bi-bezier" };
-        var bacSi = new WebMenu { MenuName = "Bác sĩ", MenuUrl = "/BacSi", DisplayOrder = 4, IconClass = "bi bi-person-badge" };
-        var tinTuc = new WebMenu { MenuName = "Tin tức", MenuUrl = "/TinTuc", DisplayOrder = 5, IconClass = "bi bi-newspaper" };
-        var lienHe = new WebMenu { MenuName = "Liên hệ", MenuUrl = "/LienHe", DisplayOrder = 6, IconClass = "bi bi-envelope" };
-        var datLich = new WebMenu { MenuName = "Đặt lịch khám", MenuUrl = "/DatLich", DisplayOrder = 7, IconClass = "bi bi-calendar-check" };
+        var chuyenKhoa = new WebMenu { MenuName = "Chuyên khoa", MenuUrl = "/Specialty", DisplayOrder = 3, IconClass = "bi bi-bezier" };
+        var bacSi = new WebMenu { MenuName = "Bác sĩ", MenuUrl = "/Doctor", DisplayOrder = 4, IconClass = "bi bi-person-badge" };
+        var tinTuc = new WebMenu { MenuName = "Tin tức", MenuUrl = "/News", DisplayOrder = 5, IconClass = "bi bi-newspaper" };
+        var lienHe = new WebMenu { MenuName = "Liên hệ", MenuUrl = "/Contact", DisplayOrder = 6, IconClass = "bi bi-envelope" };
+        var datLich = new WebMenu { MenuName = "Đặt lịch khám", MenuUrl = "/Booking", DisplayOrder = 7, IconClass = "bi bi-calendar-check" };
 
         context.WebMenus.AddRange(chuyenKhoa, bacSi, tinTuc, lienHe, datLich);
         await context.SaveChangesAsync();

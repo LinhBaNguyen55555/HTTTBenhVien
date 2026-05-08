@@ -62,7 +62,7 @@
                                             <h5>@dept.DeptName</h5>
                                             <span><i class="fas fa-map-marker-alt me-1"></i>@dept.Location</span>
                                         </div>
-                                        <a href="@Url.Action("Details", "ChuyenKhoa", new { id = dept.DeptId })" class="dept-btn">
+                                        <a href="@Url.Action("Details", "Specialty", new { id = dept.DeptId })" class="dept-btn">
                                             <span>Đặt lịch</span>
                                             <i class="fas fa-arrow-right"></i>
                                         </a>
@@ -101,7 +101,7 @@
                                             <h5>@dept.DeptName</h5>
                                             <span><i class="fas fa-map-marker-alt me-1"></i>@dept.Location</span>
                                         </div>
-                                        <a href="@Url.Action("Details", "ChuyenKhoa", new { id = dept.DeptId })" class="dept-btn dept-btn-detail">
+                                        <a href="@Url.Action("Details", "Specialty", new { id = dept.DeptId })" class="dept-btn dept-btn-detail">
                                             <span>Xem chi tiết</span>
                                             <i class="fas fa-arrow-right"></i>
                                         </a>
@@ -127,7 +127,7 @@
                 <a href="tel:19001234" class="btn btn-light btn-lg">
                     <i class="fas fa-phone-alt me-2"></i>Gọi tư vấn
                 </a>
-                <a href="@Url.Action("Index", "DatLich")" class="btn btn-outline-light btn-lg">
+                <a href="@Url.Action("Index", "Booking")" class="btn btn-outline-light btn-lg">
                     <i class="fas fa-calendar-check me-2"></i>Đặt lịch khám
                 </a>
             </div>

@@ -48,8 +48,8 @@
                         </div>
 
                         <div class="hero-actions" data-aos="fade-right" data-aos-delay="600">
-                            <a href="@Url.Action("Index", "DatLich")" class="btn btn-primary">Đặt lịch khám ngay</a>
-                            <a href="@Url.Action("Index", "ChuyenKhoa")" class="btn btn-outline glightbox">
+                            <a href="@Url.Action("Index", "Booking")" class="btn btn-primary">Đặt lịch khám ngay</a>
+                            <a href="@Url.Action("Index", "Specialty")" class="btn btn-outline glightbox">
                                 <i class="bi bi-arrow-right-circle me-2"></i>
                                 Tìm hiểu dịch vụ
                             </a>
@@ -135,7 +135,7 @@
                         </div>
 
                         <div class="cta-section">
-                            <a href="@Url.Action("Index", "GioiThieu")" class="btn-primary">Tìm hiểu về chúng tôi</a>
+                            <a href="@Url.Action("Index", "About")" class="btn-primary">Tìm hiểu về chúng tôi</a>
                         </div>
                     </div>
                 </div>
@@ -182,7 +182,7 @@
                             Title = "Khoa tim mạch",
                             Desc = "Chẩn đoán và điều trị các bệnh lý tim mạch với trang thiết bị hiện đại nhất",
                             Tags = new[] { "Phẫu thuật tim mạch", "Can thiệp mạch vành", "Siêu âm tim" },
-                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 11 }),
+                            Link = Url.Action("Details", "Specialty", new { id = 11 }),
                             Color = "#dc3545",
                             LightColor = "#ffe8ea",
                             Delay = "100"
@@ -193,7 +193,7 @@
                             Title = "Khoa thần kinh",
                             Desc = "Chuyên điều trị các bệnh lý thần kinh, đột quỵ, động kinh với công nghệ tiên tiến",
                             Tags = new[] { "Điều trị đột quỵ", "Phẫu thuật thần kinh", "Phục hồi chức năng" },
-                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 4 }),
+                            Link = Url.Action("Details", "Specialty", new { id = 4 }),
                             Color = "#6f42c1",
                             LightColor = "#f3e8ff",
                             Delay = "200"
@@ -204,7 +204,7 @@
                             Title = "Khoa ngoại tổng hợp",
                             Desc = "Phẫu thuật tổng quát, nội soi, chấn thương chỉnh hình với kỹ thuật hiện đại",
                             Tags = new[] { "Phẫu thuật ống tiêu hóa", "Can thiệp đa chấn thương", "Thay khớp nhân tạo" },
-                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 14 }),
+                            Link = Url.Action("Details", "Specialty", new { id = 14 }),
                             Color = "#0d6efd",
                             LightColor = "#e8f0ff",
                             Delay = "300"
@@ -215,7 +215,7 @@
                             Title = "Khoa nhi",
                             Desc = "Chăm sóc sức khỏe trẻ em từ sơ sinh đến 15 tuổi với không gian thân thiện",
                             Tags = new[] { "Hồi sức sơ sinh", "Nhi khoa tổng quát", "Dinh dưỡng nhi" },
-                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 5 }),
+                            Link = Url.Action("Details", "Specialty", new { id = 5 }),
                             Color = "#fd7e14",
                             LightColor = "#fff4e6",
                             Delay = "400"
@@ -226,7 +226,7 @@
                             Title = "Khoa sản",
                             Desc = "Theo dõi thai kỳ, sinh con an toàn, chăm sóc sau sinh với đội ngũ bác sĩ giàu kinh nghiệm",
                             Tags = new[] { "Thai sản cao cấp", "Sinh con không đau", "Can thiệp sản phụ khoa" },
-                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 6 }),
+                            Link = Url.Action("Details", "Specialty", new { id = 6 }),
                             Color = "#e83e8c",
                             LightColor = "#ffe8f4",
                             Delay = "500"
@@ -237,7 +237,7 @@
                             Title = "Khoa xét nghiệm",
                             Desc = "Xét nghiệm máu, sinh hóa, vi sinh với kết quả nhanh chóng, chính xác",
                             Tags = new[] { "Xét nghiệm máu", "Sinh hóa máu", "Vi sinh - Cấy vi khuẩn" },
-                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 16 }),
+                            Link = Url.Action("Details", "Specialty", new { id = 16 }),
                             Color = "#20c997",
                             LightColor = "#e8faf5",
                             Delay = "600"
@@ -288,11 +288,11 @@
                         </div>
                     </div>
                     <div class="cta-right">
-                        <a href="@Url.Action("Index", "ChuyenKhoa")" class="cta-btn">
+                        <a href="@Url.Action("Index", "Specialty")" class="cta-btn">
                             <i class="bi bi-grid-3x3-gap-fill"></i>
                             Danh sách chuyên khoa
                         </a>
-                        <a href="@Url.Action("Index", "DatLich")" class="cta-btn cta-btn-secondary">
+                        <a href="@Url.Action("Index", "Booking")" class="cta-btn cta-btn-secondary">
                             <i class="bi bi-calendar-check"></i>
                             Đặt lịch khám
                         </a>
@@ -324,7 +324,7 @@
                         <div class="service-details">
                             <h2>Dịch vụ y tế toàn diện</h2>
                             <p>Khám, chẩn đoán và điều trị với đội ngũ bác sĩ chuyên khoa giỏi, trang thiết bị hiện đại theo tiêu chuẩn quốc tế.</p>
-                            <a href="@Url.Action("Index", "DatLich")" class="main-cta">Đặt lịch khám ngay</a>
+                            <a href="@Url.Action("Index", "Booking")" class="main-cta">Đặt lịch khám ngay</a>
                         </div>
                     </div>
                 </div>
@@ -336,7 +336,7 @@
                             <div class="service-info">
                                 <h4>Dược - Khoa dược</h4>
                                 <p>Cung cấp thuốc chất lượng, tư vấn sử dụng thuốc an toàn, hiệu quả cho bệnh nhân.</p>
-                                <a href="@Url.Action("Details", "ChuyenKhoa", new { id = 9 })" class="service-link">Tìm hiểu thêm</a>
+                                <a href="@Url.Action("Details", "Specialty", new { id = 9 })" class="service-link">Tìm hiểu thêm</a>
                             </div>
                         </div>
                         <div class="service-item" data-aos="fade-up" data-aos-delay="500">
@@ -344,7 +344,7 @@
                             <div class="service-info">
                                 <h4>Xét nghiệm - Y sinh học phân tử</h4>
                                 <p>Xét nghiệm máu, sinh hóa, vi sinh chuyên sâu với kết quả nhanh chóng, chính xác.</p>
-                                <a href="@Url.Action("Details", "ChuyenKhoa", new { id = 7 })" class="service-link">Tìm hiểu thêm</a>
+                                <a href="@Url.Action("Details", "Specialty", new { id = 7 })" class="service-link">Tìm hiểu thêm</a>
                             </div>
                         </div>
                         <div class="service-item" data-aos="fade-up" data-aos-delay="600">
@@ -352,7 +352,7 @@
                             <div class="service-info">
                                 <h4>Chẩn đoán hình ảnh</h4>
                                 <p>X-quang, CT Scanner, MRI, siêu âm với hình ảnh sắc nét, hỗ trợ chẩn đoán chính xác.</p>
-                                <a href="@Url.Action("Details", "ChuyenKhoa", new { id = 8 })" class="service-link">Tìm hiểu thêm</a>
+                                <a href="@Url.Action("Details", "Specialty", new { id = 8 })" class="service-link">Tìm hiểu thêm</a>
                             </div>
                         </div>
                     </div>
@@ -421,10 +421,10 @@
                                 </div>
 
                                 <div class="action-buttons">
-                                    <a href="@Url.Action("Details", "BacSi", new { id = doctor.EmpId })" class="btn btn-secondary">
+                                    <a href="@Url.Action("Details", "Doctor", new { id = doctor.EmpId })" class="btn btn-secondary">
                                         <i class="fas fa-user-md"></i> Xem chi tiết
                                     </a>
-                                    <a href="@Url.Action("Index", "DatLich", new { doctorId = doctor.EmpId })" class="btn btn-primary">
+                                    <a href="@Url.Action("Index", "Booking", new { doctorId = doctor.EmpId })" class="btn btn-primary">
                                         <i class="fas fa-calendar-check"></i> Đặt lịch khám
                                     </a>
                                 </div>
@@ -441,7 +441,7 @@
             </div>
 
             <div class="text-center mt-5">
-                <a href="@Url.Action("Index", "BacSi")" class="btn-view-all">
+                <a href="@Url.Action("Index", "Doctor")" class="btn-view-all">
                     Xem tất cả bác sĩ <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
@@ -457,11 +457,11 @@
                             <h1>Chăm sóc sức khỏe, Mọi ngày</h1>
                             <p>Đặt lịch khám trực tuyến dễ dàng, nhanh chóng. Đội ngũ bác sĩ tận tâm, trang thiết bị hiện đại, quy trình khám bệnh chuyên nghiệp.</p>
                             <div class="cta-wrapper">
-                                <a href="@Url.Action("Index", "DatLich")" class="primary-cta">
+                                <a href="@Url.Action("Index", "Booking")" class="primary-cta">
                                     <span>Đặt lịch khám</span>
                                     <i class="bi bi-arrow-right"></i>
                                 </a>
-                                <a href="@Url.Action("Index", "ChuyenKhoa")" class="secondary-cta">
+                                <a href="@Url.Action("Index", "Specialty")" class="secondary-cta">
                                     <span>Tìm hiểu dịch vụ</span>
                                     <i class="bi bi-arrow-right"></i>
                                 </a>
@@ -516,7 +516,7 @@
                                 <i class="bi bi-telephone"></i>
                                 <span>1900 1234</span>
                             </a>
-                            <a href="@Url.Action("Index", "LienHe")" class="contact-link">GỬI TIN NHẮN</a>
+                            <a href="@Url.Action("Index", "Contact")" class="contact-link">GỬI TIN NHẮN</a>
                         </div>
                     </div>
                 </div>

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HTTTBenhVien.Controllers
 {
-    public class HuongDanController : Controller
+    public class GuideController : Controller
     {
         public IActionResult QuyTrinh()
         {

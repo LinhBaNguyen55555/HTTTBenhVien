@@ -4,11 +4,11 @@ using HTTTBenhVien.Models;
 
 namespace HTTTBenhVien.Controllers
 {
-    public class DichVuController : Controller
+    public class ServiceController : Controller
     {
         private readonly HtttbenhvienContext _context;
 
-        public DichVuController(HtttbenhvienContext context)
+        public ServiceController(HtttbenhvienContext context)
         {
             _context = context;
         }

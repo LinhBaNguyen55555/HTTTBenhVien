@@ -308,7 +308,7 @@
                                                             <span class="doctor-team-spec">@doc.Specialty</span>
                                                         }
                                                     </div>
-                                                    <a href="@Url.Action("Index", "DatLich")" class="doctor-book-btn @primaryBtn @((isLamSang || isCanLamSang) ? "" : "d-none")">
+                                                    <a href="@Url.Action("Index", "Booking")" class="doctor-book-btn @primaryBtn @((isLamSang || isCanLamSang) ? "" : "d-none")">
                                                         <i class="fas fa-calendar-check"></i> Đặt khám
                                                     </a>
                                                 </div>
@@ -365,7 +365,7 @@
                                     <i class="fas fa-calendar-check me-2" style="color: @iconColor;"></i>Đặt lịch khám
                                 </h5>
                                 <p class="text-muted small mb-3">Đặt lịch khám online nhanh chóng, không chờ đợi</p>
-                                <a href="@Url.Action("Index", "DatLich", new { khoa = Model.DeptId })" class="btn @primaryBtn w-100 py-2 fw-bold">
+                                <a href="@Url.Action("Index", "Booking", new { khoa = Model.DeptId })" class="btn @primaryBtn w-100 py-2 fw-bold">
                                     <i class="fas fa-calendar-plus me-2"></i>Đặt lịch khám
                                 </a>
                             </div>
@@ -440,7 +440,7 @@
                         </div>
 
                         @* Back Button *@
-                        <a href="@Url.Action("Index", "ChuyenKhoa")" class="btn btn-outline-secondary w-100 mt-3">
+                        <a href="@Url.Action("Index", "Specialty")" class="btn btn-outline-secondary w-100 mt-3">
                             <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách chuyên khoa
                         </a>
                     </div>
@@ -930,3 +930,4 @@
         }
     }
 </style>
+

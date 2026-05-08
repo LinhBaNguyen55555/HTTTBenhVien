@@ -24,7 +24,7 @@ public class MainMenuViewComponent : ViewComponent
 
         foreach (var menu in menus)
         {
-            if (menu.MenuName == "Chuyên khoa" || menu.MenuUrl?.Contains("ChuyenKhoa") == true)
+            if (menu.MenuName == "Chuyên khoa" || menu.MenuUrl?.Contains("Specialty") == true)
             {
                 menu.InverseParent = new List<WebMenu>();
             }
