@@ -1,0 +1,118 @@
+@model IEnumerable<HTTTBenhVien.Models.MedicalService>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+    <section class="pricing-section section">
+        <div class="container" data-aos="fade-up">
+            <div class="section-title text-center">
+                <h2>Bảng giá dịch vụ y tế</h2>
+                <p class="text-muted">Bệnh viện cam kết công khai, minh bạch mọi chi phí khám chữa bệnh theo quy định của Bộ Y tế.</p>
+            </div>
+
+            <div class="search-bar mb-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden">
+                            <span class="input-group-text bg-white border-0 ps-4">
+                                <i class="bi bi-search text-primary"></i>
+                            </span>
+                            <input type="text" id="serviceSearch" class="form-control border-0" placeholder="Tìm kiếm tên dịch vụ hoặc loại xét nghiệm...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pricing-table-container shadow-lg rounded-4 overflow-hidden bg-white">
+                <table class="table table-hover mb-0" id="pricingTable">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th class="py-3 ps-4">Tên dịch vụ</th>
+                            <th class="py-3">Mô tả</th>
+                            <th class="py-3 text-end pe-4">Đơn giá (VNĐ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var service in Model)
+                        {
+                            <tr>
+                                <td class="py-3 ps-4 fw-bold">@service.ServiceName</td>
+                                <td class="py-3 text-muted">@service.Description</td>
+                                <td class="py-3 text-end pe-4 text-primary fw-bold">@service.BasePrice.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-5 text-center p-4 bg-light rounded-4 border border-info border-start-5">
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-info-circle-fill text-info fs-3 me-3"></i>
+                    <p class="mb-0 text-muted">
+                        <strong>Lưu ý:</strong> Bảng giá trên là giá cơ sở. Tùy thuộc vào chỉ định chuyên môn của bác sĩ và các chi phí vật tư tiêu hao đi kèm, chi phí thực tế có thể thay đổi. 
+                        Vui lòng liên hệ Hotline <strong>1900 1234</strong> để được tư vấn chi tiết.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<style>
+    .pricing-section {
+        padding: 140px 0 100px;
+        background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+    }
+
+    .pricing-table-container {
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .table thead th {
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: rgba(23, 92, 221, 0.05);
+        transform: scale(1.002);
+    }
+
+    .border-start-5 {
+        border-left-width: 5px !important;
+    }
+
+    #serviceSearch:focus {
+        box-shadow: none;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('serviceSearch');
+        const tableRows = document.querySelectorAll('#pricingTable tbody tr');
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+
+            tableRows.forEach(row => {
+                const serviceName = row.cells[0].textContent.toLowerCase();
+                const description = row.cells[1].textContent.toLowerCase();
+                
+                if (serviceName.includes(query) || description.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>

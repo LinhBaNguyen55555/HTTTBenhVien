@@ -1,0 +1,196 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+    <section class="packages-section section">
+        <div class="container" data-aos="fade-up">
+            <div class="section-title text-center mb-5">
+                <h2>Gói khám sức khỏe tổng quát</h2>
+                <p class="text-muted mx-auto" style="max-width: 700px;">
+                    Chủ động bảo vệ sức khỏe bản thân và gia đình với các gói khám được thiết kế khoa học, phù hợp với mọi độ tuổi và nhu cầu.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Gói Cơ Bản -->
+                <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="package-card h-100">
+                        <div class="package-header basic">
+                            <i class="bi bi-shield-check"></i>
+                            <h3>Gói Cơ Bản</h3>
+                            <div class="price">2.500.000 <span>VNĐ</span></div>
+                        </div>
+                        <div class="package-body">
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check2"></i> Khám nội tổng quát</li>
+                                <li><i class="bi bi-check2"></i> Xét nghiệm máu 22 chỉ số</li>
+                                <li><i class="bi bi-check2"></i> Kiểm tra đường huyết, mỡ máu</li>
+                                <li><i class="bi bi-check2"></i> Chức năng gan, thận</li>
+                                <li><i class="bi bi-check2"></i> Tổng phân tích nước tiểu</li>
+                                <li><i class="bi bi-check2"></i> Điện tâm đồ (ECG)</li>
+                                <li><i class="bi bi-check2"></i> Siêu âm bụng tổng quát</li>
+                            </ul>
+                        </div>
+                        <div class="package-footer">
+                            <a href="@Url.Action("Index", "DatLich")" class="btn btn-outline-primary rounded-pill w-100 py-2">Đăng ký ngay</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gói Nâng Cao -->
+                <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="package-card featured h-100">
+                        <div class="featured-badge">Phổ biến nhất</div>
+                        <div class="package-header standard">
+                            <i class="bi bi-gem"></i>
+                            <h3>Gói Nâng Cao</h3>
+                            <div class="price">5.200.000 <span>VNĐ</span></div>
+                        </div>
+                        <div class="package-body">
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check2"></i> Tất cả danh mục gói Cơ bản</li>
+                                <li><i class="bi bi-check2"></i> Tầm soát vi khuẩn HP dạ dày</li>
+                                <li><i class="bi bi-check2"></i> Chụp X-quang phổi thẳng</li>
+                                <li><i class="bi bi-check2"></i> Siêu âm tuyến giáp</li>
+                                <li><i class="bi bi-check2"></i> Siêu âm tim Doppler</li>
+                                <li><i class="bi bi-check2"></i> Khám chuyên khoa mắt/RHM</li>
+                                <li><i class="bi bi-check2"></i> Đo loãng xương (DEXA)</li>
+                            </ul>
+                        </div>
+                        <div class="package-footer">
+                            <a href="@Url.Action("Index", "DatLich")" class="btn btn-primary rounded-pill w-100 py-2">Đăng ký ngay</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gói Vip -->
+                <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="package-card h-100">
+                        <div class="package-header vip">
+                            <i class="bi bi-trophy"></i>
+                            <h3>Gói VIP</h3>
+                            <div class="price">9.800.000 <span>VNĐ</span></div>
+                        </div>
+                        <div class="package-body">
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check2"></i> Tất cả danh mục gói Nâng cao</li>
+                                <li><i class="bi bi-check2"></i> Chụp MRI não và mạch máu</li>
+                                <li><i class="bi bi-check2"></i> Nội soi dạ dày, đại tràng</li>
+                                <li><i class="bi bi-check2"></i> Tầm soát dấu ấn ung thư</li>
+                                <li><i class="bi bi-check2"></i> Xét nghiệm Gen di truyền</li>
+                                <li><i class="bi bi-check2"></i> Tư vấn dinh dưỡng chuyên sâu</li>
+                                <li><i class="bi bi-check2"></i> Phục vụ tại phòng VIP riêng</li>
+                            </ul>
+                        </div>
+                        <div class="package-footer">
+                            <a href="@Url.Action("Index", "DatLich")" class="btn btn-outline-primary rounded-pill w-100 py-2">Đăng ký ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<style>
+    .packages-section {
+        padding: 140px 0 100px;
+        background-color: #f4f7ff;
+    }
+
+    .package-card {
+        background: #fff;
+        border-radius: 24px;
+        padding: 40px 30px;
+        position: relative;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .package-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+
+    .package-card.featured {
+        border: 2px solid var(--accent-color);
+        transform: scale(1.05);
+        z-index: 1;
+    }
+
+    .featured-badge {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent-color);
+        color: #fff;
+        padding: 6px 20px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .package-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .package-header i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .package-header.basic i { color: #6c757d; }
+    .package-header.standard i { color: var(--accent-color); }
+    .package-header.vip i { color: #ffc107; }
+
+    .package-header h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .package-header .price {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--heading-color);
+    }
+
+    .package-header .price span {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #999;
+    }
+
+    .package-body {
+        flex-grow: 1;
+        margin-bottom: 30px;
+    }
+
+    .package-body ul li {
+        margin-bottom: 12px;
+        color: #555;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .package-body ul li i {
+        color: #28a745;
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    @@media (max-width: 992px) {
+        .package-card.featured {
+            transform: scale(1);
+            margin: 20px 0;
+        }
+    }
+</style>

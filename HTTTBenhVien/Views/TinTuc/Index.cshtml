@@ -217,12 +217,22 @@
                             }
                         </ul>
                     </nav>
-                    <p class="pagination-info">Trang @(page) / @totalPages - Hiển thị @(Math.Min(page * 9, total)) bài viết</p>
+                    <p class="pagination-info">Trang @(page) / @totalPages - Hiển thị @(Math.Min(page * 10, total)) bài viết</p>
                 </div>
             }
         </div>
     </section>
 </main>
+
+<style>
+    .news-section {
+        padding-top: 130px !important;
+    }
+    
+    .news-main-title {
+        margin-top: 20px;
+    }
+</style>
 
 
 

@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Trang chủ";
 }
 
@@ -111,7 +111,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-right" data-aos-delay="200">
                     <div class="about-content">
-                        <h2 class="section-heading">Chăm sóc tận tâm, Y học tiên tiến</h2>
+                        <h2 class="section-heading">Chăm sóc tận tâm, y học tiên tiến</h2>
                         <p class="lead-text">
                             Với hơn 15 năm hoạt động, chúng tôi cam kết mang đến dịch vụ y tế chất lượng cao, kết hợp công nghệ hiện đại với sự thân thiện trong từng trải nghiệm của bệnh nhân.
                         </p>
@@ -179,10 +179,10 @@
                         new {
                             Img = "cardiology-1.webp",
                             Icon = "bi-heart-pulse",
-                            Title = "Khoa Tim mạch",
+                            Title = "Khoa tim mạch",
                             Desc = "Chẩn đoán và điều trị các bệnh lý tim mạch với trang thiết bị hiện đại nhất",
                             Tags = new[] { "Phẫu thuật tim mạch", "Can thiệp mạch vành", "Siêu âm tim" },
-                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 5 }),
+                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 11 }),
                             Color = "#dc3545",
                             LightColor = "#ffe8ea",
                             Delay = "100"
@@ -190,10 +190,10 @@
                         new {
                             Img = "neurology-4.webp",
                             Icon = "bi-cpu",
-                            Title = "Khoa Thần kinh",
+                            Title = "Khoa thần kinh",
                             Desc = "Chuyên điều trị các bệnh lý thần kinh, đột quỵ, động kinh với công nghệ tiên tiến",
                             Tags = new[] { "Điều trị đột quỵ", "Phẫu thuật thần kinh", "Phục hồi chức năng" },
-                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 6 }),
+                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 4 }),
                             Color = "#6f42c1",
                             LightColor = "#f3e8ff",
                             Delay = "200"
@@ -201,10 +201,10 @@
                         new {
                             Img = "staff-5.webp",
                             Icon = "bi-activity",
-                            Title = "Khoa Ngoại tổng hợp",
+                            Title = "Khoa ngoại tổng hợp",
                             Desc = "Phẫu thuật tổng quát, nội soi, chấn thương chỉnh hình với kỹ thuật hiện đại",
                             Tags = new[] { "Phẫu thuật ống tiêu hóa", "Can thiệp đa chấn thương", "Thay khớp nhân tạo" },
-                            Link = Url.Action("Index", "ChuyenKhoa"),
+                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 14 }),
                             Color = "#0d6efd",
                             LightColor = "#e8f0ff",
                             Delay = "300"
@@ -212,10 +212,10 @@
                         new {
                             Img = "pediatrics-4.webp",
                             Icon = "bi-people",
-                            Title = "Khoa Nhi",
+                            Title = "Khoa nhi",
                             Desc = "Chăm sóc sức khỏe trẻ em từ sơ sinh đến 15 tuổi với không gian thân thiện",
                             Tags = new[] { "Hồi sức sơ sinh", "Nhi khoa tổng quát", "Dinh dưỡng nhi" },
-                            Link = Url.Action("Index", "ChuyenKhoa"),
+                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 5 }),
                             Color = "#fd7e14",
                             LightColor = "#fff4e6",
                             Delay = "400"
@@ -223,10 +223,10 @@
                         new {
                             Img = "maternal-2.webp",
                             Icon = "bi-heart",
-                            Title = "Khoa Sản",
+                            Title = "Khoa sản",
                             Desc = "Theo dõi thai kỳ, sinh con an toàn, chăm sóc sau sinh với đội ngũ bác sĩ giàu kinh nghiệm",
                             Tags = new[] { "Thai sản cao cấp", "Sinh con không đau", "Can thiệp sản phụ khoa" },
-                            Link = Url.Action("Index", "ChuyenKhoa"),
+                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 6 }),
                             Color = "#e83e8c",
                             LightColor = "#ffe8f4",
                             Delay = "500"
@@ -234,10 +234,10 @@
                         new {
                             Img = "laboratory-3.webp",
                             Icon = "bi-microscope",
-                            Title = "Khoa Xét nghiệm",
+                            Title = "Khoa xét nghiệm",
                             Desc = "Xét nghiệm máu, sinh hóa, vi sinh với kết quả nhanh chóng, chính xác",
                             Tags = new[] { "Xét nghiệm máu", "Sinh hóa máu", "Vi sinh - Cấy vi khuẩn" },
-                            Link = Url.Action("Index", "ChuyenKhoa"),
+                            Link = Url.Action("Details", "ChuyenKhoa", new { id = 16 }),
                             Color = "#20c997",
                             LightColor = "#e8faf5",
                             Delay = "600"
@@ -336,7 +336,7 @@
                             <div class="service-info">
                                 <h4>Dược - Khoa dược</h4>
                                 <p>Cung cấp thuốc chất lượng, tư vấn sử dụng thuốc an toàn, hiệu quả cho bệnh nhân.</p>
-                                <a href="@Url.Action("Index", "ChuyenKhoa")" class="service-link">Tìm hiểu thêm</a>
+                                <a href="@Url.Action("Details", "ChuyenKhoa", new { id = 9 })" class="service-link">Tìm hiểu thêm</a>
                             </div>
                         </div>
                         <div class="service-item" data-aos="fade-up" data-aos-delay="500">
@@ -344,7 +344,7 @@
                             <div class="service-info">
                                 <h4>Xét nghiệm - Y sinh học phân tử</h4>
                                 <p>Xét nghiệm máu, sinh hóa, vi sinh chuyên sâu với kết quả nhanh chóng, chính xác.</p>
-                                <a href="@Url.Action("Index", "ChuyenKhoa")" class="service-link">Tìm hiểu thêm</a>
+                                <a href="@Url.Action("Details", "ChuyenKhoa", new { id = 7 })" class="service-link">Tìm hiểu thêm</a>
                             </div>
                         </div>
                         <div class="service-item" data-aos="fade-up" data-aos-delay="600">
@@ -352,7 +352,7 @@
                             <div class="service-info">
                                 <h4>Chẩn đoán hình ảnh</h4>
                                 <p>X-quang, CT Scanner, MRI, siêu âm với hình ảnh sắc nét, hỗ trợ chẩn đoán chính xác.</p>
-                                <a href="@Url.Action("Index", "ChuyenKhoa")" class="service-link">Tìm hiểu thêm</a>
+                                <a href="@Url.Action("Details", "ChuyenKhoa", new { id = 8 })" class="service-link">Tìm hiểu thêm</a>
                             </div>
                         </div>
                     </div>

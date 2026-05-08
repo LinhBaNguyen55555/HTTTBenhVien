@@ -1,0 +1,103 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+    <section class="rules-section section">
+        <div class="container" data-aos="fade-up">
+            <div class="section-title text-center mb-5">
+                <h2>Quy định thăm nuôi bệnh nhân</h2>
+                <p class="text-muted">Để đảm bảo môi trường điều trị yên tĩnh và an toàn nhất cho người bệnh, kính mong quý thân nhân phối hợp thực hiện các quy định sau.</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Giờ thăm bệnh -->
+                <div class="col-md-4">
+                    <div class="rule-box h-100 text-center p-4 bg-white shadow-sm rounded-4 border-bottom border-warning border-4">
+                        <div class="icon-wrap bg-warning bg-opacity-10 text-warning rounded-circle mx-auto mb-4" style="width: 80px; height: 80px; line-height: 80px;">
+                            <i class="bi bi-clock-history fs-1"></i>
+                        </div>
+                        <h3 class="h4 mb-3">Giờ thăm bệnh</h3>
+                        <div class="time-slot mb-2">
+                            <span class="d-block fw-bold text-dark">Sáng: 06:00 - 07:30</span>
+                        </div>
+                        <div class="time-slot mb-2">
+                            <span class="d-block fw-bold text-dark">Trưa: 11:00 - 13:00</span>
+                        </div>
+                        <div class="time-slot">
+                            <span class="d-block fw-bold text-dark">Chiều: 16:30 - 21:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Số lượng người thăm -->
+                <div class="col-md-4">
+                    <div class="rule-box h-100 text-center p-4 bg-white shadow-sm rounded-4 border-bottom border-primary border-4">
+                        <div class="icon-wrap bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4" style="width: 80px; height: 80px; line-height: 80px;">
+                            <i class="bi bi-people-fill fs-1"></i>
+                        </div>
+                        <h3 class="h4 mb-3">Người thăm bệnh</h3>
+                        <p class="text-muted">Tối đa <strong>02 người/bệnh nhân</strong> trong một lần thăm. Trẻ em dưới 12 tuổi không nên vào khu vực nội trú.</p>
+                    </div>
+                </div>
+
+                <!-- Quy định chung -->
+                <div class="col-md-4">
+                    <div class="rule-box h-100 text-center p-4 bg-white shadow-sm rounded-4 border-bottom border-danger border-4">
+                        <div class="icon-wrap bg-danger bg-opacity-10 text-danger rounded-circle mx-auto mb-4" style="width: 80px; height: 80px; line-height: 80px;">
+                            <i class="bi bi-megaphone-fill fs-1"></i>
+                        </div>
+                        <h3 class="h4 mb-3">Giữ trật tự</h3>
+                        <p class="text-muted">Đi nhẹ, nói khẽ, không hút thuốc lá trong khuôn viên bệnh viện. Chuyển điện thoại sang chế độ rung/im lặng.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 p-5 rounded-5 bg-dark text-white position-relative overflow-hidden">
+                <div class="row align-items-center position-relative z-1">
+                    <div class="col-lg-8">
+                        <h2 class="fw-bold mb-3">Nội quy đối với người chăm nuôi</h2>
+                        <ul class="list-unstyled">
+                            <li class="mb-3 d-flex align-items-start">
+                                <i class="bi bi-check2-circle text-success fs-4 me-3"></i>
+                                <span>Phải đeo thẻ nuôi bệnh do khoa cung cấp trong suốt quá trình ở lại bệnh viện.</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-start">
+                                <i class="bi bi-check2-circle text-success fs-4 me-3"></i>
+                                <span>Giữ gìn vệ sinh chung, không tự ý di chuyển đồ đạc, thiết bị y tế trong phòng bệnh.</span>
+                            </li>
+                            <li class="mb-0 d-flex align-items-start">
+                                <i class="bi bi-check2-circle text-success fs-4 me-3"></i>
+                                <span>Phối hợp cùng nhân viên y tế trong việc theo dõi và chăm sóc người bệnh.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 text-center mt-4 mt-lg-0">
+                        <i class="bi bi-shield-lock-fill display-1 opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<style>
+    .rules-section {
+        padding: 140px 0 100px;
+        background-color: #f5f5f5;
+    }
+
+    .rule-box {
+        transition: transform 0.3s ease;
+    }
+
+    .rule-box:hover {
+        transform: translateY(-10px);
+    }
+
+    .time-slot span {
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+</style>

@@ -1,0 +1,143 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main class="main">
+    <section class="guide-section section">
+        <div class="container" data-aos="fade-up">
+            <div class="section-title text-center mb-5">
+                <h2>Quy trình khám bệnh</h2>
+                <p class="text-muted">Hướng dẫn chi tiết các bước thăm khám giúp quý khách tiết kiệm thời gian và thuận tiện hơn.</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="timeline">
+                        <!-- Bước 1 -->
+                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="100">
+                            <div class="timeline-number">01</div>
+                            <div class="timeline-content">
+                                <h3>Đăng ký & Tiếp đón</h3>
+                                <p>Quý khách đến quầy tiếp đón để lấy số thứ tự hoặc xuất trình thông tin đã đặt lịch trước qua website/app.</p>
+                                <ul class="list-unstyled text-muted small">
+                                    <li><i class="bi bi-dot"></i> Chuẩn bị CCCD/Hộ chiếu</li>
+                                    <li><i class="bi bi-dot"></i> Thẻ BHYT (nếu có)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Bước 2 -->
+                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="200">
+                            <div class="timeline-number">02</div>
+                            <div class="timeline-content">
+                                <h3>Khám bệnh chuyên khoa</h3>
+                                <p>Quý khách chờ trước cửa phòng khám ghi trên phiếu. Bác sĩ sẽ thăm khám và chỉ định các xét nghiệm cần thiết.</p>
+                            </div>
+                        </div>
+
+                        <!-- Bước 3 -->
+                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="300">
+                            <div class="timeline-number">03</div>
+                            <div class="timeline-content">
+                                <h3>Thực hiện Cận lâm sàng</h3>
+                                <p>Thực hiện các xét nghiệm máu, siêu âm, X-quang... theo chỉ định của bác sĩ tại các khu vực chuyên môn.</p>
+                            </div>
+                        </div>
+
+                        <!-- Bước 4 -->
+                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="400">
+                            <div class="timeline-number">04</div>
+                            <div class="timeline-content">
+                                <h3>Kết luận & Đơn thuốc</h3>
+                                <p>Quay lại phòng khám ban đầu để bác sĩ đọc kết quả, kết luận bệnh và kê đơn thuốc hoặc chỉ định nhập viện.</p>
+                            </div>
+                        </div>
+
+                        <!-- Bước 5 -->
+                        <div class="timeline-item" data-aos="fade-up" data-aos-delay="500">
+                            <div class="timeline-number">05</div>
+                            <div class="timeline-content">
+                                <h3>Thanh toán & Nhận thuốc</h3>
+                                <p>Tất toán chi phí tại quầy thu ngân và nhận thuốc tại nhà thuốc bệnh viện trước khi ra về.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<style>
+    .guide-section {
+        padding: 140px 0 100px;
+        background-color: #f8f9fa;
+    }
+
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 50px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e0e0e0;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 40px;
+        padding-left: 100px;
+    }
+
+    .timeline-number {
+        position: absolute;
+        left: 30px;
+        top: 0;
+        width: 42px;
+        height: 42px;
+        background: var(--accent-color);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        z-index: 1;
+        box-shadow: 0 0 0 8px #fff;
+    }
+
+    .timeline-content {
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .timeline-content:hover {
+        transform: translateX(10px);
+    }
+
+    .timeline-content h3 {
+        font-size: 1.25rem;
+        color: var(--heading-color);
+        margin-bottom: 10px;
+    }
+
+    .timeline-content p {
+        margin-bottom: 0;
+        color: #666;
+    }
+
+    @@media (max-width: 768px) {
+        .timeline::before { left: 30px; }
+        .timeline-item { padding-left: 70px; }
+        .timeline-number { left: 10px; }
+    }
+</style>

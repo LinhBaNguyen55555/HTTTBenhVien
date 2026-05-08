@@ -15,7 +15,7 @@ public class TinTucController : Controller
 
     public async Task<IActionResult> Index(int page = 1, string? category = null, string? search = null)
     {
-        int pageSize = 9;
+        int pageSize = 10;
 
         var query = _context.Articles
             .Include(a => a.Author)
