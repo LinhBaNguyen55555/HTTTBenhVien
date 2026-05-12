@@ -51,34 +51,43 @@ public class ProfileController : Controller
         var patient = await _context.Patients.FindAsync(patientId);
         if (patient == null) return NotFound();
 
-        if (ModelState.IsValid)
+        if (string.IsNullOrWhiteSpace(model.FullName))
         {
-            patient.FullName = model.FullName;
-            patient.Email = model.Email;
-            patient.Address = model.Address;
-            patient.Dob = model.Dob;
-            patient.Gender = model.Gender;
-            patient.Occupation = model.Occupation;
-            patient.WorkplaceOrSchool = model.WorkplaceOrSchool;
-            patient.PersonalMedicalHistory = model.PersonalMedicalHistory;
+            ModelState.AddModelError("FullName", "Vui lòng nhập Họ và tên.");
+            return View(model);
+        }
 
-            if (avatarFile != null)
+        patient.FullName = model.FullName;
+        patient.Email = model.Email;
+        patient.Address = model.Address;
+        patient.Dob = model.Dob;
+        patient.Gender = model.Gender;
+        patient.Occupation = model.Occupation;
+        patient.WorkplaceOrSchool = model.WorkplaceOrSchool;
+        patient.PersonalMedicalHistory = model.PersonalMedicalHistory;
+
+        if (avatarFile != null)
+        {
+            var fileName = "BN_" + patientId + "_" + Path.GetFileName(avatarFile.FileName);
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/assets/img/imagepatient");
+            
+            if (!Directory.Exists(uploadsFolder))
             {
-                var fileName = "BN_" + patientId + "_" + Path.GetFileName(avatarFile.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/assets/img/imagepatient", fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await avatarFile.CopyToAsync(stream);
-                }
-                patient.AvatarUrl = fileName;
+                Directory.CreateDirectory(uploadsFolder);
             }
 
-            _context.Update(patient);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Cập nhật thông tin thành công!";
-            return RedirectToAction("Index");
+            var filePath = Path.Combine(uploadsFolder, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await avatarFile.CopyToAsync(stream);
+            }
+            patient.AvatarUrl = fileName;
         }
-        return View(model);
+
+        _context.Update(patient);
+        await _context.SaveChangesAsync();
+        TempData["Success"] = "Cập nhật thông tin thành công!";
+        return RedirectToAction("Index");
     }
 
     public async Task<IActionResult> MedicalHistory()

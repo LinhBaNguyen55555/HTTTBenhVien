@@ -24,20 +24,44 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Admin/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
-        // Bypass auth check trong Dev Mode
-        if (devMode)
+        // Xử lý chuyển hướng dựa trên khu vực truy cập
+        options.Events.OnRedirectToLogin = context =>
         {
-            options.Events.OnRedirectToLogin = context =>
+            if (devMode)
             {
                 context.Response.Redirect(context.Request.Path);
                 return Task.CompletedTask;
-            };
-            options.Events.OnRedirectToAccessDenied = context =>
+            }
+
+            if (context.Request.Path.StartsWithSegments("/Admin"))
+            {
+                context.Response.Redirect("/Admin/Account/Login?ReturnUrl=" + Uri.EscapeDataString(context.Request.Path + context.Request.QueryString));
+            }
+            else
+            {
+                context.Response.Redirect("/Account/Login?ReturnUrl=" + Uri.EscapeDataString(context.Request.Path + context.Request.QueryString));
+            }
+            return Task.CompletedTask;
+        };
+
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            if (devMode)
             {
                 context.Response.Redirect(context.Request.Path);
                 return Task.CompletedTask;
-            };
-        }
+            }
+
+            if (context.Request.Path.StartsWithSegments("/Admin"))
+            {
+                context.Response.Redirect("/Admin/Account/AccessDenied");
+            }
+            else
+            {
+                context.Response.Redirect("/Account/Login");
+            }
+            return Task.CompletedTask;
+        };
     });
 
 // Authorization Policies

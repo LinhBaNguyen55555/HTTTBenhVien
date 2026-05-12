@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,6 +19,9 @@ public partial class Appointment
     [NotMapped]
     public int? AppointmentId { get; set; }
 
+    public int? ScheduleId { get; set; }
+
     public virtual Employee? Doctor { get; set; }
     public virtual Patient Patient { get; set; } = null!;
+    public virtual DoctorSchedule? Schedule { get; set; }
 }

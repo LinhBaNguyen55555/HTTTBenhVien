@@ -58,6 +58,7 @@ public partial class HtttbenhvienContext : DbContext
 
     public virtual DbSet<WebMenu> WebMenus { get; set; }
     public virtual DbSet<PatientAccount> PatientAccounts { get; set; }
+    public virtual DbSet<DoctorSchedule> DoctorSchedules { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -103,6 +104,7 @@ public partial class HtttbenhvienContext : DbContext
             entity.Property(e => e.TimeSlot).HasMaxLength(20);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.ScheduleId).HasColumnName("ScheduleID");
 
             entity.HasOne(d => d.Doctor).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.DoctorId)
@@ -112,6 +114,10 @@ public partial class HtttbenhvienContext : DbContext
                 .HasForeignKey(d => d.PatientId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_App_Patient");
+
+            entity.HasOne(d => d.Schedule).WithMany(p => p.Appointments)
+                .HasForeignKey(d => d.ScheduleId)
+                .HasConstraintName("FK_Appointment_Schedule");
         });
 
         modelBuilder.Entity<Article>(entity =>
@@ -528,6 +534,28 @@ public partial class HtttbenhvienContext : DbContext
                 .HasForeignKey<PatientAccount>(d => d.PatientId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PatientAccount_Patient");
+        });
+
+        modelBuilder.Entity<DoctorSchedule>(entity =>
+        {
+            entity.HasKey(e => e.ScheduleId).HasName("PK_DoctorSchedules");
+
+            entity.ToTable("DoctorSchedules");
+
+            entity.Property(e => e.ScheduleId).HasColumnName("ScheduleID");
+            entity.Property(e => e.DoctorId).HasColumnName("DoctorID");
+            entity.Property(e => e.WorkDate).HasColumnType("date");
+            entity.Property(e => e.ShiftType).HasMaxLength(50);
+            entity.Property(e => e.MaxAppointments).HasDefaultValue(20);
+            entity.Property(e => e.IsAvailable).HasDefaultValue(true);
+            entity.Property(e => e.Notes).HasMaxLength(255);
+
+            entity.HasIndex(e => new { e.DoctorId, e.WorkDate, e.ShiftType }).IsUnique().HasDatabaseName("UQ_Doctor_Date_Shift");
+
+            entity.HasOne(d => d.Doctor).WithMany(p => p.DoctorSchedules)
+                .HasForeignKey(d => d.DoctorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Schedule_Doctor");
         });
 
         OnModelCreatingPartial(modelBuilder);

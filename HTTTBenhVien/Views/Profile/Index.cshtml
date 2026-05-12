@@ -4,142 +4,373 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="profile-header py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-2 text-center">
-                <img src="@Model.AvatarUrlFull" class="rounded-circle profile-img shadow" alt="@Model.FullName" />
-            </div>
-            <div class="col-md-7">
-                <h2 class="text-white mb-1">@Model.FullName</h2>
-                <p class="text-white-50 mb-0"><i class="fas fa-id-card me-2"></i>Mã bệnh nhân: @Model.PatientCode</p>
-                <p class="text-white-50"><i class="fas fa-phone me-2"></i>@Model.Phone</p>
-            </div>
-            <div class="col-md-3 text-md-end">
-                <a asp-action="Edit" class="btn btn-light rounded-pill px-4"><i class="fas fa-edit me-2"></i>Sửa hồ sơ</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container my-5">
-    <div class="row">
-        <div class="col-lg-3">
-            <div class="profile-nav card shadow-sm border-0 rounded-4 overflow-hidden">
-                <div class="list-group list-group-flush">
-                    <a asp-action="Index" class="list-group-item list-group-item-action active">
-                        <i class="fas fa-columns me-2"></i> Tổng quan
-                    </a>
-                    <a asp-action="MedicalHistory" class="list-group-item list-group-item-action">
-                        <i class="fas fa-history me-2"></i> Lịch sử khám bệnh
-                    </a>
-                    <a asp-controller="Booking" asp-action="Index" class="list-group-item list-group-item-action">
-                        <i class="fas fa-calendar-plus me-2"></i> Đặt lịch khám mới
-                    </a>
-                    <form asp-controller="Account" asp-action="Logout" method="post">
-                        <button type="submit" class="list-group-item list-group-item-action text-danger">
-                            <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
-                        </button>
-                    </form>
+<main class="main">
+<div class="profile-page-wrapper">
+    <!-- Header Section -->
+    <div class="profile-header-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-auto text-center mb-3 mb-md-0">
+                    <div class="profile-avatar-container">
+                        <img src="@Model.AvatarUrlFull" class="profile-avatar-img shadow-lg" alt="@Model.FullName" />
+                        <div class="avatar-status-badge"></div>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-lg-9">
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="stat-card p-4 rounded-4 shadow-sm text-center">
-                        <div class="icon bg-primary-light text-primary mb-3 mx-auto">
-                            <i class="fas fa-calendar-check"></i>
+                <div class="col-md">
+                    <div class="profile-user-info ps-md-3">
+                        <h2 class="user-name text-white">@Model.FullName</h2>
+                        <div class="user-meta d-flex flex-wrap gap-3 mt-2">
+                            <span class="meta-item"><i class="fas fa-id-card-alt me-2"></i>Mã BN: <strong>@Model.PatientCode</strong></span>
+                            <span class="meta-item"><i class="fas fa-phone-alt me-2"></i>@Model.Phone</span>
+                            @if (!string.IsNullOrEmpty(Model.Email))
+                            {
+                                <span class="meta-item"><i class="fas fa-envelope me-2"></i>@Model.Email</span>
+                            }
                         </div>
-                        <h3>@Model.Appointments.Count</h3>
-                        <p class="text-muted mb-0">Cuộc hẹn</p>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="stat-card p-4 rounded-4 shadow-sm text-center">
-                        <div class="icon bg-success-light text-success mb-3 mx-auto">
-                            <i class="fas fa-file-medical"></i>
-                        </div>
-                        <h3>@Model.MedicalRecords.Count</h3>
-                        <p class="text-muted mb-0">Lượt khám</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card p-4 rounded-4 shadow-sm text-center">
-                        <div class="icon bg-warning-light text-warning mb-3 mx-auto">
-                            <i class="fas fa-pills"></i>
-                        </div>
-                        <h3>@Model.MedicalRecords.SelectMany(r => r.Prescriptions).Count()</h3>
-                        <p class="text-muted mb-0">Đơn thuốc</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card shadow-sm border-0 rounded-4 p-4">
-                <h4 class="mb-4">Thông tin cá nhân</h4>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="text-muted small d-block">Ngày sinh</label>
-                        <span class="fw-bold">@(Model.Dob?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="text-muted small d-block">Giới tính</label>
-                        <span class="fw-bold">@(Model.Gender ? "Nam" : "Nữ")</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="text-muted small d-block">Email</label>
-                        <span class="fw-bold">@(Model.Email ?? "Chưa cập nhật")</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="text-muted small d-block">Số CCCD</label>
-                        <span class="fw-bold">@(Model.CitizenId ?? "Chưa cập nhật")</span>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label class="text-muted small d-block">Địa chỉ</label>
-                        <span class="fw-bold">@(Model.Address ?? "Chưa cập nhật")</span>
-                    </div>
+                <div class="col-md-auto text-md-end mt-3 mt-md-0">
+                    <a asp-action="Edit" class="btn btn-glass rounded-pill px-4">
+                        <i class="fas fa-user-edit me-2"></i>Chỉnh sửa hồ sơ
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Main Content Section -->
+    <div class="container pb-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mt-n5">
+                <div class="profile-sidebar card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush profile-menu">
+                            <a asp-action="Index" class="list-group-item list-group-item-action active">
+                                <i class="fas fa-th-large"></i> Tổng quan
+                            </a>
+                            <a asp-action="MedicalHistory" class="list-group-item list-group-item-action">
+                                <i class="fas fa-notes-medical"></i> Lịch sử khám bệnh
+                            </a>
+                            <a asp-controller="Booking" asp-action="Index" class="list-group-item list-group-item-action">
+                                <i class="fas fa-calendar-check"></i> Đặt lịch khám mới
+                            </a>
+                            <div class="menu-divider"></div>
+                            <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                                <button type="submit" class="list-group-item list-group-item-action text-danger py-3">
+                                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="col-lg-9 mt-lg-4">
+                <!-- Stats Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-premium-card p-4 rounded-4 shadow-sm h-100 bg-white">
+                            <div class="stat-icon bg-soft-primary"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="stat-content">
+                                <h3 class="stat-value">@Model.Appointments.Count</h3>
+                                <p class="stat-label">Cuộc hẹn</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-premium-card p-4 rounded-4 shadow-sm h-100 bg-white">
+                            <div class="stat-icon bg-soft-success"><i class="fas fa-stethoscope"></i></div>
+                            <div class="stat-content">
+                                <h3 class="stat-value">@Model.MedicalRecords.Count</h3>
+                                <p class="stat-label">Lượt khám</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-premium-card p-4 rounded-4 shadow-sm h-100 bg-white">
+                            <div class="stat-icon bg-soft-warning"><i class="fas fa-pills"></i></div>
+                            <div class="stat-content">
+                                <h3 class="stat-value">@Model.MedicalRecords.SelectMany(r => r.Prescriptions).Count()</h3>
+                                <p class="stat-label">Đơn thuốc</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="card shadow-sm border-0 rounded-4 profile-info-card bg-white">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                        <h4 class="card-title mb-0"><i class="fas fa-info-circle text-primary me-2"></i>Thông tin cá nhân</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="info-group">
+                                    <label class="info-label">Ngày sinh</label>
+                                    <div class="info-value">@(Model.Dob?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-group">
+                                    <label class="info-label">Giới tính</label>
+                                    <div class="info-value">@(Model.Gender ? "Nam" : "Nữ")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-group">
+                                    <label class="info-label">Email</label>
+                                    <div class="info-value">@(Model.Email ?? "Chưa cập nhật")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-group">
+                                    <label class="info-label">Số CCCD</label>
+                                    <div class="info-value">@(Model.CitizenId ?? "Chưa cập nhật")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="info-group">
+                                    <label class="info-label">Địa chỉ hiện tại</label>
+                                    <div class="info-value">@(Model.Address ?? "Chưa cập nhật")</div>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.Occupation))
+                            {
+                                <div class="col-md-6">
+                                    <div class="info-group">
+                                        <label class="info-label">Nghề nghiệp</label>
+                                        <div class="info-value">@Model.Occupation</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+</main>
 
 <style>
-    .profile-header {
-        background: linear-gradient(45deg, #0d6efd, #00d2ff);
-        margin-top: 68px;
+    :root {
+        --profile-primary: #0d6efd;
+        --profile-secondary: #6c757d;
+        --profile-bg: #f8f9fa;
+        --profile-header-gradient: linear-gradient(135deg, #0d6efd 0%, #00d2ff 100%);
     }
-    .profile-img {
-        width: 120px;
-        height: 120px;
+
+    .profile-page-wrapper {
+        background-color: var(--profile-bg);
+        min-height: 100vh;
+        padding-top: 110px; /* Thêm padding thay cho margin */
+    }
+
+    .profile-header-section {
+        background: var(--profile-header-gradient);
+        padding: 50px 0 80px; /* Giảm bớt padding vì đã có padding-top ở trên */
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-header-section::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100px;
+        background: linear-gradient(to top, rgba(248, 249, 250, 1), rgba(248, 249, 250, 0));
+        z-index: 1;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .profile-avatar-img {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
         object-fit: cover;
-        border: 4px solid white;
-    }
-    .stat-card {
-        background: white;
+        border: 4px solid rgba(255, 255, 255, 0.3);
         transition: transform 0.3s;
     }
-    .stat-card:hover {
-        transform: translateY(-5px);
+
+    .profile-avatar-img:hover {
+        transform: scale(1.05);
     }
-    .stat-card .icon {
+
+    .avatar-status-badge {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        width: 24px;
+        height: 24px;
+        background-color: #28a745;
+        border: 3px solid #fff;
+        border-radius: 50%;
+    }
+
+    .user-name {
+        font-weight: 700;
+        font-size: 2.2rem;
+        letter-spacing: -0.5px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .user-meta .meta-item {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 5px 15px;
+        border-radius: 50px;
+        backdrop-filter: blur(5px);
+    }
+
+    .btn-glass {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-glass:hover {
+        background: #fff;
+        color: var(--profile-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .mt-n5 {
+        margin-top: -60px !important;
+        position: relative;
+        z-index: 10;
+    }
+
+    .profile-sidebar {
+        border: none !important;
+    }
+
+    .profile-menu .list-group-item {
+        border: none;
+        padding: 18px 25px;
+        font-weight: 500;
+        color: #495057;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+    }
+
+    .profile-menu .list-group-item i {
+        width: 30px;
+        font-size: 1.1rem;
+        margin-right: 10px;
+        color: #adb5bd;
+    }
+
+    .profile-menu .list-group-item.active {
+        background-color: #fff !important;
+        color: var(--profile-primary);
+        border-right: 4px solid var(--profile-primary);
+    }
+
+    .profile-menu .list-group-item.active i {
+        color: var(--profile-primary);
+    }
+
+    .profile-menu .list-group-item:hover:not(.active) {
+        background-color: #f1f3f5;
+        color: var(--profile-primary);
+    }
+
+    .menu-divider {
+        height: 1px;
+        background-color: #f1f3f5;
+        margin: 10px 25px;
+    }
+
+    .stat-premium-card {
+        display: flex;
+        align-items: center;
+        border: none;
+        transition: all 0.3s;
+    }
+
+    .stat-premium-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+    }
+
+    .stat-icon {
         width: 60px;
         height: 60px;
+        border-radius: 18px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        font-size: 24px;
+        font-size: 1.5rem;
+        margin-right: 20px;
     }
-    .bg-primary-light { background: rgba(13, 110, 253, 0.1); }
-    .bg-success-light { background: rgba(40, 167, 69, 0.1); }
-    .bg-warning-light { background: rgba(255, 193, 7, 0.1); }
-    .profile-nav .list-group-item {
-        padding: 15px 20px;
+
+    .bg-soft-primary { background-color: #e7f1ff; color: #0d6efd; }
+    .bg-soft-success { background-color: #eafbea; color: #28a745; }
+    .bg-soft-warning { background-color: #fff9e6; color: #ffc107; }
+
+    .stat-value {
+        font-weight: 700;
+        margin-bottom: 0;
+        color: #212529;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+
+    .profile-info-card {
         border: none;
     }
-    .profile-nav .list-group-item.active {
-        background: #0d6efd;
+
+    .info-group {
+        border-bottom: 1px solid #f1f3f5;
+        padding-bottom: 12px;
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #adb5bd;
+        font-weight: 600;
+        letter-spacing: 1px;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #343a40;
+        font-size: 1.05rem;
+    }
+
+    @@media (max-width: 768px) {
+        .profile-header-section {
+            padding: 40px 0 60px;
+            text-align: center;
+        }
+        .user-name {
+            font-size: 1.7rem;
+        }
+        .user-meta {
+            justify-content: center;
+        }
+        .mt-n5 {
+            margin-top: -30px !important;
+        }
     }
 </style>

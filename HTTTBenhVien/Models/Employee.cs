@@ -45,4 +45,5 @@ public partial class Employee
     public virtual ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
     public virtual ICollection<Article> Articles { get; set; } = new List<Article>();
     public virtual ICollection<Contact> Contacts { get; set; } = new List<Contact>();
+    public virtual ICollection<DoctorSchedule> DoctorSchedules { get; set; } = new List<DoctorSchedule>();
 }

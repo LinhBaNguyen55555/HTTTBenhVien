@@ -39,43 +39,52 @@ public class AccountController : Controller
     {
         if (ModelState.IsValid)
         {
-            if (await _context.PatientAccounts.AnyAsync(a => a.PhoneNumber == model.PhoneNumber))
+            try
             {
-                ModelState.AddModelError("PhoneNumber", "Số điện thoại này đã được đăng ký tài khoản.");
-                return View(model);
-            }
-
-            // Tìm bệnh nhân cũ theo SĐT (nếu có)
-            var existingPatient = await _context.Patients.FirstOrDefaultAsync(p => p.Phone == model.PhoneNumber);
-            
-            if (existingPatient == null)
-            {
-                // Tạo mới bệnh nhân nếu chưa có
-                existingPatient = new Patient
+                if (await _context.PatientAccounts.AnyAsync(a => a.PhoneNumber == model.PhoneNumber))
                 {
-                    FullName = model.FullName,
-                    Phone = model.PhoneNumber,
-                    PatientCode = "BN" + DateTime.Now.ToString("yyMMddHHmmss")
+                    ModelState.AddModelError("PhoneNumber", "Số điện thoại này đã được đăng ký tài khoản.");
+                    return View(model);
+                }
+
+                var existingPatient = await _context.Patients.FirstOrDefaultAsync(p => p.Phone == model.PhoneNumber);
+                
+                if (existingPatient == null)
+                {
+                    existingPatient = new Patient
+                    {
+                        FullName = model.FullName,
+                        Phone = model.PhoneNumber,
+                        PatientCode = "BN" + DateTime.Now.ToString("yyMMddHHmmss"),
+                        Dob = new DateTime(2000, 1, 1) // Gán giá trị mặc định để tránh lỗi NOT NULL trong DB
+                    };
+                    _context.Patients.Add(existingPatient);
+                    await _context.SaveChangesAsync();
+                }
+
+                var account = new PatientAccount
+                {
+                    PhoneNumber = model.PhoneNumber,
+                    Password = HashPassword(model.Password),
+                    PatientId = existingPatient.PatientId,
+                    CreatedDate = DateTime.Now,
+                    IsActive = true
                 };
-                _context.Patients.Add(existingPatient);
+
+                _context.PatientAccounts.Add(account);
                 await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Đăng ký tài khoản thành công! Vui lòng đăng nhập.";
+                return RedirectToAction("Login");
             }
-
-            // Tạo tài khoản liên kết
-            var account = new PatientAccount
+            catch (Exception ex)
             {
-                PhoneNumber = model.PhoneNumber,
-                Password = HashPassword(model.Password),
-                PatientId = existingPatient.PatientId,
-                CreatedDate = DateTime.Now,
-                IsActive = true
-            };
-
-            _context.PatientAccounts.Add(account);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Đăng ký tài khoản thành công! Vui lòng đăng nhập.";
-            return RedirectToAction("Login");
+                ModelState.AddModelError("", "Lỗi hệ thống khi đăng ký: " + ex.InnerException?.Message ?? ex.Message);
+            }
+        }
+        else
+        {
+            ModelState.AddModelError("", "Vui lòng kiểm tra lại thông tin nhập vào.");
         }
         return View(model);
     }
@@ -97,7 +106,7 @@ public class AccountController : Controller
             var hashedPassword = HashPassword(model.Password);
             var account = await _context.PatientAccounts
                 .Include(a => a.Patient)
-                .FirstOrDefaultAsync(a => a.PhoneNumber == model.PhoneNumber && a.Password == hashedPassword);
+                .FirstOrDefaultAsync(a => a.PhoneNumber == model.PhoneNumber && (a.Password == hashedPassword || a.Password == model.Password));
 
             if (account == null)
             {
