@@ -1,0 +1,125 @@
+@model HTTTBenhVien.Models.Account
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Hồ sơ cá nhân</h1>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Ảnh đại diện</h6>
+            </div>
+            <div class="card-body text-center">
+                <img class="img-profile rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #e3e6f0;"
+                     src="@Model.Emp?.AvatarUrlFull" alt="Avatar">
+                <h5 class="font-weight-bold">@Model.Emp?.FullName</h5>
+                <p class="text-muted mb-1">@Model.RoleName</p>
+                <p class="text-muted">Khoa: @(Model.Emp?.Dept?.DeptName ?? "N/A")</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin chi tiết</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Profile" method="post" enctype="multipart/form-data">
+                    <h5 class="mb-3 text-gray-800" style="border-bottom: 1px solid #e3e6f0; padding-bottom: 10px;">Thông tin cá nhân</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Họ và tên</label>
+                            <input type="text" class="form-control" name="FullName" value="@Model.Emp?.FullName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Số điện thoại</label>
+                            <input type="text" class="form-control" name="Phone" value="@Model.Emp?.Phone">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Email</label>
+                            <input type="email" class="form-control" name="Email" value="@Model.Emp?.Email">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Giới tính</label>
+                            <select class="form-control" name="Gender">
+                                <option value="">-- Chọn --</option>
+                                @if (Model.Emp?.Gender == true)
+                                {
+                                    <option value="true" selected>Nam</option>
+                                    <option value="false">Nữ</option>
+                                }
+                                else if (Model.Emp?.Gender == false)
+                                {
+                                    <option value="true">Nam</option>
+                                    <option value="false" selected>Nữ</option>
+                                }
+                                else
+                                {
+                                    <option value="true">Nam</option>
+                                    <option value="false">Nữ</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="font-weight-bold">Cập nhật ảnh đại diện</label>
+                        <input type="file" class="form-control-file" name="AvatarFile" accept="image/*">
+                        <small class="text-muted">Định dạng hỗ trợ: JPG, PNG, GIF</small>
+                    </div>
+
+                    <h5 class="mb-3 text-gray-800" style="border-bottom: 1px solid #e3e6f0; padding-bottom: 10px; margin-top: 30px;">Đổi mật khẩu</h5>
+                    <p class="text-muted small">Bỏ trống nếu không muốn thay đổi mật khẩu.</p>
+                    <div class="mb-3">
+                        <label class="font-weight-bold">Mật khẩu hiện tại</label>
+                        <input type="password" class="form-control" name="OldPassword" placeholder="Nhập mật khẩu cũ">
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Mật khẩu mới</label>
+                            <input type="password" class="form-control" name="NewPassword" placeholder="Nhập mật khẩu mới">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Xác nhận mật khẩu</label>
+                            <input type="password" class="form-control" name="ConfirmNewPassword" placeholder="Nhập lại mật khẩu mới">
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save mr-2"></i>Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

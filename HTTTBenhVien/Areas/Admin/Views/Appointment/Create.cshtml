@@ -33,36 +33,26 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="DoctorId" class="control-label font-weight-bold">Bác sĩ phụ trách</label>
-                            <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId">
-                                <option value="">-- Chọn Bác sĩ (Không bắt buộc) --</option>
+                            <label asp-for="ScheduleId" class="control-label font-weight-bold">Ca trực (Bác sĩ - Ngày - Ca) <span class="text-danger">*</span></label>
+                            <select asp-for="ScheduleId" class="form-control" asp-items="ViewBag.ScheduleId" required id="ScheduleIdSelect">
+                                <option value="">-- Chọn Ca trực --</option>
                             </select>
-                            <span asp-validation-for="DoctorId" class="text-danger"></span>
+                            <span asp-validation-for="ScheduleId" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="AppDate" class="control-label font-weight-bold">Ngày khám <span class="text-danger">*</span></label>
-                            <input asp-for="AppDate" type="date" class="form-control" required />
-                            <span asp-validation-for="AppDate" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group mb-3">
-                            <label asp-for="TimeSlot" class="control-label font-weight-bold">Khung giờ</label>
-                            <select asp-for="TimeSlot" class="form-control">
-                                <option value="">-- Chọn khung giờ --</option>
-                                <option value="Buổi Sáng (07:30 - 11:30)">Buổi Sáng (07:30 - 11:30)</option>
-                                <option value="Buổi Chiều (13:00 - 17:00)">Buổi Chiều (13:00 - 17:00)</option>
-                                <option value="Khám Ngoài giờ">Khám Ngoài giờ</option>
+                            <label asp-for="TimeSlot" class="control-label font-weight-bold">Khung giờ khám <span class="text-danger">*</span></label>
+                            <select asp-for="TimeSlot" class="form-control" id="TimeSlotSelect" required>
+                                <option value="">-- Chọn Ca trực trước --</option>
                             </select>
                             <span asp-validation-for="TimeSlot" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label asp-for="Status" class="control-label font-weight-bold">Trạng thái</label>
                             <select asp-for="Status" class="form-control">
@@ -112,4 +102,30 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            $('#ScheduleIdSelect').change(function () {
+                var scheduleId = $(this).val();
+                var timeSlotSelect = $('#TimeSlotSelect');
+                timeSlotSelect.empty();
+                timeSlotSelect.append('<option value="">-- Chọn khung giờ --</option>');
+
+                if (scheduleId) {
+                    $.ajax({
+                        url: '@Url.Action("GetTimeSlots", "Appointment", new { area = "Admin" })',
+                        type: 'GET',
+                        data: { scheduleId: scheduleId },
+                        success: function (data) {
+                            $.each(data, function (index, item) {
+                                timeSlotSelect.append($('<option></option>').val(item).html(item));
+                            });
+                        }
+                    });
+                } else {
+                    timeSlotSelect.empty();
+                    timeSlotSelect.append('<option value="">-- Chọn Ca trực trước --</option>');
+                }
+            });
+        });
+    </script>
 }

@@ -38,9 +38,12 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.TotalCheckedIn = appointmentsToday.Count(a => a.Status == "CheckedIn" || a.Status == "Đã tiếp nhận" || a.Status == "Completed" || a.Status == "Hoàn thành");
             ViewBag.TotalCancelled = appointmentsToday.Count(a => a.Status == "Cancelled" || a.Status == "Đã hủy");
 
-            ViewBag.Doctors = await _context.Employees
-                .Where(e => e.JobTitle.Contains("Bác sĩ") || e.JobTitle.Contains("Doctor"))
-                .Select(d => new { d.EmpId, d.FullName })
+            // Lấy danh sách bác sĩ CÓ LỊCH LÀM VIỆC trong ngày hôm nay và đang mở nhận bệnh nhân
+            ViewBag.Doctors = await _context.DoctorSchedules
+                .Include(ds => ds.Doctor)
+                .Where(ds => ds.WorkDate.Date == today && ds.IsAvailable == true)
+                .Select(ds => new { EmpId = ds.DoctorId, FullName = ds.Doctor.FullName + " - Ca " + ds.ShiftType })
+                .Distinct()
                 .ToListAsync();
 
             return View(appointmentsToday);

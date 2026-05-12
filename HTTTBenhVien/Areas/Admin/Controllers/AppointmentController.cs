@@ -73,23 +73,73 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // GET: Admin/LichKham/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["DoctorId"] = new SelectList(_context.Employees.Where(e => e.JobTitle == "Bác sĩ"), "EmpId", "FullName");
+            // Lấy các ca trực từ hôm nay trở đi
+            var schedules = await _context.DoctorSchedules
+                .Include(s => s.Doctor)
+                .Where(s => s.WorkDate >= DateTime.Today && s.IsAvailable == true)
+                .OrderBy(s => s.WorkDate)
+                .Select(s => new {
+                    s.ScheduleId,
+                    Display = $"{s.Doctor.FullName} - {s.WorkDate:dd/MM/yyyy} - Ca {s.ShiftType}"
+                })
+                .ToListAsync();
+
+            ViewData["ScheduleId"] = new SelectList(schedules, "ScheduleId", "Display");
             ViewData["PatientId"] = new SelectList(_context.Patients, "PatientId", "FullName");
             return View();
+        }
+
+        // GET: Admin/LichKham/GetTimeSlots
+        [HttpGet]
+        public async Task<IActionResult> GetTimeSlots(int scheduleId)
+        {
+            var schedule = await _context.DoctorSchedules.FindAsync(scheduleId);
+            if (schedule == null) return Json(new List<string>());
+
+            var timeSlots = new List<string>();
+            if (schedule.ShiftType == "Sáng")
+            {
+                timeSlots.AddRange(new[] { "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00" });
+            }
+            else if (schedule.ShiftType == "Chiều")
+            {
+                timeSlots.AddRange(new[] { "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00" });
+            }
+            else if (schedule.ShiftType == "Tối")
+            {
+                timeSlots.AddRange(new[] { "18:00", "18:30", "19:00", "19:30", "20:00", "20:30" });
+            }
+
+            return Json(timeSlots);
         }
 
         // POST: Admin/LichKham/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AppId,PatientId,DoctorId,AppDate,TimeSlot,Reason,Status,Notes")] Appointment appointment)
+        public async Task<IActionResult> Create([Bind("AppId,PatientId,ScheduleId,TimeSlot,Reason,Status,Notes")] Appointment appointment)
         {
             ModelState.Remove("Doctor");
             ModelState.Remove("Patient");
+            ModelState.Remove("Schedule");
 
             if (ModelState.IsValid)
             {
+                var schedule = await _context.DoctorSchedules.FindAsync(appointment.ScheduleId);
+                if (schedule != null)
+                {
+                    appointment.DoctorId = schedule.DoctorId;
+                    appointment.AppDate = schedule.WorkDate;
+
+                    // Xếp số thứ tự
+                    int currentCount = await _context.Appointments.CountAsync(a => a.ScheduleId == schedule.ScheduleId);
+                    int queueNumber = currentCount + 1;
+                    
+                    // Lưu số thứ tự vào TimeSlot hoặc Notes để hiển thị
+                    appointment.Notes = $"[STT: {queueNumber}] {appointment.Notes}";
+                }
+
                 appointment.CreatedDate = DateTime.Now;
                 if (string.IsNullOrEmpty(appointment.Status))
                 {
@@ -101,7 +151,18 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 TempData["Success"] = "Thêm lịch hẹn thành công!";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DoctorId"] = new SelectList(_context.Employees.Where(e => e.JobTitle == "Bác sĩ"), "EmpId", "FullName", appointment.DoctorId);
+
+            var schedules = await _context.DoctorSchedules
+                .Include(s => s.Doctor)
+                .Where(s => s.WorkDate >= DateTime.Today && s.IsAvailable == true)
+                .OrderBy(s => s.WorkDate)
+                .Select(s => new {
+                    s.ScheduleId,
+                    Display = $"{s.Doctor.FullName} - {s.WorkDate:dd/MM/yyyy} - Ca {s.ShiftType}"
+                })
+                .ToListAsync();
+
+            ViewData["ScheduleId"] = new SelectList(schedules, "ScheduleId", "Display", appointment.ScheduleId);
             ViewData["PatientId"] = new SelectList(_context.Patients, "PatientId", "FullName", appointment.PatientId);
             return View(appointment);
         }
@@ -114,7 +175,17 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var appointment = await _context.Appointments.FindAsync(id);
             if (appointment == null) return NotFound();
 
-            ViewData["DoctorId"] = new SelectList(_context.Employees.Where(e => e.JobTitle == "Bác sĩ"), "EmpId", "FullName", appointment.DoctorId);
+            var schedules = await _context.DoctorSchedules
+                .Include(s => s.Doctor)
+                .Where(s => s.WorkDate >= DateTime.Today || s.ScheduleId == appointment.ScheduleId)
+                .OrderByDescending(s => s.WorkDate)
+                .Select(s => new {
+                    s.ScheduleId,
+                    Display = $"{s.Doctor.FullName} - {s.WorkDate:dd/MM/yyyy} - Ca {s.ShiftType}"
+                })
+                .ToListAsync();
+
+            ViewData["ScheduleId"] = new SelectList(schedules, "ScheduleId", "Display", appointment.ScheduleId);
             ViewData["PatientId"] = new SelectList(_context.Patients, "PatientId", "FullName", appointment.PatientId);
             return View(appointment);
         }
@@ -122,17 +193,25 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         // POST: Admin/LichKham/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AppId,PatientId,DoctorId,AppDate,TimeSlot,Reason,Status,CreatedDate,Notes")] Appointment appointment)
+        public async Task<IActionResult> Edit(int id, [Bind("AppId,PatientId,ScheduleId,TimeSlot,Reason,Status,CreatedDate,Notes")] Appointment appointment)
         {
             if (id != appointment.AppId) return NotFound();
 
             ModelState.Remove("Doctor");
             ModelState.Remove("Patient");
+            ModelState.Remove("Schedule");
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var schedule = await _context.DoctorSchedules.FindAsync(appointment.ScheduleId);
+                    if (schedule != null)
+                    {
+                        appointment.DoctorId = schedule.DoctorId;
+                        appointment.AppDate = schedule.WorkDate;
+                    }
+
                     _context.Update(appointment);
                     await _context.SaveChangesAsync();
                     TempData["Success"] = "Cập nhật lịch hẹn thành công!";
@@ -144,7 +223,18 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DoctorId"] = new SelectList(_context.Employees.Where(e => e.JobTitle == "Bác sĩ"), "EmpId", "FullName", appointment.DoctorId);
+
+            var schedules = await _context.DoctorSchedules
+                .Include(s => s.Doctor)
+                .Where(s => s.WorkDate >= DateTime.Today || s.ScheduleId == appointment.ScheduleId)
+                .OrderByDescending(s => s.WorkDate)
+                .Select(s => new {
+                    s.ScheduleId,
+                    Display = $"{s.Doctor.FullName} - {s.WorkDate:dd/MM/yyyy} - Ca {s.ShiftType}"
+                })
+                .ToListAsync();
+
+            ViewData["ScheduleId"] = new SelectList(schedules, "ScheduleId", "Display", appointment.ScheduleId);
             ViewData["PatientId"] = new SelectList(_context.Patients, "PatientId", "FullName", appointment.PatientId);
             return View(appointment);
         }

@@ -360,5 +360,123 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
+        // =============================================
+        // PROFILE MANAGEMENT
+        // =============================================
+
+        // GET: Admin/Account/Profile
+        public async Task<IActionResult> Profile()
+        {
+            var accountIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(accountIdClaim) || !int.TryParse(accountIdClaim, out int currentAccountId))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var account = await _context.Accounts
+                .Include(a => a.Emp)
+                .ThenInclude(e => e.Dept)
+                .FirstOrDefaultAsync(a => a.AccountId == currentAccountId);
+
+            if (account == null) return NotFound();
+
+            return View(account);
+        }
+
+        // POST: Admin/Account/Profile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profile(string? FullName, string? Email, string? Phone, bool? Gender, string? OldPassword, string? NewPassword, string? ConfirmNewPassword, Microsoft.AspNetCore.Http.IFormFile? AvatarFile)
+        {
+            var accountIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(accountIdClaim) || !int.TryParse(accountIdClaim, out int currentAccountId))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var account = await _context.Accounts
+                .Include(a => a.Emp)
+                .ThenInclude(e => e.Dept)
+                .FirstOrDefaultAsync(a => a.AccountId == currentAccountId);
+
+            if (account == null) return NotFound();
+
+            bool isUpdated = false;
+
+            // Cập nhật thông tin nhân viên
+            if (account.Emp != null)
+            {
+                account.Emp.FullName = FullName;
+                account.Emp.Email = Email;
+                account.Emp.Phone = Phone;
+                account.Emp.Gender = Gender;
+                isUpdated = true;
+
+                // Xử lý upload Avatar
+                if (AvatarFile != null && AvatarFile.Length > 0)
+                {
+                    var fileExtension = System.IO.Path.GetExtension(AvatarFile.FileName);
+                    var fileName = $"avatar_{account.EmpId}_{DateTime.Now.Ticks}{fileExtension}";
+                    var filePath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "assets", "img", "imagedoctor", fileName);
+
+                    // Create directory if not exists
+                    var directoryPath = System.IO.Path.GetDirectoryName(filePath);
+                    if (directoryPath != null && !System.IO.Directory.Exists(directoryPath))
+                    {
+                        System.IO.Directory.CreateDirectory(directoryPath);
+                    }
+
+                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
+                    {
+                        await AvatarFile.CopyToAsync(stream);
+                    }
+
+                    account.Emp.AvatarUrl = fileName;
+                }
+            }
+
+            // Xử lý đổi mật khẩu
+            if (!string.IsNullOrEmpty(OldPassword) || !string.IsNullOrEmpty(NewPassword))
+            {
+                if (string.IsNullOrEmpty(OldPassword) || string.IsNullOrEmpty(NewPassword))
+                {
+                    TempData["Error"] = "Vui lòng nhập cả mật khẩu cũ và mật khẩu mới để đổi mật khẩu.";
+                    return View(account);
+                }
+
+                var hashedOldPassword = HashPassword(OldPassword);
+                var hashedOldPasswordWithSalt = HashPasswordWithSalt(OldPassword);
+
+                if (account.Password == hashedOldPassword || account.Password == hashedOldPasswordWithSalt || account.Password == OldPassword)
+                {
+                    if (NewPassword == ConfirmNewPassword)
+                    {
+                        account.Password = HashPassword(NewPassword);
+                        isUpdated = true;
+                        TempData["Success"] = "Cập nhật thông tin và mật khẩu thành công!";
+                    }
+                    else
+                    {
+                        TempData["Error"] = "Mật khẩu xác nhận không khớp.";
+                        return View(account);
+                    }
+                }
+                else
+                {
+                    TempData["Error"] = "Mật khẩu cũ không chính xác.";
+                    return View(account);
+                }
+            }
+            else if (isUpdated)
+            {
+                TempData["Success"] = "Cập nhật thông tin thành công!";
+            }
+
+            _context.Update(account);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Profile");
+        }
     }
 }

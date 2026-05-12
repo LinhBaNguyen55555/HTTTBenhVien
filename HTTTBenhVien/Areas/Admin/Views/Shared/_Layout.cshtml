@@ -47,7 +47,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "Home", new { area = "Admin" })">
                         <i class="fas fa-fw fa-tachometer-alt"></i>
-                        <span>Bảng điều khiển</span>
+                        <span>Báo cáo tổng quan</span>
                     </a>
                 </li>
             }
@@ -63,7 +63,14 @@
                 <li class="nav-item @(currentController == "DoctorWorkspace" ? "active" : "")">
                     <a class="nav-link pb-1" href="@Url.Action("Index", "DoctorWorkspace", new { area = "Admin" })">
                         <i class="fas fa-fw fa-stethoscope"></i>
-                        <span>Bàn khám trong ngày</span>
+                        <span>Khám trong ngày</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "DoctorSchedule" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Personal", "DoctorSchedule", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-calendar-alt"></i>
+                        <span>Lịch trực của tôi</span>
                     </a>
                 </li>
 
@@ -111,7 +118,7 @@
                 <li class="nav-item @(currentController == "ReceptionWorkspace" ? "active" : "")">
                     <a class="nav-link pb-1" href="@Url.Action("Index", "ReceptionWorkspace", new { area = "Admin" })">
                         <i class="fas fa-fw fa-concierge-bell"></i>
-                        <span>Bàn tiếp đón</span>
+                        <span>Quầy tiếp đón</span>
                     </a>
                 </li>
                 
@@ -119,6 +126,13 @@
                     <a class="nav-link pb-1" href="@Url.Action("Index", "Patient", new { area = "Admin" })">
                         <i class="fas fa-fw fa-users"></i>
                         <span>Danh sách bệnh nhân</span>
+                    </a>
+                </li>
+
+                <li class="nav-item @(currentController == "DoctorSchedule" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "DoctorSchedule", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-calendar-check"></i>
+                        <span>Lịch làm việc Bác sĩ</span>
                     </a>
                 </li>
             }
@@ -132,7 +146,7 @@
                 <li class="nav-item @(currentController == "CashierWorkspace" ? "active" : "")">
                     <a class="nav-link pb-1" href="@Url.Action("Index", "CashierWorkspace", new { area = "Admin" })">
                         <i class="fas fa-fw fa-cash-register"></i>
-                        <span>Bàn thanh toán hôm nay</span>
+                        <span>Quầy thanh toán hôm nay</span>
                     </a>
                 </li>
                 
@@ -167,7 +181,7 @@
                 <li class="nav-item @(currentController == "PharmacyWorkspace" ? "active" : "")">
                     <a class="nav-link pb-1" href="@Url.Action("Index", "PharmacyWorkspace", new { area = "Admin" })">
                         <i class="fas fa-fw fa-pills"></i>
-                        <span>Bàn cấp phát thuốc</span>
+                        <span>Quầy cấp phát thuốc</span>
                     </a>
                 </li>
 
@@ -203,7 +217,7 @@
                 <li class="nav-item @(currentController == "LabWorkspace" ? "active" : "")">
                     <a class="nav-link pb-1" href="@Url.Action("Index", "LabWorkspace", new { area = "Admin" })">
                         <i class="fas fa-fw fa-microscope"></i>
-                        <span>Bàn xét nghiệm & CĐHA</span>
+                        <span>Xét nghiệm & CĐHA</span>
                     </a>
                 </li>
 
@@ -231,7 +245,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "Account", new { area = "Admin" })">
                         <i class="fas fa-users-cog"></i>
-                        <span>Quản lý tài khoản</span>
+                        <span>Tài khoản nhân viên</span>
                     </a>
                 </li>
 
@@ -242,19 +256,19 @@
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "Department", new { area = "Admin" })">
                         <i class="fas fa-hospital"></i>
-                        <span>Quản lý khoa</span>
+                        <span>Khoa</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "Room", new { area = "Admin" })">
                         <i class="fas fa-door-open"></i>
-                        <span>Quản lý phòng</span>
+                        <span>Phòng</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "Bed", new { area = "Admin" })">
                         <i class="fas fa-bed"></i>
-                        <span>Quản lý giường</span>
+                        <span>Giường</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -278,6 +292,13 @@
                     <a class="nav-link" href="@Url.Action("Index", "Employee", new { area = "Admin" })">
                         <i class="fas fa-user-md"></i>
                         <span>Nhân viên</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "DoctorSchedule", new { area = "Admin" })">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Lịch làm việc Bác sĩ</span>
                     </a>
                 </li>
             }
@@ -432,9 +453,9 @@
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="@Url.Action("Index", "Account", new { area = "Admin" })">
-                                    <i class="fas fa-users-cog fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Quản lý tài khoản
+                                <a class="dropdown-item" href="@Url.Action("Profile", "Account", new { area = "Admin" })">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Hồ sơ cá nhân
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">

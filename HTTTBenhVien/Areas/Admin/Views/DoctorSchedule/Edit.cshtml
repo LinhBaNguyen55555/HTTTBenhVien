@@ -1,0 +1,77 @@
+@model HTTTBenhVien.Models.DoctorSchedule
+
+@{
+    ViewData["Title"] = "Cập nhật lịch trực";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Cập nhật lịch làm việc</h1>
+    <a href="@Url.Action("Index")" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+        <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Thông tin ca trực</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <input type="hidden" asp-for="ScheduleId" />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DoctorId" class="control-label font-weight-bold">Bác sĩ</label>
+                    <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId" required>
+                        <option value="">-- Chọn bác sĩ --</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label asp-for="WorkDate" class="control-label font-weight-bold">Ngày làm việc</label>
+                    <input asp-for="WorkDate" type="date" class="form-control" required />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ShiftType" class="control-label font-weight-bold">Ca trực</label>
+                    <select asp-for="ShiftType" class="form-control" required>
+                        <option value="">-- Chọn ca --</option>
+                        <option value="Sáng">Sáng (07:30 - 11:30)</option>
+                        <option value="Chiều">Chiều (13:30 - 17:30)</option>
+                        <option value="Tối">Tối (18:00 - 21:00)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="MaxAppointments" class="control-label font-weight-bold">Giới hạn số ca khám</label>
+                    <input asp-for="MaxAppointments" type="number" class="form-control" min="1" required />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="form-group form-check mt-4">
+                        <input class="form-check-input" asp-for="IsAvailable" type="checkbox" id="isAvailableCheck" />
+                        <label class="form-check-label font-weight-bold" for="isAvailableCheck">
+                            Đang mở nhận bệnh nhân
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Notes" class="control-label font-weight-bold">Ghi chú (Tùy chọn)</label>
+                    <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Ghi chú thêm..."></textarea>
+                </div>
+            </div>
+
+            <hr />
+            <div class="form-group text-right">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-2"></i>Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
