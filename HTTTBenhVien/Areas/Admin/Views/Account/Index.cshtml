@@ -161,20 +161,20 @@
                                         }
                                     </td>
                                     <td class="text-center">
-                                        <div class="btn-group shadow-sm">
-                                            <a asp-action="Edit" asp-route-id="@item.AccountId" class="btn btn-sm btn-gradient btn-sm-gradient text-white" title="Sửa"><i class="fas fa-edit"></i></a>
+                                        <div class="btn-group btn-action-group shadow-sm" role="group">
+                                            <a asp-action="Edit" asp-route-id="@item.AccountId" class="btn btn-action-edit" title="Sửa"><i class="fas fa-edit"></i></a>
                                             <form asp-action="ToggleStatus" asp-route-id="@item.AccountId" method="post" style="display:inline;">
                                                 @Html.AntiForgeryToken()
                                                 @if (item.IsActive == true)
                                                 {
-                                                    <button type="submit" class="btn btn-sm btn-gradient-warning btn-sm-gradient" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản này?')"><i class="fas fa-lock"></i></button>
+                                                    <button type="submit" class="btn btn-action-middle" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản này?')"><i class="fas fa-lock"></i></button>
                                                 }
                                                 else
                                                 {
-                                                    <button type="submit" class="btn btn-sm btn-gradient-info btn-sm-gradient text-white" title="Mở khóa tài khoản" onclick="return confirm('Bạn có chắc muốn MỞ KHÓA tài khoản này?')"><i class="fas fa-unlock"></i></button>
+                                                    <button type="submit" class="btn btn-action-middle" title="Mở khóa tài khoản" onclick="return confirm('Bạn có chắc muốn MỞ KHÓA tài khoản này?')"><i class="fas fa-unlock"></i></button>
                                                 }
                                             </form>
-                                            <a asp-action="Delete" asp-route-id="@item.AccountId" class="btn btn-sm btn-gradient-danger btn-sm-gradient text-white" title="Xóa"><i class="fas fa-trash"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.AccountId" class="btn btn-action-delete" title="Xóa"><i class="fas fa-trash"></i></a>
                                         </div>
                                     </td>
                                 </tr>

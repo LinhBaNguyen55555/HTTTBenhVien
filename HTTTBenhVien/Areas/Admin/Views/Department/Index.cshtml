@@ -295,17 +295,11 @@
                                             <i class="fas fa-door-open"></i> @item.Rooms?.Count
                                         </span>
                                     </td>
-                                    <td>
-                                        <div class="action-buttons justify-content-center">
-                                            <a asp-action="Details" asp-route-id="@item.DeptId" class="btn btn-sm btn-gradient-info btn-sm-gradient" title="Xem chi tiết">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a asp-action="Edit" asp-route-id="@item.DeptId" class="btn btn-sm btn-gradient btn-sm-gradient" title="Sửa">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a asp-action="Delete" asp-route-id="@item.DeptId" class="btn btn-sm btn-gradient-danger btn-sm-gradient" title="Xóa">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-action-group shadow-sm" role="group">
+                                            <a asp-action="Edit" asp-route-id="@item.DeptId" class="btn btn-action-edit" title="Sửa"><i class="fas fa-edit"></i></a>
+                                            <a asp-action="Details" asp-route-id="@item.DeptId" class="btn btn-action-middle" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.DeptId" class="btn btn-action-delete" title="Xóa"><i class="fas fa-trash"></i></a>
                                         </div>
                                     </td>
                                 </tr>

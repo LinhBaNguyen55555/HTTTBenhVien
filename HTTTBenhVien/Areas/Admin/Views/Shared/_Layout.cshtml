@@ -19,6 +19,18 @@
     <!-- Custom styles for this template-->
     <link href="~/admin/css/sb-admin-2.min.css" rel="stylesheet">
     <link href="~/admin/css/admin-custom.css" rel="stylesheet">
+    <style>
+        /* Nút Thao Tác Chuẩn Hóa */
+        .btn-action-group .btn { border-radius: 0; border: none; padding: 0.35rem 0.6rem; color: white; transition: all 0.2s; font-size: 0.85rem; }
+        .btn-action-group .btn:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+        .btn-action-group .btn:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+        .btn-action-edit { background-color: #835de8 !important; }
+        .btn-action-edit:hover { background-color: #6a44cc !important; color: white; }
+        .btn-action-middle { background-color: #f6b352 !important; }
+        .btn-action-middle:hover { background-color: #df9b3a !important; color: white; }
+        .btn-action-delete { background-color: #f15249 !important; }
+        .btn-action-delete:hover { background-color: #d63c33 !important; color: white; }
+    </style>
     @RenderSection("Styles", required: false)
 </head>
 
@@ -132,7 +144,7 @@
                 <li class="nav-item @(currentController == "DoctorSchedule" ? "active" : "")">
                     <a class="nav-link pb-1" href="@Url.Action("Index", "DoctorSchedule", new { area = "Admin" })">
                         <i class="fas fa-fw fa-calendar-check"></i>
-                        <span>Lịch làm việc Bác sĩ</span>
+                        <span>Lịch làm việc bác sĩ</span>
                     </a>
                 </li>
             }
@@ -298,7 +310,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.Action("Index", "DoctorSchedule", new { area = "Admin" })">
                         <i class="fas fa-calendar-alt"></i>
-                        <span>Lịch làm việc Bác sĩ</span>
+                        <span>Lịch làm việc bác sĩ</span>
                     </a>
                 </li>
             }

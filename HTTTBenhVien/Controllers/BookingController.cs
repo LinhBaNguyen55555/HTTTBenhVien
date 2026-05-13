@@ -34,7 +34,12 @@ public class BookingController : Controller
         ViewBag.Departments = departments;
         ViewBag.Doctors = doctors;
 
-        return View();
+        var model = new Appointment
+        {
+            Patient = new Patient()
+        };
+
+        return View(model);
     }
 
     [HttpPost]

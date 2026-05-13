@@ -155,6 +155,8 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+            TempData["Error"] = "Cập nhật thất bại: " + string.Join(", ", errors);
             return View(medicine);
         }
 

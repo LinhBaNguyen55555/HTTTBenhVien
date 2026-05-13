@@ -183,16 +183,10 @@
                                         }
                                     </td>
                                     <td class="text-center">
-                                        <div class="btn-group shadow-sm">
-                                            <a asp-action="Details" asp-route-id="@item.AppId" class="btn btn-sm btn-gradient-info btn-sm-gradient text-white" title="Chi tiết">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a asp-action="Edit" asp-route-id="@item.AppId" class="btn btn-sm btn-gradient btn-sm-gradient text-white" title="Cập nhật">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a asp-action="Delete" asp-route-id="@item.AppId" class="btn btn-sm btn-gradient-danger btn-sm-gradient text-white" title="Xóa">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                        <div class="btn-group btn-action-group shadow-sm" role="group">
+                                            <a asp-action="Edit" asp-route-id="@item.AppId" class="btn btn-action-edit" title="Cập nhật"><i class="fas fa-edit"></i></a>
+                                            <a asp-action="Details" asp-route-id="@item.AppId" class="btn btn-action-middle" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.AppId" class="btn btn-action-delete" title="Xóa"><i class="fas fa-trash"></i></a>
                                         </div>
                                     </td>
                                 </tr>

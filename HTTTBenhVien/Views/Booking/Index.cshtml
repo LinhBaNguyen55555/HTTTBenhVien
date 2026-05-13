@@ -51,6 +51,13 @@
                                             <label class="form-label">Chuyên khoa <span class="text-danger">*</span></label>
                                             <select id="deptSelect" class="form-select" required>
                                                 <option value="">-- Chọn chuyên khoa --</option>
+                                                @if (ViewBag.Departments != null)
+                                                {
+                                                    foreach (var dept in (IEnumerable<HTTTBenhVien.Models.Department>)ViewBag.Departments)
+                                                    {
+                                                        <option value="@dept.DeptId">@dept.DeptName</option>
+                                                    }
+                                                }
                                             </select>
                                         </div>
                                     </div>
@@ -59,6 +66,13 @@
                                             <label class="form-label">Bác sĩ <span class="text-danger">*</span></label>
                                             <select asp-for="DoctorId" id="doctorSelect" class="form-select" required>
                                                 <option value="">-- Chọn bác sĩ --</option>
+                                                @if (ViewBag.Doctors != null)
+                                                {
+                                                    foreach (var doctor in (IEnumerable<HTTTBenhVien.Models.Employee>)ViewBag.Doctors)
+                                                    {
+                                                        <option value="@doctor.EmpId" data-dept="@doctor.DeptId">@doctor.FullName - @doctor.Specialty</option>
+                                                    }
+                                                }
                                             </select>
                                         </div>
                                     </div>
@@ -125,3 +139,29 @@
         margin-top: 68px;
     }
 </style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Lưu lại tất cả option của bác sĩ ban đầu
+            var allDoctorOptions = $('#doctorSelect option:not([value=""])').clone();
+
+            $('#deptSelect').change(function() {
+                var selectedDeptId = $(this).val();
+                
+                // Reset select bác sĩ
+                $('#doctorSelect').empty();
+                $('#doctorSelect').append('<option value="">-- Chọn bác sĩ --</option>');
+                
+                if (selectedDeptId) {
+                    // Lọc và thêm lại các bác sĩ thuộc chuyên khoa đã chọn
+                    var filteredDoctors = allDoctorOptions.filter('[data-dept="' + selectedDeptId + '"]');
+                    $('#doctorSelect').append(filteredDoctors);
+                } else {
+                    // Nếu không chọn chuyên khoa nào, hiển thị lại tất cả bác sĩ
+                    $('#doctorSelect').append(allDoctorOptions);
+                }
+            });
+        });
+    </script>
+}

@@ -96,10 +96,10 @@
                                             <span class="text-muted small">Tất cả</span>
                                         }
                                     </td>
-                                    <td>
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <a asp-action="Edit" asp-route-id="@item.MenuId" class="btn btn-sm btn-gradient btn-sm-gradient mx-1" title="Sửa"><i class="fas fa-edit"></i></a>
-                                            <a asp-action="Delete" asp-route-id="@item.MenuId" class="btn btn-sm btn-gradient-danger btn-sm-gradient mx-1" title="Xóa"><i class="fas fa-trash"></i></a>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-action-group shadow-sm" role="group">
+                                            <a asp-action="Edit" asp-route-id="@item.MenuId" class="btn btn-action-edit" title="Sửa"><i class="fas fa-edit"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@item.MenuId" class="btn btn-action-delete" title="Xóa"><i class="fas fa-trash"></i></a>
                                         </div>
                                     </td>
                                 </tr>

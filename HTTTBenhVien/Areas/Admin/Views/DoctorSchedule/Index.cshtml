@@ -54,7 +54,7 @@
                         <th>Trạng thái</th>
                         @if (User.IsInRole("Admin"))
                         {
-                            <th>Hành động</th>
+                            <th class="text-center">Hành động</th>
                         }
                     </tr>
                 </thead>
@@ -80,9 +80,11 @@
                             </td>
                             @if (User.IsInRole("Admin"))
                             {
-                                <td>
-                                    <a href="@Url.Action("Edit", new { id = item.ScheduleId })" class="btn btn-sm btn-primary" title="Sửa"><i class="fas fa-edit"></i></a>
-                                    <a href="@Url.Action("Delete", new { id = item.ScheduleId })" class="btn btn-sm btn-danger" title="Xóa"><i class="fas fa-trash"></i></a>
+                                <td class="text-center">
+                                    <div class="btn-group btn-action-group shadow-sm" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.ScheduleId" class="btn btn-action-edit" title="Sửa"><i class="fas fa-edit"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.ScheduleId" class="btn btn-action-delete" title="Xóa"><i class="fas fa-trash"></i></a>
+                                    </div>
                                 </td>
                             }
                         </tr>
