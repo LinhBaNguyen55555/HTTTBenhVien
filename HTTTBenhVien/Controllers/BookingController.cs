@@ -70,11 +70,21 @@ public class BookingController : Controller
             return View(model);
         }
 
-        model.PatientId = int.Parse(User.FindFirstValue("PatientId") ?? "0");
-        model.Status = "DaXacNhan";
-        model.CreatedDate = DateTime.Now;
+        var patientId = int.Parse(User.FindFirstValue("PatientId") ?? "0");
         
-        _context.Appointments.Add(model);
+        var newAppointment = new Appointment
+        {
+            PatientId = patientId,
+            DoctorId = model.DoctorId,
+            AppDate = model.AppDate,
+            TimeSlot = model.TimeSlot,
+            Reason = model.Reason,
+            Status = "DaXacNhan",
+            CreatedDate = DateTime.Now,
+            ScheduleId = model.ScheduleId
+        };
+
+        _context.Appointments.Add(newAppointment);
         await _context.SaveChangesAsync();
 
         TempData["Success"] = "Đặt lịch khám thành công! Chúng tôi sẽ liên hệ xác nhận trong thời gian sớm nhất.";
