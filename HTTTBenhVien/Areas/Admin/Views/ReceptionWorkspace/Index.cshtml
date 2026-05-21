@@ -67,16 +67,18 @@
     }
 
     <!-- Stats Row -->
+    <!-- Stats Row -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card stat-card-orange shadow py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">Tổng lịch hẹn hôm nay</div>
-                            <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalAppointments</div>
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Tổng tiếp nhận hôm nay</div>
+                            <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalToday</div>
+                            <span class="small font-weight-bold" style="opacity: 0.9;">@ViewBag.TotalAppointments Hẹn + @ViewBag.TotalWalkIns Trực tiếp</span>
                         </div>
-                        <div class="col-auto"><i class="fas fa-calendar-day fa-2x text-white-50"></i></div>
+                        <div class="col-auto"><i class="fas fa-hospital-user fa-2x text-white-50"></i></div>
                     </div>
                 </div>
             </div>
@@ -89,6 +91,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-uppercase mb-1">Đang chờ xác nhận</div>
                             <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalPending</div>
+                            <span class="small" style="opacity: 0.8;">(Chỉ tính lịch hẹn)</span>
                         </div>
                         <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
                     </div>
@@ -101,8 +104,9 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">Đã tiếp nhận (Check-in)</div>
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Đã vào phòng khám</div>
                             <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalCheckedIn</div>
+                            <span class="small" style="opacity: 0.8;">Đang chờ / Đang khám</span>
                         </div>
                         <div class="col-auto"><i class="fas fa-check-double fa-2x text-gray-500"></i></div>
                     </div>
@@ -117,6 +121,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-uppercase mb-1">Đã hủy</div>
                             <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalCancelled</div>
+                            <span class="small" style="opacity: 0.8;">(Yêu cầu hủy hẹn)</span>
                         </div>
                         <div class="col-auto"><i class="fas fa-times-circle fa-2x text-gray-500"></i></div>
                     </div>
@@ -125,84 +130,156 @@
         </div>
     </div>
 
-    <!-- Danh sách lịch hẹn -->
-    <div class="card shadow mb-4" style="border-radius: 1rem; border: none;">
-        <div class="card-header py-3 bg-white" style="border-bottom: 2px solid #fc6076;">
-            <h6 class="m-0 font-weight-bold" style="color: #fc6076;">Danh sách lịch hẹn ngày hôm nay (@DateTime.Now.ToString("dd/MM/yyyy"))</h6>
+    <!-- Bảng danh sách tiếp nhận có Tabs -->
+    <div class="card shadow mb-4" style="border-radius: 1rem; border: none; overflow: hidden;">
+        <div class="card-header bg-white py-0 border-0" style="border-bottom: 2px solid #fc6076 !important;">
+            <ul class="nav nav-tabs card-header-tabs border-0 mt-2" id="receptionTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active font-weight-bold" id="appointments-tab" data-toggle="tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="true" style="border-radius: 0.5rem 0.5rem 0 0; color: #fc6076;">
+                        <i class="fas fa-calendar-alt mr-2"></i>Lịch Hẹn Đặt Trước (@ViewBag.TotalAppointments)
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold text-secondary" id="walkins-tab" data-toggle="tab" href="#walkins" role="tab" aria-controls="walkins" aria-selected="false" style="border-radius: 0.5rem 0.5rem 0 0;">
+                        <i class="fas fa-walking mr-2"></i>Đăng Ký Khám Trực Tiếp (@ViewBag.TotalWalkIns)
+                    </a>
+                </li>
+            </ul>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead style="background-color: #fff2eb; color: #d35400;">
-                        <tr>
-                            <th>Thời gian</th>
-                            <th>Bệnh nhân</th>
-                            <th>SĐT</th>
-                            <th>Bác sĩ hẹn</th>
-                            <th>Lý do</th>
-                            <th>Trạng thái</th>
-                            <th class="text-center">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="font-weight-bold text-dark">
-                                    @(item.AppDate?.ToString("dd/MM")) <br/>
-                                    <span class="text-primary">@item.TimeSlot</span>
-                                </td>
-                                <td>@item.Patient?.FullName</td>
-                                <td>@item.Patient?.Phone</td>
-                                <td>@(item.Doctor != null ? item.Doctor.FullName : "Chưa xếp")</td>
-                                <td>@item.Reason</td>
-                                <td>
-                                    @if (item.Status == "Pending" || item.Status == "Chờ xác nhận" || item.Status == "New" || item.Status == "Mới" || item.Status == "Đang chờ")
+            <div class="tab-content" id="receptionTabsContent">
+                <!-- Tab Lịch Hẹn Đặt Trước -->
+                <div class="tab-pane fade show active" id="appointments" role="tabpanel" aria-labelledby="appointments-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered mb-0" id="dataTable" width="100%" cellspacing="0">
+                            <thead style="background-color: #fff2eb; color: #d35400;">
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>SĐT</th>
+                                    <th>Bác sĩ hẹn</th>
+                                    <th>Lý do</th>
+                                    <th>Trạng thái</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="font-weight-bold text-dark">
+                                            @(item.AppDate?.ToString("dd/MM")) <br/>
+                                            <span class="text-primary">@item.TimeSlot</span>
+                                        </td>
+                                        <td>@item.Patient?.FullName</td>
+                                        <td>@item.Patient?.Phone</td>
+                                        <td>@(item.Doctor != null ? item.Doctor.FullName : "Chưa xếp")</td>
+                                        <td>@item.Reason</td>
+                                        <td>
+                                            @if (item.Status == "Pending" || item.Status == "Chờ xác nhận" || item.Status == "New" || item.Status == "Mới" || item.Status == "Đang chờ")
+                                            {
+                                                <span class="badge badge-warning px-3 py-2">Chờ xác nhận</span>
+                                            }
+                                            else if (item.Status == "Confirmed" || item.Status == "Đã xác nhận" || item.Status == "Xác nhận")
+                                            {
+                                                <span class="badge badge-info px-3 py-2">Đã xác nhận</span>
+                                            }
+                                            else if (item.Status == "CheckedIn" || item.Status == "Đã tiếp nhận" || item.Status == "Completed" || item.Status == "Hoàn thành")
+                                            {
+                                                <span class="badge badge-success px-3 py-2">Đã vào khám</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-danger px-3 py-2">Đã hủy</span>
+                                            }
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            @if (item.Status == "Pending" || item.Status == "Chờ xác nhận" || item.Status == "New" || item.Status == "Mới" || item.Status == "Đang chờ")
+                                            {
+                                                <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@item.AppId" />
+                                                    <input type="hidden" name="status" value="Confirmed" />
+                                                    <button type="submit" class="btn btn-sm btn-info shadow-sm" title="Xác nhận lịch hẹn">
+                                                        <i class="fas fa-check"></i> Xác nhận
+                                                    </button>
+                                                </form>
+                                                <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@item.AppId" />
+                                                    <input type="hidden" name="status" value="Cancelled" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Hủy lịch">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else if (item.Status == "Confirmed" || item.Status == "Đã xác nhận" || item.Status == "Xác nhận")
+                                            {
+                                                <button type="button" class="btn btn-sm btn-warm shadow-sm" onclick="openCheckInModal(@item.AppId, '@item.Patient?.FullName')" title="Check-in & Chuyển phòng">
+                                                    <i class="fas fa-sign-in-alt mr-1"></i> Tiếp nhận
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab Đăng Ký Khám Trực Tiếp -->
+                <div class="tab-pane fade" id="walkins" role="tabpanel" aria-labelledby="walkins-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered mb-0" width="100%" cellspacing="0">
+                            <thead style="background-color: #f0f7ff; color: #004085;">
+                                <tr>
+                                    <th>Thời gian đ.ký</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>SĐT</th>
+                                    <th>Bác sĩ tiếp nhận</th>
+                                    <th>Lý do khám</th>
+                                    <th>Trạng thái khám</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.WalkIns != null && ((List<HTTTBenhVien.Models.MedicalRecord>)ViewBag.WalkIns).Any())
+                                {
+                                    foreach (var record in (List<HTTTBenhVien.Models.MedicalRecord>)ViewBag.WalkIns)
                                     {
-                                        <span class="badge badge-warning px-3 py-2">Chờ xác nhận</span>
+                                        bool isExamined = !string.IsNullOrEmpty(record.Diagnosis) || !string.IsNullOrEmpty(record.Conclusion);
+                                        <tr>
+                                            <td class="font-weight-bold text-dark align-middle">
+                                                @(record.VisitDate?.ToString("HH:mm")) <br/>
+                                                <span class="text-muted small">@(record.VisitDate?.ToString("dd/MM/yyyy"))</span>
+                                            </td>
+                                            <td class="align-middle font-weight-bold text-primary">@record.Patient?.FullName</td>
+                                            <td class="align-middle">@record.Patient?.Phone</td>
+                                            <td class="align-middle"><i class="fas fa-user-md text-info mr-1"></i> @(record.Doctor != null ? record.Doctor.FullName : "Chưa xếp")</td>
+                                            <td class="align-middle">@record.Notes</td>
+                                            <td class="align-middle text-center">
+                                                @if (isExamined)
+                                                {
+                                                    <span class="badge badge-success px-3 py-2"><i class="fas fa-check-circle mr-1"></i>Đã khám xong</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-primary px-3 py-2 shadow-sm"><i class="fas fa-spinner fa-spin mr-1"></i>Đang chờ khám</span>
+                                                }
+                                            </td>
+                                        </tr>
                                     }
-                                    else if (item.Status == "Confirmed" || item.Status == "Đã xác nhận" || item.Status == "Xác nhận")
-                                    {
-                                        <span class="badge badge-info px-3 py-2">Đã xác nhận</span>
-                                    }
-                                    else if (item.Status == "CheckedIn" || item.Status == "Đã tiếp nhận" || item.Status == "Completed" || item.Status == "Hoàn thành")
-                                    {
-                                        <span class="badge badge-success px-3 py-2">Đã vào khám</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge badge-danger px-3 py-2">Đã hủy</span>
-                                    }
-                                </td>
-                                <td class="text-center align-middle">
-                                    @if (item.Status == "Pending" || item.Status == "Chờ xác nhận" || item.Status == "New" || item.Status == "Mới" || item.Status == "Đang chờ")
-                                    {
-                                        <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                            <input type="hidden" name="id" value="@item.AppId" />
-                                            <input type="hidden" name="status" value="Confirmed" />
-                                            <button type="submit" class="btn btn-sm btn-info shadow-sm" title="Xác nhận lịch hẹn">
-                                                <i class="fas fa-check"></i> Xác nhận
-                                            </button>
-                                        </form>
-                                        <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                            <input type="hidden" name="id" value="@item.AppId" />
-                                            <input type="hidden" name="status" value="Cancelled" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Hủy lịch">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </form>
-                                    }
-                                    else if (item.Status == "Confirmed" || item.Status == "Đã xác nhận" || item.Status == "Xác nhận")
-                                    {
-                                        <button type="button" class="btn btn-sm btn-warm shadow-sm" onclick="openCheckInModal(@item.AppId, '@item.Patient?.FullName')" title="Check-in & Chuyển phòng">
-                                            <i class="fas fa-sign-in-alt mr-1"></i> Tiếp nhận
-                                        </button>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5 text-muted">
+                                            <i class="fas fa-walking fa-3x mb-3 text-gray-300"></i><br/>
+                                            Chưa có bệnh nhân nào đăng ký trực tiếp hôm nay.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -248,7 +325,7 @@
 
 <!-- Modal Đăng Ký Khám Trực Tiếp (Walk-in) -->
 <div class="modal fade" id="modalWalkIn" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <form asp-action="WalkIn" method="post">
             <div class="modal-content" style="border-radius: 1rem; border: none;">
                 <div class="modal-header card-reception-gradient">
@@ -258,32 +335,66 @@
                     </button>
                 </div>
                 <div class="modal-body p-4">
+                    <!-- PHẦN 1: Thông tin hành chính -->
+                    <h6 class="font-weight-bold text-primary mb-3"><i class="fas fa-id-card mr-2"></i>Thông tin hành chính</h6>
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="font-weight-bold">Họ và tên <span class="text-danger">*</span></label>
                             <input type="text" name="FullName" class="form-control" required placeholder="Nhập họ tên đầy đủ" />
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="font-weight-bold">Số điện thoại <span class="text-danger">*</span></label>
                             <input type="text" name="PhoneNumber" class="form-control" required placeholder="Dùng để tìm kiếm HSBA" />
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
+                            <label class="font-weight-bold">Email</label>
+                            <input type="email" name="Email" class="form-control" placeholder="email@example.com" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
                             <label class="font-weight-bold">Giới tính</label>
                             <select name="Gender" class="form-control">
                                 <option value="Nam">Nam</option>
                                 <option value="Nữ">Nữ</option>
                             </select>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="font-weight-bold">Ngày sinh</label>
+                        <div class="col-md-3 mb-3">
+                            <label class="font-weight-bold">Ngày sinh <span class="text-danger">*</span></label>
                             <input type="date" name="DateOfBirth" class="form-control" required />
                         </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="font-weight-bold">Số CCCD / CMND</label>
+                            <input type="text" name="CitizenId" class="form-control" placeholder="VD: 0123456789xx" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="font-weight-bold">Mã thẻ BHYT</label>
+                            <input type="text" name="BhytCode" class="form-control" placeholder="VD: GD4950..." />
+                        </div>
                     </div>
-                    <hr/>
-                    <div class="row mt-2">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="font-weight-bold">Địa chỉ thường trú</label>
+                            <input type="text" name="Address" class="form-control" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/TP" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="font-weight-bold">Nghề nghiệp</label>
+                            <input type="text" name="Occupation" class="form-control" placeholder="VD: Công nhân, Sinh viên..." />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="font-weight-bold">Nơi làm việc / Trường học</label>
+                            <input type="text" name="WorkplaceOrSchool" class="form-control" placeholder="Tên cơ quan / trường" />
+                        </div>
+                    </div>
+
+                    <hr class="my-3"/>
+
+                    <!-- PHẦN 2: Thông tin khám bệnh & Chuyển phòng -->
+                    <h6 class="font-weight-bold text-primary mb-3"><i class="fas fa-stethoscope mr-2"></i>Thông tin khám bệnh</h6>
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="font-weight-bold">Lý do khám bệnh</label>
-                            <textarea name="Reason" class="form-control" rows="2" placeholder="Sốt, đau bụng..."></textarea>
+                            <textarea name="Reason" class="form-control" rows="2" placeholder="Sốt, đau bụng, ho kéo dài..."></textarea>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="font-weight-bold">Chuyển Bác sĩ / Phòng khám <span class="text-danger">*</span></label>

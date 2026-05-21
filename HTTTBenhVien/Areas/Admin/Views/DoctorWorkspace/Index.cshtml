@@ -1,40 +1,100 @@
-@model IEnumerable<HTTTBenhVien.Models.Appointment>
+@using HTTTBenhVien.Areas.Admin.Controllers
 @{
     ViewData["Title"] = "Không gian làm việc";
-    var appointments = ViewBag.Appointments as List<HTTTBenhVien.Models.Appointment>;
-    var records = ViewBag.MedicalRecords as List<HTTTBenhVien.Models.MedicalRecord>;
+    var queue = ViewBag.Queue as List<PatientQueueItem>;
+    var waitingLab = ViewBag.WaitingLab as List<LabTrackingItem>;
+    var completedLab = ViewBag.CompletedLab as List<LabTrackingItem>;
 }
 
 <!-- Custom styles -->
 <style>
     .doctor-dashboard {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', 'Outfit', sans-serif;
     }
     .stat-card {
         border-left: 4px solid #4e73df;
-        border-radius: 8px;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-        transition: transform 0.2s;
+        border-radius: 12px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-top: none;
+        border-right: none;
+        border-bottom: none;
     }
     .stat-card:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.15);
     }
     .stat-card.waiting { border-left-color: #f6c23e; }
-    .stat-card.done { border-left-color: #1cc88a; }
+    .stat-card.waiting-lab { border-left-color: #36b9cc; }
+    .stat-card.done-lab { border-left-color: #1cc88a; }
     
-    .queue-table th { background-color: #f8f9fc; border-bottom: 2px solid #e3e6f0; }
+    .queue-table th { 
+        background-color: #f8f9fc; 
+        border-bottom: 2px solid #e3e6f0;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
     .queue-table td { vertical-align: middle; }
-    .badge-waiting { background-color: #f6c23e; color: #fff; }
-    .badge-done { background-color: #1cc88a; color: #fff; }
+    .badge-waiting { background-color: #ffeeba; color: #856404; border: 1px solid #ffeeba; }
+    .badge-done { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .badge-walkin { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+    .badge-appointment { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
     
     .btn-examine {
         border-radius: 20px;
         font-weight: 600;
-        padding: 5px 15px;
+        padding: 6px 16px;
         transition: all 0.2s;
     }
     .btn-examine:hover {
         transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .nav-tabs-custom {
+        border-bottom: 2px solid #e3e6f0;
+    }
+    .nav-tabs-custom .nav-link {
+        border: none;
+        color: #858796;
+        padding: 12px 20px;
+        position: relative;
+        font-weight: 600;
+        transition: color 0.15s ease-in-out;
+    }
+    .nav-tabs-custom .nav-link:hover {
+        color: #4e73df;
+        border: none;
+        background: transparent;
+    }
+    .nav-tabs-custom .nav-link.active {
+        color: #4e73df;
+        border: none;
+        background: transparent;
+    }
+    .nav-tabs-custom .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: #4e73df;
+        border-radius: 3px;
+    }
+    
+    @@keyframes pulse {
+        0% { transform: scale(0.9); opacity: 0.9; }
+        50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 8px rgba(220, 53, 69, 0.5); }
+        100% { transform: scale(0.9); opacity: 0.9; }
+    }
+    .pulse-badge {
+        animation: pulse 1.5s infinite ease-in-out;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 10px;
     }
 </style>
 
@@ -42,52 +102,74 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4 mt-2">
         <h1 class="h3 mb-0 text-gray-800 font-weight-bold"><i class="fas fa-stethoscope text-primary mr-2"></i> Bàn khám của tôi</h1>
         <div class="text-muted bg-white px-3 py-2 rounded shadow-sm border-left-primary">
-            Ngày: <strong>@DateTime.Today.ToString("dd/MM/yyyy")</strong>
+            Ngày làm việc: <strong>@DateTime.Today.ToString("dd/MM/yyyy")</strong>
         </div>
     </div>
 
     <!-- Stats Row -->
     <div class="row mb-4">
-        <div class="col-xl-4 col-md-6 mb-4">
+        <!-- Tổng bệnh nhân -->
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card stat-card h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng bệnh nhân hôm nay</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng bệnh nhân khám</div>
                             <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalPatients</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-users fa-3x text-gray-300"></i>
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-md-6 mb-4">
+
+        <!-- Đang chờ khám -->
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card stat-card waiting h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Đang chờ khám</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Chờ khám ban đầu</div>
                             <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.Waiting</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-hourglass-half fa-3x text-gray-300"></i>
+                            <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card stat-card done h-100 py-2">
+
+        <!-- CLS Đang chờ kết quả -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card waiting-lab h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Đã khám xong</div>
-                            <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.Examined</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">CLS - Đang chờ kết quả</div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.WaitingLabCount</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-check-circle fa-3x text-gray-300"></i>
+                            <i class="fas fa-spinner fa-spin fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CLS Đã có kết quả -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card done-lab h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">CLS - Đã có kết quả</div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">@ViewBag.CompletedLabCount</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-vial fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -104,83 +186,230 @@
             </button>
         </div>
     }
-
-    <!-- Main Content Row -->
-    <div class="card shadow mb-4 border-0">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom-primary">
-            <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-list-ul mr-2"></i>Danh sách bệnh nhân đăng ký khám (@ViewBag.TotalPatients)</h6>
-            <button class="btn btn-sm btn-outline-primary shadow-sm" onclick="location.reload();"><i class="fas fa-sync-alt mr-1"></i> Làm mới</button>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-left-danger" role="alert">
+            <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 queue-table">
-                    <thead>
-                        <tr>
-                            <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7" width="5%">STT</th>
-                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" width="15%">Giờ hẹn</th>
-                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" width="25%">Họ tên bệnh nhân</th>
-                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" width="10%">Giới tính</th>
-                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" width="20%">Lý do khám</th>
-                            <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7" width="15%">Trạng thái</th>
-                            <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7" width="10%">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (appointments != null && appointments.Any())
+    }
+
+    <!-- Main Workspace Container with Tabs -->
+    <div class="card shadow mb-4 border-0">
+        <div class="card-header bg-white py-2 d-flex align-items-center justify-content-between border-bottom">
+            <ul class="nav nav-tabs nav-tabs-custom card-header-tabs border-bottom-0" id="doctorTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="queue-tab" data-toggle="tab" href="#queue" role="tab" aria-controls="queue" aria-selected="true">
+                        <i class="fas fa-user-injured mr-2"></i> Hàng đợi khám bệnh (@(queue?.Count ?? 0))
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center" id="lab-tab" data-toggle="tab" href="#lab" role="tab" aria-controls="lab" aria-selected="false">
+                        <i class="fas fa-notes-medical mr-2"></i> Theo dõi Cận lâm sàng
+                        @if (ViewBag.CompletedLabCount > 0)
                         {
-                            int stt = 1;
-                            foreach (var app in appointments)
-                            {
-                                bool isExamined = records != null && records.Any(r => r.AppointmentId == app.AppId);
-                                <tr>
-                                    <td class="text-center font-weight-bold text-muted">@stt</td>
-                                    <td>
-                                        <span class="badge badge-light p-2 text-dark border" style="font-size: 0.9rem;">
-                                            <i class="far fa-clock mr-1 text-primary"></i> @app.TimeSlot
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="font-weight-bold text-dark" style="font-size: 1.1rem;">@app.Patient?.FullName</div>
-                                        <small class="text-muted"><i class="fas fa-id-card mr-1"></i>Mã BN: @app.PatientId</small>
-                                    </td>
-                                    <td>
-                                        @if(app.Patient?.Gender == true) {
-                                            <span class="text-info"><i class="fas fa-mars mr-1"></i>Nam</span>
-                                        } else {
-                                            <span class="text-danger"><i class="fas fa-venus mr-1"></i>Nữ</span>
-                                        }
-                                    </td>
-                                    <td class="text-truncate text-muted" style="max-width: 200px;" title="@app.Reason">@app.Reason</td>
-                                    <td class="text-center">
-                                        @if (isExamined)
-                                        {
-                                            <span class="badge badge-done px-3 py-2 rounded-pill shadow-sm"><i class="fas fa-check mr-1"></i>Đã khám</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-waiting px-3 py-2 rounded-pill shadow-sm"><i class="fas fa-spinner fa-spin mr-1"></i>Đang chờ</span>
-                                        }
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="@Url.Action("Examine", "DoctorWorkspace", new { id = app.AppId, area = "Admin" })" 
-                                           class="btn btn-sm @(isExamined ? "btn-outline-secondary" : "btn-primary") btn-examine shadow-sm">
-                                            @(isExamined ? "Xem lại" : "Khám ngay") <i class="fas @(isExamined ? "fa-eye" : "fa-arrow-right") ml-1"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                stt++;
-                            }
+                            <span class="badge badge-danger pulse-badge ml-2">@ViewBag.CompletedLabCount Mới</span>
                         }
                         else
                         {
-                            <tr>
-                                <td colspan="7" class="text-center py-5">
-                                    <div class="text-muted mb-0"><i class="fas fa-mug-hot fa-3x mb-3 text-gray-300"></i><br>Hôm nay không có bệnh nhân nào đăng ký khám.</div>
-                                </td>
-                            </tr>
+                            <span class="badge badge-light border ml-2">@((int)ViewBag.WaitingLabCount + (int)ViewBag.CompletedLabCount)</span>
                         }
-                    </tbody>
-                </table>
+                    </a>
+                </li>
+            </ul>
+            <button class="btn btn-sm btn-outline-primary shadow-sm" onclick="location.reload();">
+                <i class="fas fa-sync-alt mr-1"></i> Làm mới danh sách
+            </button>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="tab-content" id="doctorTabContent">
+                
+                <!-- Tab 1: Hàng đợi khám bệnh -->
+                <div class="tab-pane fade show active" id="queue" role="tabpanel" aria-labelledby="queue-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 queue-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" width="5%">STT</th>
+                                    <th width="15%">Loại khám</th>
+                                    <th width="15%">Giờ / Lượt khám</th>
+                                    <th width="25%">Bệnh nhân</th>
+                                    <th width="10%">Giới tính</th>
+                                    <th width="15%">Lý do khám / Notes</th>
+                                    <th class="text-center" width="15%">Trạng thái</th>
+                                    <th class="text-center" width="10%">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (queue != null && queue.Any())
+                                {
+                                    int stt = 1;
+                                    foreach (var item in queue)
+                                    {
+                                        <tr>
+                                            <td class="text-center font-weight-bold text-muted">@stt</td>
+                                            <td>
+                                                @if (item.Type == "Lịch hẹn")
+                                                {
+                                                    <span class="badge badge-appointment px-2.5 py-1.5 rounded"><i class="far fa-calendar-alt mr-1"></i>Hẹn trước</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-walkin px-2.5 py-1.5 rounded"><i class="fas fa-walking mr-1"></i>Vãng lai</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-light p-2 text-dark border">
+                                                    <i class="far fa-clock mr-1 text-primary"></i> @item.TimeSlot
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="font-weight-bold text-dark">@item.PatientName</div>
+                                                <small class="text-muted"><i class="fas fa-phone-alt mr-1"></i>@item.Phone | Mã BN: @item.PatientId</small>
+                                            </td>
+                                            <td>
+                                                @if (item.Gender == true)
+                                                {
+                                                    <span class="text-info"><i class="fas fa-mars mr-1"></i>Nam</span>
+                                                }
+                                                else if (item.Gender == false)
+                                                {
+                                                    <span class="text-danger"><i class="fas fa-venus mr-1"></i>Nữ</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Chưa cập nhật</span>
+                                                }
+                                            </td>
+                                            <td class="text-truncate text-muted" style="max-width: 200px;" title="@item.Reason">@item.Reason</td>
+                                            <td class="text-center">
+                                                @if (item.IsExamined)
+                                                {
+                                                    <span class="badge badge-done px-3 py-2 rounded-pill shadow-sm"><i class="fas fa-check mr-1"></i>Đã khám</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-waiting px-3 py-2 rounded-pill shadow-sm"><i class="fas fa-spinner fa-spin mr-1"></i>Đang chờ khám</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="@Url.Action("Examine", "DoctorWorkspace", new { appId = item.AppId, recordId = item.RecordId, area = "Admin" })" 
+                                                   class="btn btn-sm @(item.IsExamined ? "btn-outline-secondary" : "btn-primary") btn-examine shadow-sm">
+                                                    @(item.IsExamined ? "Xem lại" : "Khám ngay") <i class="fas @(item.IsExamined ? "fa-eye" : "fa-arrow-right") ml-1"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        stt++;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8" class="text-center py-5">
+                                            <div class="text-muted mb-0"><i class="fas fa-mug-hot fa-3x mb-3 text-gray-300"></i><br>Hôm nay không có bệnh nhân nào trong hàng đợi.</div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Theo dõi Cận lâm sàng -->
+                <div class="tab-pane fade" id="lab" role="tabpanel" aria-labelledby="lab-tab">
+                    <div class="p-3">
+                        <div class="row">
+                            <!-- Cột trái: Đã có kết quả (Cần gọi vào phòng đọc bệnh án & kê đơn) -->
+                            <div class="col-lg-6 mb-4">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-success text-white py-3">
+                                        <h6 class="m-0 font-weight-bold"><i class="fas fa-check-double mr-2"></i> Đã có kết quả (Chờ đọc bệnh & kê đơn) (@(completedLab?.Count ?? 0))</h6>
+                                    </div>
+                                    <div class="card-body p-0 border">
+                                        @if (completedLab != null && completedLab.Any())
+                                        {
+                                            <div class="list-group list-group-flush">
+                                                @foreach (var item in completedLab)
+                                                {
+                                                    <div class="list-group-item p-3 list-group-item-action">
+                                                        <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                                                            <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 1rem;">@item.PatientName</h6>
+                                                            <span class="badge badge-success px-2 py-1"><i class="fas fa-check mr-1"></i>Đã có đủ kết quả</span>
+                                                        </div>
+                                                        <p class="mb-2 text-xs text-muted">
+                                                            <strong>Dịch vụ chỉ định:</strong> @item.OrderedServices
+                                                        </p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="text-xs text-muted">
+                                                                <i class="fas fa-phone-alt mr-1"></i>@item.Phone | Mã BA: @item.RecordId
+                                                            </span>
+                                                            <a href="@Url.Action("Examine", "DoctorWorkspace", new { appId = item.AppointmentId, recordId = item.RecordId, area = "Admin" })" 
+                                                               class="btn btn-xs btn-success px-3 py-1.5 rounded font-weight-bold shadow-sm">
+                                                                Đọc kết quả & Kê đơn <i class="fas fa-file-medical ml-1"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center py-5 text-muted">
+                                                <i class="fas fa-clipboard-check fa-2x mb-2 text-gray-300"></i>
+                                                <p class="mb-0">Chưa có bệnh nhân nào hoàn thành đủ kết quả cận lâm sàng.</p>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cột phải: Đang chờ kết quả (Bệnh nhân đang đi thực hiện xét nghiệm/siêu âm) -->
+                            <div class="col-lg-6 mb-4">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-info text-white py-3">
+                                        <h6 class="m-0 font-weight-bold"><i class="fas fa-spinner fa-spin mr-2"></i> Đang làm cận lâm sàng (@(waitingLab?.Count ?? 0))</h6>
+                                    </div>
+                                    <div class="card-body p-0 border">
+                                        @if (waitingLab != null && waitingLab.Any())
+                                        {
+                                            <div class="list-group list-group-flush">
+                                                @foreach (var item in waitingLab)
+                                                {
+                                                    <div class="list-group-item p-3">
+                                                        <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                                                            <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 1rem;">@item.PatientName</h6>
+                                                            <span class="badge badge-warning px-2 py-1"><i class="fas fa-hourglass-half mr-1"></i>Đang làm xét nghiệm</span>
+                                                        </div>
+                                                        <p class="mb-2 text-xs text-muted">
+                                                            <strong>Dịch vụ chỉ định:</strong> @item.OrderedServices
+                                                        </p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="text-xs text-muted">
+                                                                <i class="fas fa-phone-alt mr-1"></i>@item.Phone | Mã BA: @item.RecordId
+                                                            </span>
+                                                            <span class="text-xs text-info font-weight-bold"><i class="fas fa-sync-alt fa-spin mr-1"></i>Đang xử lý tại Lab...</span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center py-5 text-muted">
+                                                <i class="fas fa-vial fa-2x mb-2 text-gray-300"></i>
+                                                <p class="mb-0">Không có bệnh nhân nào đang chờ kết quả cận lâm sàng.</p>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>

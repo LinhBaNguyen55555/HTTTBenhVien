@@ -57,7 +57,6 @@
         <input type="hidden" asp-for="PatientId" />
         <input type="hidden" asp-for="DoctorId" />
         <input type="hidden" asp-for="AppointmentId" />
-        <input type="hidden" asp-for="RecordType" value="Khám ngoại trú" />
 
         <div class="row">
             <!-- Cột trái: Thông tin hành chính & Sinh hiệu -->
@@ -78,7 +77,38 @@
                         <div class="mb-2"><strong>Mã BN:</strong> @Model.PatientId</div>
                         <div class="mb-2"><strong>Ngày sinh:</strong> @(Model.Patient?.Dob?.ToString("dd/MM/yyyy") ?? "N/A")</div>
                         <div class="mb-2"><strong>SĐT:</strong> @Model.Patient?.Phone</div>
-                        <div class="mb-2"><strong>Địa chỉ:</strong> @Model.Patient?.Address</div>
+                        <div class="mb-2"><strong>Địa chỉ:</strong> @(string.IsNullOrEmpty(Model.Patient?.Address) ? "Chưa cập nhật" : Model.Patient.Address)</div>
+                        <div class="mb-2"><strong>CCCD:</strong> @(string.IsNullOrEmpty(Model.Patient?.CitizenId) ? "Chưa cập nhật" : Model.Patient.CitizenId)</div>
+                        <div class="mb-2"><strong>Nghề nghiệp:</strong> @(string.IsNullOrEmpty(Model.Patient?.Occupation) ? "Chưa cập nhật" : Model.Patient.Occupation)</div>
+                        <div class="mb-2"><strong>BHYT:</strong> @(string.IsNullOrEmpty(Model.Patient?.BhytCode) ? "Không có" : Model.Patient.BhytCode)</div>
+                    </div>
+                </div>
+
+                <!-- Tiền sử bệnh (Bác sĩ khai thác & chỉnh sửa) -->
+                <div class="card shadow mb-4">
+                    <div class="panel-header" style="background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);">
+                        <i class="fas fa-history mr-1"></i> Tiền sử bệnh
+                    </div>
+                    <div class="panel-body">
+                        <form asp-action="UpdatePatientHistory" asp-controller="DoctorWorkspace" asp-area="Admin" method="post" id="formPatientHistory">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="PatientId" value="@Model.PatientId" />
+                            <input type="hidden" name="RecordId" value="@Model.RecordId" />
+                            <input type="hidden" name="AppointmentId" value="@Model.AppointmentId" />
+                            <div class="form-group mb-3">
+                                <label class="text-xs font-weight-bold text-danger text-uppercase">Tiền sử bệnh bản thân</label>
+                                <textarea name="PersonalMedicalHistory" class="form-control form-control-sm" rows="3" 
+                                    placeholder="VD: Tăng huyết áp 5 năm, tiểu đường type 2...">@Model.Patient?.PersonalMedicalHistory</textarea>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="text-xs font-weight-bold text-danger text-uppercase">Tiền sử bệnh gia đình</label>
+                                <textarea name="FamilyMedicalHistory" class="form-control form-control-sm" rows="3" 
+                                    placeholder="VD: Cha bị tiểu đường, Mẹ bị cao huyết áp...">@Model.Patient?.FamilyMedicalHistory</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-outline-danger btn-block shadow-sm">
+                                <i class="fas fa-save mr-1"></i> Lưu tiền sử bệnh
+                            </button>
+                        </form>
                     </div>
                 </div>
 
@@ -138,15 +168,15 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-5">
                                 <div class="form-group">
-                                    <label class="font-weight-bold text-dark">Chẩn đoán (Diagnosis)</label>
+                                    <label class="font-weight-bold text-dark"><i class="fas fa-stethoscope text-primary mr-1"></i>Chẩn đoán (Diagnosis)</label>
                                     <input asp-for="Diagnosis" class="form-control" placeholder="Chẩn đoán bệnh..." />
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label class="font-weight-bold text-dark">Mã ICD-10</label>
+                                    <label class="font-weight-bold text-dark"><i class="fas fa-book-medical text-primary mr-1"></i>Mã ICD-10</label>
                                     <select asp-for="IcdCode" class="form-control select2">
                                         <option value="">-- Chọn mã ICD --</option>
                                         @if (icdCodes != null)
@@ -156,6 +186,17 @@
                                                 <option value="@icd.IcdCode">[@icd.IcdCode] @icd.DiseaseName</option>
                                             }
                                         }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="font-weight-bold text-dark"><i class="fas fa-procedures text-primary mr-1"></i>Hướng xử lý / Loại bệnh án</label>
+                                    <select asp-for="RecordType" class="form-control font-weight-bold text-primary">
+                                        <option value="Khám ngoại trú">Khám ngoại trú (Cho về kê đơn)</option>
+                                        <option value="Nhập viện">Nhập viện (Điều trị nội trú)</option>
+                                        <option value="Tái khám">Hẹn tái khám</option>
+                                        <option value="Cấp cứu">Cấp cứu chuyển khoa</option>
                                     </select>
                                 </div>
                             </div>
@@ -226,37 +267,137 @@
                     </div>
                     <div class="col-md-6">
                         <div class="card shadow mb-4 border-left-warning">
-                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom">
                                 <h6 class="m-0 font-weight-bold text-warning"><i class="fas fa-vials mr-2"></i>Chỉ định Cận lâm sàng</h6>
-                                @if (Model.RecordId > 0)
-                                {
-                                    <button type="button" class="btn btn-sm btn-outline-warning shadow-sm" data-toggle="modal" data-target="#modalRecordService"><i class="fas fa-plus"></i> Chỉ định</button>
-                                }
-                                else
-                                {
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Lưu bệnh án trước khi chỉ định"><i class="fas fa-plus"></i> Chỉ định</button>
-                                }
+                                <div>
+                                    @if (Model.RecordId > 0)
+                                    {
+                                        var isDraft = Model.Invoice == null || Model.Invoice.Status == "ChuaChot";
+                                        var isConfirmed = Model.Invoice != null && (Model.Invoice.Status == "ChuaThanhToan" || Model.Invoice.Status == "Chưa thanh toán" || Model.Invoice.Status == "Pending" || Model.Invoice.Status == "Mới" || Model.Invoice.Status == "New" || Model.Invoice.Status == "Unpaid");
+                                        var isPaid = Model.Invoice != null && (Model.Invoice.Status == "DaThanhToan" || Model.Invoice.Status == "Đã thanh toán" || Model.Invoice.Status == "Paid" || Model.Invoice.Status == "Hoàn thành" || Model.Invoice.Status == "Completed");
+
+                                        if (isDraft)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-warning font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalRecordService">
+                                                <i class="fas fa-plus-circle mr-1"></i> Chỉ định
+                                            </button>
+                                            
+                                            @if (Model.RecordServices != null && Model.RecordServices.Any())
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-success font-weight-bold shadow-sm ml-1" onclick="if(confirm('Bạn có chắc chắn muốn chốt chỉ định cận lâm sàng? Sau khi chốt, bác sĩ không thể tự chỉnh sửa/xóa và hóa đơn sẽ hiển thị ở quầy thu ngân.')) { document.getElementById('formConfirmRecordServices').submit(); }"><i class="fas fa-lock mr-1"></i> Chốt chỉ định</button>
+                                            }
+                                        }
+                                        else if (isConfirmed)
+                                        {
+                                            <span class="badge badge-info px-2.5 py-1.5 mr-1 text-uppercase font-weight-bold" style="font-size: 0.75rem;"><i class="fas fa-lock mr-1"></i> Đã chốt chỉ định</span>
+                                            
+                                            <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold shadow-sm mr-1" title="Mở khóa chốt chỉ định" onclick="if(confirm('Bạn có chắc chắn muốn mở chốt chỉ định cận lâm sàng? Hóa đơn sẽ tạm thời bị ẩn khỏi quầy thu ngân để bạn chỉnh sửa.')) { document.getElementById('formUnlockRecordServices').submit(); }"><i class="fas fa-unlock-alt mr-1"></i> Mở chốt</button>
+                                            
+                                            <a href="@Url.Action("PrintRequisition", "DoctorWorkspace", new { recordId = Model.RecordId })" target="_blank" class="btn btn-sm btn-outline-primary shadow-sm" title="In phiếu chỉ định"><i class="fas fa-print mr-1"></i> In phiếu chỉ định</a>
+                                            
+                                            <a href="@Url.Action("PrintInvoice", "CashierWorkspace", new { id = Model.Invoice.InvoiceId, area = "Admin" })" target="_blank" class="btn btn-sm btn-outline-success shadow-sm ml-1" title="In hóa đơn báo thu tiền"><i class="fas fa-file-invoice-dollar mr-1"></i> In hóa đơn</a>
+                                        }
+                                        else if (isPaid)
+                                        {
+                                            <span class="badge badge-success px-2.5 py-1.5 mr-1 text-uppercase font-weight-bold" style="font-size: 0.75rem;"><i class="fas fa-check-double mr-1"></i> Đã thanh toán</span>
+                                            
+                                            <a href="@Url.Action("PrintRequisition", "DoctorWorkspace", new { recordId = Model.RecordId })" target="_blank" class="btn btn-sm btn-outline-primary shadow-sm" title="In phiếu chỉ định"><i class="fas fa-print mr-1"></i> In phiếu chỉ định</a>
+                                            
+                                            <a href="@Url.Action("PrintInvoice", "CashierWorkspace", new { id = Model.Invoice.InvoiceId, area = "Admin" })" target="_blank" class="btn btn-sm btn-outline-success shadow-sm ml-1" title="In biên lai thanh toán"><i class="fas fa-receipt mr-1"></i> In biên lai</a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Lưu bệnh án trước khi chỉ định"><i class="fas fa-plus-circle mr-1"></i> Chỉ định</button>
+                                    }
+                                </div>
                             </div>
                             <div class="card-body p-0">
                                 @if (Model.RecordId > 0 && Model.RecordServices != null && Model.RecordServices.Any())
                                 {
-                                    <ul class="list-group list-group-flush">
+                                    <div class="list-group list-group-flush">
                                     @foreach (var rs in Model.RecordServices)
                                     {
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="font-weight-bold text-dark">@rs.Service?.ServiceName</div>
-                                                <small class="text-muted">Ghi chú: @rs.ResultValue</small>
+                                        bool isDone = rs.Status == "HoanThanh" || rs.Status == "Hoàn thành" || rs.Status == "Completed" || rs.Status == "Done";
+                                        bool isProcessing = rs.Status == "DangThucHien" || rs.Status == "Đang thực hiện";
+                                        <div class="list-group-item p-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 0.95rem;"><i class="fas fa-microscope text-warning mr-2"></i>@rs.Service?.ServiceName</h6>
+                                                    <small class="text-muted"><i class="far fa-clock mr-1"></i>Chỉ định: @(rs.ExecuteDate?.ToString("dd/MM/yyyy HH:mm") ?? "Hôm nay")</small>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    @if (isDone)
+                                                    {
+                                                        <span class="badge badge-success px-2.5 py-1.5 rounded"><i class="fas fa-check-circle mr-1"></i>Đã có kết quả</span>
+                                                    }
+                                                    else if (isProcessing)
+                                                    {
+                                                        <span class="badge badge-info px-2.5 py-1.5 rounded"><i class="fas fa-spinner fa-spin mr-1"></i>Đang làm...</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-warning px-2.5 py-1.5 rounded mr-2"><i class="fas fa-hourglass-half mr-1"></i>Chờ thực hiện</span>
+                                                        @if (Model.Invoice == null || Model.Invoice.Status == "ChuaChot")
+                                                        {
+                                                            <!-- Nút Sửa -->
+                                                            <button type="button" class="btn btn-sm btn-outline-primary mr-1 btn-edit-rs" 
+                                                                    style="padding: 2px 6px;" 
+                                                                    title="Sửa chỉ định cận lâm sàng"
+                                                                    data-toggle="modal" 
+                                                                    data-target="#modalEditRecordService"
+                                                                    data-rsid="@rs.RsId" 
+                                                                    data-serviceid="@rs.ServiceId" 
+                                                                    data-note="@rs.ResultValue">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </button>
+
+                                                            <!-- Nút Xóa -->
+                                                            <button type="button" class="btn btn-sm btn-outline-danger" style="padding: 2px 6px;" title="Xóa chỉ định cận lâm sàng" onclick="if(confirm('Bạn có chắc chắn muốn xóa chỉ định này?')) { document.getElementById('delete-rsId').value = '@rs.RsId'; document.getElementById('formDeleteRecordService').submit(); }">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        }
+                                                    }
+                                                </div>
                                             </div>
-                                            <span class="badge badge-warning badge-pill">@rs.Status</span>
-                                        </li>
+                                            
+                                            @if (isDone)
+                                            {
+                                                <div class="mt-3 p-3 bg-light rounded border-left-success" style="border-left: 4px solid #1cc88a; font-size: 0.9rem;">
+                                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1"><i class="fas fa-poll-h mr-1"></i>Kết quả cận lâm sàng:</div>
+                                                    <div class="text-dark font-weight-bold" style="white-space: pre-line;">@rs.ResultValue</div>
+                                                    
+                                                    @if (!string.IsNullOrEmpty(rs.ResultImages))
+                                                    {
+                                                        <div class="mt-2">
+                                                            <div class="text-xs font-weight-bold text-muted mb-1"><i class="far fa-image mr-1"></i>Hình ảnh/File đính kèm:</div>
+                                                            @if (rs.ResultImages.StartsWith("http") || rs.ResultImages.Contains("/") || rs.ResultImages.Contains("\\"))
+                                                            {
+                                                                <a href="@rs.ResultImages" target="_blank" class="btn btn-xs btn-outline-primary"><i class="fas fa-external-link-alt mr-1"></i>Xem ảnh kết quả</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-dark font-weight-bold">@rs.ResultImages</span>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="mt-2 text-xs text-muted bg-light p-2 rounded">
+                                                    <i class="far fa-sticky-note mr-1"></i><strong>Yêu cầu khám/Ghi chú:</strong> <em>@(string.IsNullOrEmpty(rs.ResultValue) ? "Không có ghi chú thêm" : rs.ResultValue)</em>
+                                                </div>
+                                            }
+                                        </div>
                                     }
-                                    </ul>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <div class="text-center p-4">
-                                        <p class="text-muted mb-0">Chưa có chỉ định nào.</p>
+                                    <div class="text-center p-5 text-muted">
+                                        <i class="fas fa-vial fa-2x mb-2 text-gray-300"></i>
+                                        <p class="mb-0">Chưa có chỉ định cận lâm sàng nào.</p>
                                     </div>
                                 }
                             </div>
@@ -268,6 +409,28 @@
         </div>
     </form>
 </div>
+
+<!-- Form ẩn để Chốt Chỉ Định (Đặt ngoài form chính để tránh lỗi lồng form) -->
+<form id="formConfirmRecordServices" asp-action="ConfirmRecordServices" asp-controller="DoctorWorkspace" asp-area="Admin" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="RecordId" value="@Model.RecordId" />
+    <input type="hidden" name="AppointmentId" value="@Model.AppointmentId" />
+</form>
+
+<!-- Form ẩn để Mở Chốt Chỉ Định (Đặt ngoài form chính để tránh lỗi lồng form) -->
+<form id="formUnlockRecordServices" asp-action="UnlockRecordServices" asp-controller="DoctorWorkspace" asp-area="Admin" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="RecordId" value="@Model.RecordId" />
+    <input type="hidden" name="AppointmentId" value="@Model.AppointmentId" />
+</form>
+
+<!-- Form ẩn để Xóa Chỉ Định (Đặt ngoài form chính để tránh lỗi lồng form) -->
+<form id="formDeleteRecordService" asp-action="DeleteRecordService" asp-controller="DoctorWorkspace" asp-area="Admin" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="rsId" id="delete-rsId" />
+    <input type="hidden" name="appId" value="@Model.AppointmentId" />
+    <input type="hidden" name="recordId" value="@Model.RecordId" />
+</form>
 
 <!-- Modal Thêm Đơn Thuốc -->
 <div class="modal fade" id="modalPrescription" role="dialog" aria-labelledby="modalPrescriptionLabel" aria-hidden="true">
@@ -362,6 +525,49 @@
     </div>
 </div>
 
+<!-- Modal Sửa Chỉ Định -->
+<div class="modal fade" id="modalEditRecordService" role="dialog" aria-labelledby="modalEditRecordServiceLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form asp-action="EditRecordService" asp-controller="DoctorWorkspace" asp-area="Admin" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="rsId" id="edit-rsId" />
+            <input type="hidden" name="appId" value="@Model.AppointmentId" />
+            <input type="hidden" name="recordId" value="@Model.RecordId" />
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title font-weight-bold" id="modalEditRecordServiceLabel"><i class="fas fa-edit mr-2"></i>Chỉnh sửa Chỉ định Cận lâm sàng</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="font-weight-bold text-dark">Dịch vụ Y tế</label>
+                        <select name="ServiceId" id="edit-ServiceId" class="form-control select2-modal" style="width: 100%;" required>
+                            <option value="">-- Chọn dịch vụ --</option>
+                            @if (ViewBag.MedicalServices != null)
+                            {
+                                foreach (var s in ViewBag.MedicalServices)
+                                {
+                                    <option value="@s.ServiceId">@s.ServiceName (@s.BasePrice.ToString("N0") VNĐ)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold text-dark">Yêu cầu / Ghi chú</label>
+                        <textarea name="Note" id="edit-Note" class="form-control" rows="3" placeholder="Ví dụ: Siêu âm ổ bụng tổng quát..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary font-weight-bold" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary font-weight-bold"><i class="fas fa-save mr-1"></i> Cập nhật</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -378,6 +584,17 @@
                     width: '100%',
                     dropdownParent: $(this).closest('.modal')
                 });
+            });
+
+            // JavaScript for Edit Record Service Modal
+            $('.btn-edit-rs').on('click', function() {
+                var rsId = $(this).data('rsid');
+                var serviceId = $(this).data('serviceid');
+                var note = $(this).data('note');
+
+                $('#edit-rsId').val(rsId);
+                $('#edit-ServiceId').val(serviceId).trigger('change');
+                $('#edit-Note').val(note);
             });
         });
 

@@ -36,10 +36,65 @@
                                             <input type="text" asp-for="Patient.FullName" class="form-control" placeholder="Nhập họ tên đầy đủ" required>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
                                             <input type="tel" asp-for="Patient.Phone" class="form-control" placeholder="0xxx xxx xxx" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" asp-for="Patient.Email" class="form-control" placeholder="email@example.com">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Ngày sinh</label>
+                                            <input type="date" asp-for="Patient.Dob" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Giới tính</label>
+                                            <select asp-for="Patient.Gender" class="form-control">
+                                                <option value="true">Nam</option>
+                                                <option value="false">Nữ</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Số CCCD / CMND</label>
+                                            <input type="text" asp-for="Patient.CitizenId" class="form-control" placeholder="VD: 0123456789xx">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Mã thẻ BHYT</label>
+                                            <input type="text" asp-for="Patient.BhytCode" class="form-control" placeholder="VD: GD4950...">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Địa chỉ thường trú</label>
+                                            <input type="text" asp-for="Patient.Address" class="form-control" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/TP">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Nghề nghiệp</label>
+                                            <input type="text" asp-for="Patient.Occupation" class="form-control" placeholder="VD: Sinh viên...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Nơi làm việc / Trường</label>
+                                            <input type="text" asp-for="Patient.WorkplaceOrSchool" class="form-control" placeholder="Tên cơ quan/trường">
                                         </div>
                                     </div>
                                 </div>
@@ -162,6 +217,54 @@
                     $('#doctorSelect').append(allDoctorOptions);
                 }
             });
+
+            // Lọc các khung giờ khám đã trôi qua đối với ngày hôm nay
+            function filterTimeSlots() {
+                var selectedDateStr = $('#AppDate').val();
+                if (!selectedDateStr) return;
+
+                var selectedParts = selectedDateStr.split('-');
+                var selectedDate = new Date(selectedParts[0], selectedParts[1] - 1, selectedParts[2]);
+                selectedDate.setHours(0, 0, 0, 0);
+
+                var today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                var currentTime = new Date();
+                var currentHours = currentTime.getHours();
+                var currentMinutes = currentTime.getMinutes();
+
+                $('#TimeSlot option').each(function() {
+                    var optionVal = $(this).val();
+                    if (optionVal === "") return; // Bỏ qua placeholder
+
+                    var parts = optionVal.split(':');
+                    var slotHour = parseInt(parts[0], 10);
+                    var slotMinute = parseInt(parts[1], 10);
+
+                    if (selectedDate.getTime() === today.getTime()) {
+                        // Nếu giờ của slot đã bắt đầu hoặc đã qua so với giờ hiện tại
+                        if (slotHour < currentHours || (slotHour === currentHours && slotMinute <= currentMinutes)) {
+                            $(this).prop('disabled', true).hide();
+                        } else {
+                            $(this).prop('disabled', false).show();
+                        }
+                    } else {
+                        // Hiển thị lại tất cả slot cho ngày tương lai
+                        $(this).prop('disabled', false).show();
+                    }
+                });
+
+                // Nếu slot đang chọn bị disabled hoặc ẩn, reset selection
+                var selectedOption = $('#TimeSlot option:selected');
+                if (selectedOption.is(':disabled') || selectedOption.css('display') === 'none') {
+                    $('#TimeSlot').val('');
+                }
+            }
+
+            // Gọi lọc khi thay đổi ngày hoặc ngay khi load trang
+            $('#AppDate').change(filterTimeSlots);
+            filterTimeSlots();
         });
     </script>
 }

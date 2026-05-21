@@ -181,21 +181,39 @@
                                 <tr>
                                     <th>Mã ĐT</th>
                                     <th>Bệnh nhân</th>
+                                    <th>Thanh toán</th>
                                     <th>Bác sĩ kê</th>
                                     <th>Ngày kê</th>
                                     <th>Chi tiết thuốc</th>
-                                    <th>Ghi chú</th>
                                     <th class="text-center">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if (pendingPrescriptions != null && pendingPrescriptions.Any())
                                 {
+                                    var paidPrescriptionIds = ViewBag.PaidPrescriptionIds as List<int> ?? new List<int>();
+                                    var unpaidAmounts = ViewBag.UnpaidAmounts as Dictionary<int, decimal> ?? new Dictionary<int, decimal>();
                                     foreach (var item in pendingPrescriptions)
                                     {
+                                        bool isPaid = paidPrescriptionIds.Contains(item.PrescriptionId);
+                                        decimal unpaidAmount = unpaidAmounts.ContainsKey(item.PrescriptionId) ? unpaidAmounts[item.PrescriptionId] : 0;
                                         <tr>
                                             <td class="font-weight-bold text-indigo">#@item.PrescriptionId</td>
-                                            <td class="font-weight-bold text-dark">@item.Record?.Patient?.FullName</td>
+                                            <td class="font-weight-bold text-dark">
+                                                @item.Record?.Patient?.FullName
+                                                <br><small class="text-muted"><i class="fas fa-phone-alt mr-1"></i>@item.Record?.Patient?.Phone</small>
+                                            </td>
+                                            <td class="align-middle">
+                                                @if (isPaid)
+                                                {
+                                                    <span class="badge badge-success px-2.5 py-1.5 rounded-pill shadow-sm"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-danger px-2.5 py-1.5 rounded-pill shadow-sm mb-1 d-inline-block"><i class="fas fa-exclamation-triangle mr-1"></i>Chưa thanh toán</span>
+                                                    <br><span class="text-xs font-weight-bold text-danger"><i class="fas fa-wallet mr-1"></i>Cần thu: @unpaidAmount.ToString("N0") đ</span>
+                                                }
+                                            </td>
                                             <td>@item.Doctor?.FullName</td>
                                             <td>@(item.CreateDate?.ToString("dd/MM/yyyy HH:mm"))</td>
                                             <td>
@@ -215,16 +233,29 @@
                                                     }
                                                 </ul>
                                             </td>
-                                            <td><small class="text-muted">@item.Note</small></td>
                                             <td class="text-center align-middle">
-                                                <form asp-action="DispensePrescription" method="post" style="display:inline;">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="prescriptionId" value="@item.PrescriptionId" />
-                                                    <button type="submit" class="btn btn-sm btn-indigo shadow-sm px-3 py-2 font-weight-bold"
-                                                            onclick="return confirm('Xác nhận đã cấp phát thuốc cho đơn #@item.PrescriptionId?');">
-                                                        <i class="fas fa-hand-holding-medical mr-1"></i> Cấp phát
-                                                    </button>
-                                                </form>
+                                                @if (isPaid)
+                                                {
+                                                    <form asp-action="DispensePrescription" method="post" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="prescriptionId" value="@item.PrescriptionId" />
+                                                        <button type="submit" class="btn btn-sm btn-indigo shadow-sm px-3 py-2 font-weight-bold"
+                                                                onclick="return confirm('Xác nhận cấp phát nhanh cho đơn thuốc #@item.PrescriptionId?');">
+                                                            <i class="fas fa-shipping-fast mr-1"></i> Cấp phát nhanh
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <form asp-action="PayAndDispensePrescription" method="post" style="display:inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="prescriptionId" value="@item.PrescriptionId" />
+                                                        <button type="submit" class="btn btn-sm btn-success shadow-sm px-3 py-2 font-weight-bold"
+                                                                onclick="return confirm('Xác nhận THU TIỀN @unpaidAmount.ToString("N0") đ và Cấp phát thuốc trực tiếp cho đơn #@item.PrescriptionId?');">
+                                                            <i class="fas fa-hand-holding-usd mr-1"></i> Thu tiền & Cấp phát
+                                                        </button>
+                                                    </form>
+                                                }
                                             </td>
                                         </tr>
                                     }

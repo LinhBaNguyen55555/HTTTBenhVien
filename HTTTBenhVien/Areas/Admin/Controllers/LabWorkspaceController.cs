@@ -54,6 +54,25 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 r.Status == "HoanThanh" || r.Status == "Hoàn thành" ||
                 r.Status == "Completed" || r.Status == "Done" || r.Status == "DaCoKetQua").ToList();
 
+            // ─── Truy vấn Trạng thái Thanh toán cận lâm sàng ───
+            var recordIds = allRequests.Select(r => r.RecordId).Distinct().ToList();
+            var paidInvoiceDetails = await _context.InvoiceDetails
+                .Include(id => id.Invoice)
+                .Where(id => id.Invoice.RecordId != null && recordIds.Contains(id.Invoice.RecordId.Value) 
+                             && id.ItemType == "Dịch vụ" 
+                             && id.Invoice.Status == "DaThanhToan")
+                .ToListAsync();
+
+            var paidRsIds = new List<int>();
+            foreach (var rs in allRequests)
+            {
+                if (paidInvoiceDetails.Any(id => id.Invoice.RecordId == rs.RecordId && id.ItemId == rs.ServiceId))
+                {
+                    paidRsIds.Add(rs.RsId);
+                }
+            }
+            ViewBag.PaidRsIds = paidRsIds;
+
             // ─── Thống kê ───
             ViewBag.PendingCount = pending.Count;
             ViewBag.InProgressCount = inProgress.Count;
@@ -92,12 +111,26 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // KIỂM TRA THANH TOÁN
+            var isPaid = await _context.InvoiceDetails
+                .Include(id => id.Invoice)
+                .AnyAsync(id => id.Invoice.RecordId == rs.RecordId 
+                             && id.ItemType == "Dịch vụ" 
+                             && id.ItemId == rs.ServiceId 
+                             && id.Invoice.Status == "DaThanhToan");
+
+            if (!isPaid)
+            {
+                TempData["Error"] = "Dịch vụ cận lâm sàng này chưa được thanh toán! Bệnh nhân cần đóng phí trước khi thực hiện.";
+                return RedirectToAction(nameof(Index));
+            }
+
             rs.Status = "DangThucHien";
             rs.ExecuteDate = DateTime.Now;
             _context.RecordServices.Update(rs);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = $"Đã nhận phiếu #{rsId}. Bắt đầu thực hiện!";
+            TempData["Success"] = $"Đã nhận phiếu #{rsId}. Bắt đầu thực hiện xét nghiệm/siêu âm!";
             return RedirectToAction(nameof(Index));
         }
 

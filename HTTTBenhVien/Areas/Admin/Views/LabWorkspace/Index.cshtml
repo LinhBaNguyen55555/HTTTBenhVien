@@ -180,6 +180,7 @@
                                     <th>Mã</th>
                                     <th>Bệnh nhân</th>
                                     <th>Dịch vụ cần thực hiện</th>
+                                    <th>Thanh toán</th>
                                     <th>BS chỉ định</th>
                                     <th>Ngày chỉ định</th>
                                     <th class="text-center">Thao tác</th>
@@ -188,8 +189,10 @@
                             <tbody>
                                 @if (pendingRequests != null && pendingRequests.Any())
                                 {
+                                    var paidRsIds = ViewBag.PaidRsIds as List<int> ?? new List<int>();
                                     foreach (var item in pendingRequests)
                                     {
+                                        bool isPaid = paidRsIds.Contains(item.RsId);
                                         <tr>
                                             <td class="font-weight-bold text-cyan">#@item.RsId</td>
                                             <td class="font-weight-bold text-dark">@item.Record?.Patient?.FullName</td>
@@ -197,16 +200,36 @@
                                                 <span class="font-weight-bold">@item.Service?.ServiceName</span>
                                                 <br><small class="text-muted">@item.Service?.Description</small>
                                             </td>
+                                            <td class="align-middle">
+                                                @if (isPaid)
+                                                {
+                                                    <span class="badge badge-success px-2.5 py-1.5 rounded-pill shadow-sm"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-danger px-2.5 py-1.5 rounded-pill shadow-sm"><i class="fas fa-exclamation-triangle mr-1"></i>Chưa thanh toán</span>
+                                                }
+                                            </td>
                                             <td>@item.Doctor?.FullName</td>
                                             <td>@(item.ExecuteDate?.ToString("dd/MM/yyyy HH:mm") ?? "—")</td>
                                             <td class="text-center align-middle">
                                                 <form asp-action="AcceptRequest" method="post" style="display:inline;">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="rsId" value="@item.RsId" />
-                                                    <button type="submit" class="btn btn-sm btn-cyan shadow-sm px-3 py-2 font-weight-bold"
-                                                            onclick="return confirm('Xác nhận nhận phiếu #@item.RsId để thực hiện?');">
-                                                        <i class="fas fa-play-circle mr-1"></i> Nhận phiếu
-                                                    </button>
+                                                    @if (isPaid)
+                                                    {
+                                                        <button type="submit" class="btn btn-sm btn-cyan shadow-sm px-3 py-2 font-weight-bold"
+                                                                onclick="return confirm('Xác nhận nhận phiếu #@item.RsId để thực hiện?');">
+                                                            <i class="fas fa-play-circle mr-1"></i> Nhận phiếu
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button type="button" class="btn btn-sm btn-secondary shadow-sm px-3 py-2 font-weight-bold" disabled
+                                                                title="Chưa thanh toán - Vui lòng yêu cầu bệnh nhân thanh toán tại quầy thu ngân">
+                                                            <i class="fas fa-ban mr-1"></i> Khóa nhận
+                                                        </button>
+                                                    }
                                                 </form>
                                             </td>
                                         </tr>
@@ -215,7 +238,7 @@
                                 else
                                 {
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted py-4">
+                                        <td colspan="7" class="text-center text-muted py-4">
                                             <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
                                             Không có phiếu nào đang chờ. Tuyệt vời!
                                         </td>

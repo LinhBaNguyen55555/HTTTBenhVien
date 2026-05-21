@@ -1,12 +1,13 @@
 @model HTTTBenhVien.Models.Invoice
 @{
     Layout = null;
+    bool isPaid = Model.Status == "DaThanhToan" || Model.Status == "Đã thanh toán" || Model.Status == "Paid" || Model.Status == "Hoàn thành" || Model.Status == "Completed";
 }
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8">
-    <title>Biên lai thu tiền - Hóa đơn #@Model.InvoiceId</title>
+    <title>@(isPaid ? "Biên lai thu tiền" : "Phiếu báo thu") - Hóa đơn #@Model.InvoiceId</title>
     <link href="~/admin/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <style>
         body {
@@ -23,6 +24,7 @@
             border: 1px solid #eee;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
             background: #fff;
+            position: relative;
         }
         .header-tbl {
             width: 100%;
@@ -93,19 +95,69 @@
             font-size: 16px;
             font-weight: bold;
         }
+        .stamp-box {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-5deg);
+            width: 200px;
+            height: 60px;
+            border: 4px double;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 52px;
+            text-transform: uppercase;
+            opacity: 0.18;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        .stamp-unpaid {
+            color: #dc2626;
+            border-color: #dc2626;
+        }
+        .stamp-paid {
+            color: #16a34a;
+            border-color: #16a34a;
+        }
+        .warning-notice {
+            border: 1px dashed #dc2626;
+            background-color: #fef2f2;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #991b1b;
+            font-weight: bold;
+            text-align: center;
+        }
         @@media print {
             .print-btn-container { display: none; }
             .invoice-box { box-shadow: none; border: none; padding: 0; }
             body { padding: 0; }
+            .warning-notice {
+                border: 1px dashed #000;
+                background-color: transparent;
+                color: #000;
+            }
         }
     </style>
 </head>
 <body>
     <div class="print-btn-container">
-        <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> IN BIÊN LAI</button>
+        <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> IN PHIẾU</button>
     </div>
 
     <div class="invoice-box">
+        @if (isPaid)
+        {
+            <div class="stamp-box stamp-paid">Đã đóng tiền</div>
+        }
+        else
+        {
+            <div class="stamp-box stamp-unpaid">Chưa đóng tiền</div>
+        }
+
         <table class="header-tbl">
             <tr>
                 <td style="width: 60%;">
@@ -115,19 +167,31 @@
                 </td>
                 <td style="width: 40%; text-align: right;">
                     <p style="margin:0;">Mã HĐ: <strong>#@Model.InvoiceId</strong></p>
-                    <p style="margin: 5px 0 0 0;">Ngày thu: @(Model.PaymentDate?.ToString("dd/MM/yyyy HH:mm") ?? DateTime.Now.ToString("dd/MM/yyyy"))</p>
+                    <p style="margin: 5px 0 0 0;">Ngày in: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+                    @if (isPaid)
+                    {
+                        <p style="margin: 5px 0 0 0;">Ngày thu: @(Model.PaymentDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>
+                    }
                     <p style="margin: 5px 0 0 0;">Ca thu ngân: TN_01</p>
                 </td>
             </tr>
         </table>
 
-        <div class="title">BIÊN LAI THU TIỀN VIỆN PHÍ</div>
+        @if (isPaid)
+        {
+            <div class="title" style="color: #0f766e;">BIÊN LAI THU TIỀN VIỆN PHÍ</div>
+        }
+        else
+        {
+            <div class="title" style="color: #b91c1c;">PHIẾU BÁO THU VIỆN PHÍ</div>
+            <div style="text-align: center; font-size: 13px; font-style: italic; margin-bottom: 20px; color: #b91c1c; font-weight: bold;">(Yêu cầu thanh toán trước khi thực hiện dịch vụ)</div>
+        }
 
         <div class="info-section">
             <table style="width:100%; line-height:1.6;">
                 <tr>
-                    <td style="width: 15%;">Họ tên người bệnh:</td>
-                    <td style="width: 35%;"><strong>@Model.Patient?.FullName</strong></td>
+                    <td style="width: 18%;">Họ tên người bệnh:</td>
+                    <td style="width: 32%;"><strong>@Model.Patient?.FullName</strong></td>
                     <td style="width: 15%;">SĐT:</td>
                     <td style="width: 35%;">@Model.Patient?.Phone</td>
                 </tr>
@@ -138,8 +202,17 @@
                     <td>@(string.IsNullOrEmpty(Model.Patient?.BhytCode) ? "Không có" : Model.Patient.BhytCode)</td>
                 </tr>
                 <tr>
-                    <td>Phương thức:</td>
-                    <td colspan="3"><strong>@Model.PaymentMethod</strong></td>
+                    <td>Trạng thái:</td>
+                    <td colspan="3">
+                        @if (isPaid)
+                        {
+                            <strong style="color: #16a34a;"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán viện phí (qua @Model.PaymentMethod)</strong>
+                        }
+                        else
+                        {
+                            <strong style="color: #dc2626;"><i class="fas fa-exclamation-triangle mr-1"></i>Chưa thanh toán - Chờ thu tiền</strong>
+                        }
+                    </td>
                 </tr>
             </table>
         </div>
@@ -150,8 +223,8 @@
                     <th style="width: 5%;">STT</th>
                     <th style="width: 55%;">Nội dung (Thuốc / Dịch vụ)</th>
                     <th style="width: 10%;">SL</th>
-                    <th style="width: 15%;">Đơn giá</th>
-                    <th style="width: 15%;">Thành tiền</th>
+                    <th style="width: 15%;">Đơn giá (VNĐ)</th>
+                    <th style="width: 15%;">Thành tiền (VNĐ)</th>
                 </tr>
             </thead>
             <tbody>
@@ -163,7 +236,7 @@
                         {
                             <tr>
                                 <td class="text-center">@(stt++)</td>
-                                <td>@item.ItemName</td>
+                                <td>@item.ItemName <span class="text-muted" style="font-size:11px;">(@item.ItemType)</span></td>
                                 <td class="text-center">@item.Quantity</td>
                                 <td class="text-right">@String.Format("{0:N0}", item.UnitPrice)</td>
                                 <td class="text-right font-weight-bold">@String.Format("{0:N0}", (item.Quantity * item.UnitPrice))</td>
@@ -179,6 +252,14 @@
                 }
             </tbody>
         </table>
+
+        @if (!isPaid)
+        {
+            <div class="warning-notice">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                Bệnh nhân vui lòng mang phiếu này tới quầy thu ngân để thanh toán viện phí trước khi làm cận lâm sàng.
+            </div>
+        }
 
         <div class="summary-box">
             <table>
@@ -199,7 +280,7 @@
                 </tr>
                 <tr>
                     <td style="font-size: 16px; font-weight: bold;">Bệnh nhân cần thanh toán:</td>
-                    <td class="text-right" style="font-size: 16px; font-weight: bold;">@String.Format("{0:N0}", Model.PatientAmount) đ</td>
+                    <td class="text-right" style="font-size: 16px; font-weight: bold; color: #b91c1c;">@String.Format("{0:N0}", Model.PatientAmount) đ</td>
                 </tr>
             </table>
         </div>
@@ -207,7 +288,7 @@
         <table class="footer-signatures">
             <tr>
                 <td>
-                    <p class="font-weight-bold">NGƯỜI NỘP TIỀN</p>
+                    <p class="font-weight-bold">@(isPaid ? "NGƯỜI NỘP TIỀN" : "BỆNH NHÂN / NGƯỜI NHÀ")</p>
                     <p style="font-style: italic; font-size: 12px;">(Ký, ghi rõ họ tên)</p>
                     <br><br><br>
                     <p>@Model.Patient?.FullName</p>
@@ -226,10 +307,5 @@
         
         <p style="text-align: center; font-size: 12px; margin-top: 50px; font-style: italic; color: #555;">(Cảm ơn quý khách đã sử dụng dịch vụ của Bệnh viện VinhUni HIS)</p>
     </div>
-    
-    <script>
-        // Tự động in nếu cần
-        // window.onload = function() { window.print(); }
-    </script>
 </body>
 </html>

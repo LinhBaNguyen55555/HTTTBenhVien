@@ -199,11 +199,16 @@
                                             </td>
                                             <td class="font-weight-bold text-danger">@String.Format("{0:N0}", item.TotalAmount) đ</td>
                                             <td class="text-center align-middle">
-                                                <button type="button" class="btn btn-sm btn-teal shadow-sm px-3 py-2 font-weight-bold" 
-                                                        onclick="openPaymentModal(@item.InvoiceId, '@item.Patient?.FullName', @(item.TotalAmount ?? 0), @(item.BhytAmount ?? 0), @(item.DiscountAmount ?? 0))" 
-                                                        title="Thanh toán ngay">
-                                                    <i class="fas fa-hand-holding-usd mr-1"></i> Thanh toán
-                                                </button>
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <button type="button" class="btn btn-sm btn-teal shadow-sm px-3 py-2 font-weight-bold mr-2" 
+                                                            onclick="openPaymentModal(@item.InvoiceId, '@item.Patient?.FullName', @(item.TotalAmount ?? 0), @(item.BhytAmount ?? 0), @(item.DiscountAmount ?? 0))" 
+                                                            title="Thanh toán ngay">
+                                                        <i class="fas fa-hand-holding-usd mr-1"></i> Thanh toán
+                                                    </button>
+                                                    <a href="@Url.Action("PrintInvoice", "CashierWorkspace", new { id = item.InvoiceId })" target="_blank" class="btn btn-sm btn-outline-secondary font-weight-bold shadow-sm px-3 py-2" title="In báo thu / Tạm tính">
+                                                        <i class="fas fa-print mr-1"></i> In báo thu
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     }
