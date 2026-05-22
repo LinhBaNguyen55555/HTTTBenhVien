@@ -88,6 +88,7 @@
                     <div class="detail-row">
                         <div style="flex: 2;">
                             <select name="ItemTypes" class="form-control">
+                                <option value="Tiền khám">Tiền khám</option>
                                 <option value="Dịch vụ">Dịch vụ</option>
                                 <option value="Thuốc">Thuốc</option>
                                 <option value="Giường">Giường</option>
@@ -131,7 +132,7 @@
     <script>
         function addRow() {
             var html = `<div class="detail-row">
-                <div style="flex: 2;"><select name="ItemTypes" class="form-control"><option value="Dịch vụ">Dịch vụ</option><option value="Thuốc">Thuốc</option><option value="Giường">Giường</option><option value="Khác">Khác</option></select></div>
+                <div style="flex: 2;"><select name="ItemTypes" class="form-control"><option value="Tiền khám">Tiền khám</option><option value="Dịch vụ">Dịch vụ</option><option value="Thuốc">Thuốc</option><option value="Giường">Giường</option><option value="Khác">Khác</option></select></div>
                 <div style="flex: 4;"><input type="text" name="ItemNames" class="form-control" placeholder="Tên khoản mục" required /></div>
                 <div style="flex: 1;"><input type="number" name="ItemQuantities" class="form-control" placeholder="SL" min="1" value="1" required /></div>
                 <div style="flex: 2;"><input type="number" name="ItemPrices" class="form-control" placeholder="Đơn giá" min="0" step="1000" value="0" required /></div>

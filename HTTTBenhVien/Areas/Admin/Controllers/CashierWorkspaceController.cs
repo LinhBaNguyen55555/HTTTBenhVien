@@ -35,6 +35,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             var unpaidInvoices = invoices.Where(i => i.Status == "ChuaThanhToan" || i.Status == "Chưa thanh toán" || i.Status == "Pending" || i.Status == "Mới" || i.Status == "New" || i.Status == "Unpaid").ToList();
             var paidTodayInvoices = invoices.Where(i => (i.Status == "DaThanhToan" || i.Status == "Đã thanh toán" || i.Status == "Paid" || i.Status == "Hoàn thành" || i.Status == "Completed") && i.PaymentDate.HasValue && i.PaymentDate.Value.Date == today).ToList();
+            var emergencyInvoices = invoices.Where(i => i.Status == "CapCuu_ChuaThanhToan").ToList();
 
             // Tính toán doanh thu
             ViewBag.TotalUnpaidCount = unpaidInvoices.Count;
@@ -43,8 +44,12 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.TotalPaidCount = paidTodayInvoices.Count;
             ViewBag.TotalRevenueToday = paidTodayInvoices.Sum(i => i.PatientAmount ?? (i.TotalAmount ?? 0));
 
+            ViewBag.TotalEmergencyCount = emergencyInvoices.Count;
+            ViewBag.TotalEmergencyAmount = emergencyInvoices.Sum(i => i.TotalAmount ?? 0);
+
             ViewBag.UnpaidInvoices = unpaidInvoices;
             ViewBag.PaidInvoices = paidTodayInvoices;
+            ViewBag.EmergencyInvoices = emergencyInvoices;
 
             return View();
         }
@@ -123,6 +128,14 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var response = _vnPayService.PaymentExecute(Request.Query);
 
             var invoiceId = HttpContext.Session.GetInt32("VnPay_InvoiceId");
+            if (!invoiceId.HasValue && !string.IsNullOrEmpty(response.OrderId))
+            {
+                if (long.TryParse(response.OrderId, out long parsedTxnRef))
+                {
+                    invoiceId = (int)(parsedTxnRef / 100000000);
+                }
+            }
+
             var bhytStr = HttpContext.Session.GetString("VnPay_BhytAmount");
             var discountStr = HttpContext.Session.GetString("VnPay_DiscountAmount");
 
@@ -133,11 +146,26 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 {
                     decimal bhyt = 0;
                     decimal discount = 0;
-                    decimal.TryParse(bhytStr, out bhyt);
-                    decimal.TryParse(discountStr, out discount);
+                    
+                    if (!string.IsNullOrEmpty(bhytStr))
+                    {
+                        decimal.TryParse(bhytStr, out bhyt);
+                        invoice.BhytAmount = bhyt;
+                    }
+                    else
+                    {
+                        bhyt = invoice.BhytAmount ?? 0;
+                    }
 
-                    invoice.BhytAmount = bhyt;
-                    invoice.DiscountAmount = discount;
+                    if (!string.IsNullOrEmpty(discountStr))
+                    {
+                        decimal.TryParse(discountStr, out discount);
+                        invoice.DiscountAmount = discount;
+                    }
+                    else
+                    {
+                        discount = invoice.DiscountAmount ?? 0;
+                    }
 
                     var total = invoice.TotalAmount ?? 0;
                     var finalAmount = total - bhyt - discount;
@@ -151,7 +179,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                     _context.Invoices.Update(invoice);
                     await _context.SaveChangesAsync();
 
-                    // Xóa session tạm
+                    // Xóa session tạm nếu có
                     HttpContext.Session.Remove("VnPay_InvoiceId");
                     HttpContext.Session.Remove("VnPay_BhytAmount");
                     HttpContext.Session.Remove("VnPay_DiscountAmount");

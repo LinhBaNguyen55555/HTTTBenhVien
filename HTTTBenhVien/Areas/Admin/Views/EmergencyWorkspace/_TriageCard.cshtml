@@ -1,0 +1,244 @@
+@model HTTTBenhVien.Models.MedicalRecord
+
+@{
+    var triageClass = ViewData["TriageClass"] as string ?? "card-triage-3";
+    
+    // Pulse rate status colors
+    var pulseClass = "";
+    if (Model.PulseRate.HasValue) {
+        if (Model.PulseRate > 100 || Model.PulseRate < 60) pulseClass = "text-danger font-weight-bold";
+        else if (Model.PulseRate > 90) pulseClass = "text-warning";
+    }
+
+    // SpO2 status colors
+    var spo2Class = "";
+    var spo2Blink = "";
+    if (Model.SpO2.HasValue) {
+        if (Model.SpO2 < 93) { spo2Class = "text-danger font-weight-bold"; spo2Blink = "animation: pulseWarn 1s infinite alternate;"; }
+        else if (Model.SpO2 < 96) spo2Class = "text-warning";
+    }
+
+    // Temp status colors
+    var tempClass = "";
+    if (Model.Temperature.HasValue) {
+        if (Model.Temperature >= 38.5m || Model.Temperature < 36.0m) tempClass = "text-danger font-weight-bold";
+        else if (Model.Temperature >= 37.5m) tempClass = "text-warning";
+    }
+}
+
+<div class="patient-card @triageClass shadow-sm" id="record-card-@Model.RecordId">
+    <!-- Header: Badge Triage + Timer -->
+    <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="badge font-weight-bold py-1 px-2 text-uppercase" style="font-size: 0.72rem; 
+            @(Model.TriageLevel == 1 ? "background: #f8d7da; color: #721c24;" : 
+              Model.TriageLevel == 2 ? "background: #fff3cd; color: #856404;" :
+              Model.TriageLevel == 3 ? "background: #fef9e7; color: #d4ac0d; border: 1px solid #fdedc1;" :
+              Model.TriageLevel == 4 ? "background: #d4edda; color: #155724;" :
+              "background: #cce5ff; color: #004085;")">
+            @if (Model.TriageLevel == 1) { <span class="mr-1">🔴</span><span>MỨC 1 - HỒI SỨC</span> }
+            else if (Model.TriageLevel == 2) { <span class="mr-1">🟠</span><span>MỨC 2 - CẤP CỨU</span> }
+            else if (Model.TriageLevel == 3) { <span class="mr-1">🟡</span><span>MỨC 3 - KHẨN CẤP</span> }
+            else if (Model.TriageLevel == 4) { <span class="mr-1">🟢</span><span>MỨC 4 - ÍT KHẨN</span> }
+            else { <span class="mr-1">🔵</span><span>MỨC 5 - THƯỜNG</span> }
+        </span>
+        
+        <div class="wait-badge" data-triage-time="@Model.TriageTime?.ToString("yyyy-MM-ddTHH:mm:ss")" data-triage-level="@Model.TriageLevel">
+            <i class="far fa-clock"></i> <span class="timer-span">0 phút</span>
+        </div>
+    </div>
+
+    <!-- Patient Info -->
+    <h6 class="font-weight-bold mb-1 text-dark text-truncate" title="@Model.Patient.FullName">
+        @Model.Patient.FullName 
+    </h6>
+    <div class="text-muted small mb-2 d-flex justify-content-between">
+        <span>MS: <strong>@Model.Patient.PatientCode</strong></span>
+        <span>
+            @(Model.Patient.Gender ? "Nam" : "Nữ") - @(DateTime.Today.Year - (Model.Patient.Dob?.Year ?? (DateTime.Today.Year - 30)))T
+        </span>
+    </div>
+
+    <!-- Symptoms/Triage Notes -->
+    <div class="text-secondary small mb-2 text-truncate-2" style="font-style: italic; min-height: 32px;" title="@Model.Symptoms">
+        <i class="fas fa-stethoscope text-muted mr-1"></i> @Model.Symptoms
+    </div>
+
+    <!-- Mini Vitals Grid -->
+    <div class="vitals-grid">
+        <div class="vitals-item" title="Huyết áp">
+            <span>🩺</span> 
+            <strong>@(string.IsNullOrEmpty(Model.BloodPressure) ? "--" : Model.BloodPressure)</strong> <span class="text-muted text-xxs">mmHg</span>
+        </div>
+        <div class="vitals-item" title="Mạch">
+            <span>💓</span> 
+            <strong class="@pulseClass">@(Model.PulseRate?.ToString() ?? "--")</strong> <span class="text-muted text-xxs">bpm</span>
+        </div>
+        <div class="vitals-item" title="Nhiệt độ">
+            <span>🌡️</span> 
+            <strong class="@tempClass">@(Model.Temperature?.ToString() ?? "--")</strong> <span class="text-muted text-xxs">°C</span>
+        </div>
+        <div class="vitals-item" title="Chỉ số SpO2" style="@spo2Blink">
+            <span>🩸</span> 
+            <strong class="@spo2Class">@(Model.SpO2?.ToString() ?? "--")</strong> <span class="text-muted text-xxs">%</span>
+        </div>
+    </div>
+
+    <!-- Doctor Assigned -->
+    <div class="d-flex align-items-center mb-3">
+        <div class="avatar-circle-xs mr-2 bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px; font-size: 0.65rem; font-weight: bold;">
+            @(!string.IsNullOrEmpty(Model.Doctor.FullName) ? Model.Doctor.FullName.Substring(Model.Doctor.FullName.LastIndexOf(' ') + 1)[0].ToString() : "D")
+        </div>
+        <span class="small text-muted text-truncate">BS: <strong>@Model.Doctor.FullName</strong></span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="d-flex gap-2">
+        <a asp-action="Examine" asp-route-recordId="@Model.RecordId" class="btn btn-sm btn-danger flex-grow-1 font-weight-bold" style="border-radius: 8px;">
+            <i class="fas fa-heartbeat mr-1"></i> Khám bệnh
+        </a>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary" type="button" id="cardActions-@Model.RecordId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 8px;">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right shadow border-0" aria-labelledby="cardActions-@Model.RecordId" style="border-radius: 12px; font-size: 0.85rem;">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="openQuickTriageModal(@Model.RecordId, @Model.TriageLevel)">
+                    <i class="fas fa-exchange-alt mr-2 text-warning"></i> Chuyển mức Triage
+                </a>
+                
+                <!-- Chuyển khoa -->
+                <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="#transferModal-@Model.RecordId">
+                    <i class="fas fa-hospital-symbol mr-2 text-primary"></i> Chuyển khoa nhập viện
+                </a>
+                
+                <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="#transferOutModal-@Model.RecordId">
+                    <i class="fas fa-share mr-2 text-info"></i> Chuyển viện tuyến trên
+                </a>
+
+                <div class="dropdown-divider"></div>
+                
+                <!-- Cho về / Xuất viện nhanh -->
+                <a class="dropdown-item text-danger" href="javascript:void(0)" data-toggle="modal" data-target="#dischargeModal-@Model.RecordId">
+                    <i class="fas fa-door-open mr-2"></i> Xuất viện / Cho về
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL CHUYỂN KHOA BỆNH NHÂN -->
+<!-- ========================================== -->
+<div class="modal fade" id="transferModal-@Model.RecordId" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content glass-modal border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0 py-3">
+                <h6 class="modal-title font-weight-bold"><i class="fas fa-hospital-symbol mr-2"></i> CHUYỂN KHOA NHẬP VIỆN</h6>
+                <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close" onclick="$('#transferModal-@Model.RecordId').modal('hide')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Transfer" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="recordId" value="@Model.RecordId">
+                <input type="hidden" name="transferType" value="ChuyenKhoa">
+                <div class="modal-body p-4">
+                    <p class="small text-muted">Chuyển bệnh nhân <strong>@Model.Patient.FullName</strong> nhập viện tại khoa chuyên môn nội bộ.</p>
+                    
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold small text-muted">Khoa tiếp nhận lâm sàng</label>
+                        <select class="form-control" name="targetDeptId" required>
+                            @foreach (var dept in (ViewBag.Departments as List<Department> ?? new List<Department>()))
+                            {
+                                <option value="@dept.DeptId">@dept.DeptName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold small text-muted">Lý do nhập viện / Chẩn đoán xác định</label>
+                        <textarea class="form-control" name="transferReason" rows="3" placeholder="VD: Viêm ruột thừa cấp, suy hô hấp tiến triển..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="$('#transferModal-@Model.RecordId').modal('hide')">Hủy</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Xác nhận chuyển khoa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL CHUYỂN VIỆN TUYẾN TRÊN -->
+<!-- ========================================== -->
+<div class="modal fade" id="transferOutModal-@Model.RecordId" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content glass-modal border-0 shadow">
+            <div class="modal-header bg-info text-white border-0 py-3">
+                <h6 class="modal-title font-weight-bold"><i class="fas fa-share mr-2"></i> CHUYỂN VIỆN TUYẾN TRÊN</h6>
+                <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close" onclick="$('#transferOutModal-@Model.RecordId').modal('hide')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Transfer" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="recordId" value="@Model.RecordId">
+                <input type="hidden" name="transferType" value="ChuyenVien">
+                <div class="modal-body p-4">
+                    <p class="small text-muted">Chuyển viện tuyến trên cho bệnh nhân <strong>@Model.Patient.FullName</strong>.</p>
+                    
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold small text-muted">Bệnh viện tuyến trên tiếp nhận</label>
+                        <input type="text" class="form-control" name="targetHospital" placeholder="VD: Bệnh viện Hữu nghị Đa khoa Nghệ An" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold small text-muted">Lý do chuyển viện</label>
+                        <textarea class="form-control" name="transferReason" rows="3" placeholder="VD: Vượt quá khả năng chuyên môn, suy mạch vành cấp cần can thiệp..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="$('#transferOutModal-@Model.RecordId').modal('hide')">Hủy</button>
+                    <button type="submit" class="btn btn-sm btn-info text-white">Xác nhận chuyển viện</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL CHO VỀ / XUẤT VIỆN -->
+<!-- ========================================== -->
+<div class="modal fade" id="dischargeModal-@Model.RecordId" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content glass-modal border-0 shadow">
+            <div class="modal-header bg-danger text-white border-0 py-3">
+                <h6 class="modal-title font-weight-bold"><i class="fas fa-door-open mr-2"></i> KẾT THÚC CẤP CỨU & CHO VỀ</h6>
+                <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close" onclick="$('#dischargeModal-@Model.RecordId').modal('hide')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Discharge" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="recordId" value="@Model.RecordId">
+                <div class="modal-body p-4">
+                    <p class="small text-muted">Hoàn tất điều trị khẩn cấp và cho bệnh nhân <strong>@Model.Patient.FullName</strong> xuất viện.</p>
+                    
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold small text-muted">Chẩn đoán / Kết luận ra viện</label>
+                        <input type="text" class="form-control" name="conclusion" placeholder="VD: Ngộ độc thức ăn nhẹ đã ổn định, chấn thương phần mềm..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold small text-muted">Lời dặn bác sĩ / Hướng dẫn theo dõi</label>
+                        <textarea class="form-control" name="dischargeNotes" rows="3" placeholder="VD: Uống thuốc theo đơn, tái khám nếu đau bụng lại, nghỉ ngơi..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="$('#dischargeModal-@Model.RecordId').modal('hide')">Hủy</button>
+                    <button type="submit" class="btn btn-sm btn-danger">Xác nhận xuất viện</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

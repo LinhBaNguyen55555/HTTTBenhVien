@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
+using Microsoft.Extensions.DependencyInjection;
+using HTTTBenhVien.Services;
 
 namespace HTTTBenhVien.Areas.Admin.Controllers
 {
@@ -354,7 +356,21 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
 
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                // Tự động sinh hóa đơn/tiền khám lâm sàng khi bác sĩ lưu bệnh án
+                var hasClsServices = await _context.RecordServices.AnyAsync(rs => rs.RecordId == record.RecordId);
+                var invoice = await GetOrCreateActiveInvoiceAsync(record.PatientId, record.RecordId);
+                
+                // Nếu bệnh nhân không có chỉ định cận lâm sàng nào, tự động đổi trạng thái hóa đơn từ ChuaChot sang ChuaThanhToan
+                // để quầy thu ngân có thể lập tức nhìn thấy và thu tiền khám.
+                if (!hasClsServices && invoice != null && invoice.Status == "ChuaChot")
+                {
+                    invoice.Status = "ChuaThanhToan";
+                    _context.Update(invoice);
+                    await _context.SaveChangesAsync();
+                }
+
+                return RedirectToAction(nameof(Examine), new { appId = record.AppointmentId, recordId = record.RecordId });
             }
 
             TempData["Error"] = "Có lỗi xảy ra khi lưu bệnh án.";
@@ -442,6 +458,167 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             return RedirectToAction(nameof(Examine), new { appId = AppointmentId, recordId = RecordId });
         }
 
+        // POST: Admin/DoctorWorkspace/EditPrescription
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPrescription(int PrescriptionId, int RecordId, int? AppointmentId, int[] MedicineIds, int[] Quantities, string[] Dosages)
+        {
+            int empId = GetCurrentEmpId();
+            if (empId == 0) return RedirectToAction("Login", "Account");
+
+            var prescription = await _context.Prescriptions
+                .Include(p => p.PrescriptionDetails)
+                .FirstOrDefaultAsync(p => p.PrescriptionId == PrescriptionId);
+
+            if (prescription == null)
+            {
+                TempData["Error"] = "Không tìm thấy đơn thuốc để chỉnh sửa.";
+                return RedirectToAction(nameof(Examine), new { appId = AppointmentId, recordId = RecordId });
+            }
+
+            // Remove existing medicines from the active invoice
+            var invoice = await _context.Invoices
+                .Include(i => i.InvoiceDetails)
+                .FirstOrDefaultAsync(i => i.RecordId == RecordId);
+
+            if (invoice != null)
+            {
+                decimal totalToDeduct = 0;
+                foreach (var detail in prescription.PrescriptionDetails)
+                {
+                    var invDetail = invoice.InvoiceDetails.FirstOrDefault(id => id.ItemType == "Thuốc" && id.ItemId == detail.MedicineId);
+                    if (invDetail != null)
+                    {
+                        var medPrice = invDetail.UnitPrice ?? 0;
+                        var qty = invDetail.Quantity ?? 0;
+                        totalToDeduct += medPrice * qty;
+                        _context.InvoiceDetails.Remove(invDetail);
+                    }
+                }
+
+                if (totalToDeduct > 0)
+                {
+                    invoice.TotalAmount = (invoice.TotalAmount ?? 0) - totalToDeduct;
+                }
+            }
+
+            // Clear old prescription details
+            _context.PrescriptionDetails.RemoveRange(prescription.PrescriptionDetails);
+            await _context.SaveChangesAsync();
+
+            // Add new prescription details & update invoice
+            if (MedicineIds != null)
+            {
+                var medicines = await _context.Medicines.Where(m => MedicineIds.Contains(m.MedicineId)).ToListAsync();
+                decimal addedTotal = 0;
+
+                for (int i = 0; i < MedicineIds.Length; i++)
+                {
+                    if (MedicineIds[i] > 0)
+                    {
+                        var detail = new PrescriptionDetail
+                        {
+                            PrescriptionId = prescription.PrescriptionId,
+                            MedicineId = MedicineIds[i],
+                            Quantity = i < Quantities.Length ? Quantities[i] : 1,
+                            Dosage = i < Dosages.Length ? Dosages[i] : ""
+                        };
+                        _context.PrescriptionDetails.Add(detail);
+
+                        var med = medicines.FirstOrDefault(m => m.MedicineId == MedicineIds[i]);
+                        if (med != null)
+                        {
+                            var lineTotal = (detail.Quantity ?? 1) * med.Price;
+                            addedTotal += lineTotal;
+
+                            if (invoice != null)
+                            {
+                                var invDetail = new InvoiceDetail
+                                {
+                                    InvoiceId = invoice.InvoiceId,
+                                    ItemType = "Thuốc",
+                                    ItemId = med.MedicineId,
+                                    ItemName = med.MedicineName,
+                                    Quantity = detail.Quantity,
+                                    UnitPrice = med.Price
+                                };
+                                _context.InvoiceDetails.Add(invDetail);
+                            }
+                        }
+                    }
+                }
+
+                if (invoice != null && addedTotal > 0)
+                {
+                    invoice.TotalAmount = (invoice.TotalAmount ?? 0) + addedTotal;
+                    invoice.PatientAmount = invoice.TotalAmount - (invoice.BhytAmount ?? 0) - (invoice.DiscountAmount ?? 0);
+                    if (invoice.PatientAmount < 0) invoice.PatientAmount = 0;
+                    _context.Update(invoice);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Cập nhật đơn thuốc thành công!";
+            return RedirectToAction(nameof(Examine), new { appId = AppointmentId, recordId = RecordId });
+        }
+
+        // POST: Admin/DoctorWorkspace/DeletePrescription
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePrescription(int id, int? appId, int recordId)
+        {
+            int empId = GetCurrentEmpId();
+            if (empId == 0) return RedirectToAction("Login", "Account");
+
+            var prescription = await _context.Prescriptions
+                .Include(p => p.PrescriptionDetails)
+                .FirstOrDefaultAsync(p => p.PrescriptionId == id);
+
+            if (prescription == null)
+            {
+                TempData["Error"] = "Không tìm thấy đơn thuốc.";
+                return RedirectToAction(nameof(Examine), new { appId = appId, recordId = recordId });
+            }
+
+            // Remove from invoice details
+            var invoice = await _context.Invoices
+                .Include(i => i.InvoiceDetails)
+                .FirstOrDefaultAsync(i => i.RecordId == recordId);
+
+            if (invoice != null)
+            {
+                decimal totalToDeduct = 0;
+                foreach (var detail in prescription.PrescriptionDetails)
+                {
+                    var invDetail = invoice.InvoiceDetails.FirstOrDefault(id => id.ItemType == "Thuốc" && id.ItemId == detail.MedicineId);
+                    if (invDetail != null)
+                    {
+                        var medPrice = invDetail.UnitPrice ?? 0;
+                        var qty = invDetail.Quantity ?? 0;
+                        totalToDeduct += medPrice * qty;
+                        _context.InvoiceDetails.Remove(invDetail);
+                    }
+                }
+
+                if (totalToDeduct > 0)
+                {
+                    invoice.TotalAmount = (invoice.TotalAmount ?? 0) - totalToDeduct;
+                    if (invoice.TotalAmount < 0) invoice.TotalAmount = 0;
+                    invoice.PatientAmount = invoice.TotalAmount - (invoice.BhytAmount ?? 0) - (invoice.DiscountAmount ?? 0);
+                    if (invoice.PatientAmount < 0) invoice.PatientAmount = 0;
+                    _context.Update(invoice);
+                }
+            }
+
+            _context.PrescriptionDetails.RemoveRange(prescription.PrescriptionDetails);
+            _context.Prescriptions.Remove(prescription);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Xóa đơn thuốc thành công!";
+            return RedirectToAction(nameof(Examine), new { appId = appId, recordId = recordId });
+        }
+
         // POST: Admin/DoctorWorkspace/AddRecordService
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -501,7 +678,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         {
             var invoice = await _context.Invoices
                 .Include(i => i.InvoiceDetails)
-                .FirstOrDefaultAsync(i => i.RecordId == recordId && i.Status != "DaThanhToan" && i.Status != "Huy");
+                .FirstOrDefaultAsync(i => i.RecordId == recordId);
 
             if (invoice == null)
             {
@@ -520,6 +697,43 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 _context.Invoices.Add(invoice);
                 await _context.SaveChangesAsync();
             }
+            else if (invoice.Status == "DaThanhToan" || invoice.Status == "Huy")
+            {
+                // Nếu hóa đơn đã được thanh toán hoặc bị hủy trước đó nhưng bác sĩ lại lưu bệnh án hoặc kê thêm dịch vụ/đơn thuốc mới,
+                // chuyển trạng thái về "ChuaChot" để hệ thống tiếp tục cho phép thu thêm phần phát sinh.
+                invoice.Status = "ChuaChot";
+                _context.Update(invoice);
+                await _context.SaveChangesAsync();
+            }
+
+            // Kiểm tra xem đã có hóa đơn nào (đã thanh toán hoặc chưa thanh toán, không tính hóa đơn đã hủy)
+            // của bệnh án này chứa khoản mục "Tiền khám" hay chưa để tránh tính phí trùng lặp.
+            bool hasClinicalExamFee = await _context.InvoiceDetails
+                .AnyAsync(id => id.Invoice.RecordId == recordId 
+                             && id.Invoice.Status != "Huy" 
+                             && id.ItemType == "Tiền khám");
+
+            if (!hasClinicalExamFee)
+            {
+                var examFeeDetail = new InvoiceDetail
+                {
+                    InvoiceId = invoice.InvoiceId,
+                    ItemType = "Tiền khám",
+                    ItemId = 0, // Id = 0 đại diện cho tiền khám lâm sàng tự động
+                    ItemName = "Tiền khám lâm sàng",
+                    Quantity = 1,
+                    UnitPrice = 150000
+                };
+                _context.InvoiceDetails.Add(examFeeDetail);
+
+                invoice.TotalAmount = (invoice.TotalAmount ?? 0) + 150000;
+                invoice.PatientAmount = invoice.TotalAmount - (invoice.BhytAmount ?? 0) - (invoice.DiscountAmount ?? 0);
+                if (invoice.PatientAmount < 0) invoice.PatientAmount = 0;
+
+                _context.Update(invoice);
+                await _context.SaveChangesAsync();
+            }
+
             return invoice;
         }
 
@@ -823,6 +1037,102 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 TempData["Error"] = "Không tìm thấy lịch hẹn.";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // ==========================================
+        // Dịch vụ Thanh toán tại bàn khám (VietQR & VNPay)
+        // ==========================================
+
+        [HttpGet]
+        public async Task<IActionResult> CheckPaymentStatus(int invoiceId)
+        {
+            var invoice = await _context.Invoices.FindAsync(invoiceId);
+            if (invoice == null)
+            {
+                return Json(new { isPaid = false, message = "Không tìm thấy hóa đơn" });
+            }
+
+            var isPaid = invoice.Status == "DaThanhToan" || invoice.Status == "Đã thanh toán" || invoice.Status == "Paid" || invoice.Status == "Completed" || invoice.Status == "Hoàn thành";
+            return Json(new { isPaid = isPaid, method = invoice.PaymentMethod });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmBankTransferPayment(int invoiceId)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Patient)
+                .FirstOrDefaultAsync(i => i.InvoiceId == invoiceId);
+
+            if (invoice == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy hóa đơn" });
+            }
+
+            if (invoice.Status == "DaThanhToan" || invoice.Status == "Đã thanh toán" || invoice.Status == "Paid" || invoice.Status == "Completed" || invoice.Status == "Hoàn thành")
+            {
+                return Json(new { success = true, message = "Hóa đơn đã được thanh toán từ trước." });
+            }
+
+            invoice.Status = "DaThanhToan";
+            invoice.PaymentDate = DateTime.Now;
+            invoice.PaymentMethod = "Chuyển khoản";
+            invoice.Notes = "Bác sĩ xác nhận chuyển khoản ngân hàng tại phòng khám.";
+
+            if (!invoice.PatientAmount.HasValue || invoice.PatientAmount == 0)
+            {
+                var bhyt = invoice.BhytAmount ?? 0;
+                var discount = invoice.DiscountAmount ?? 0;
+                var total = invoice.TotalAmount ?? 0;
+                var finalAmount = total - bhyt - discount;
+                invoice.PatientAmount = finalAmount > 0 ? finalAmount : 0;
+            }
+
+            _context.Invoices.Update(invoice);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Xác nhận thanh toán chuyển khoản thành công!" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GenerateVnpayQrCode(int invoiceId)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Patient)
+                .FirstOrDefaultAsync(i => i.InvoiceId == invoiceId);
+
+            if (invoice == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy hóa đơn" });
+            }
+
+            if (invoice.Status == "DaThanhToan" || invoice.Status == "Đã thanh toán" || invoice.Status == "Paid" || invoice.Status == "Completed" || invoice.Status == "Hoàn thành")
+            {
+                return Json(new { success = false, message = "Hóa đơn này đã được thanh toán." });
+            }
+
+            if (!invoice.PatientAmount.HasValue || invoice.PatientAmount == 0)
+            {
+                var bhyt = invoice.BhytAmount ?? 0;
+                var discount = invoice.DiscountAmount ?? 0;
+                var total = invoice.TotalAmount ?? 0;
+                var finalAmount = total - bhyt - discount;
+                invoice.PatientAmount = finalAmount > 0 ? finalAmount : 0;
+            }
+
+            var vnPayService = HttpContext.RequestServices.GetRequiredService<IVnPayService>();
+
+            var paymentInfo = new PaymentInformationModel
+            {
+                OrderType = "billpayment",
+                Amount = (double)(invoice.PatientAmount ?? 0),
+                OrderDescription = $"Thanh toan vien phi hoa don #{invoiceId}",
+                Name = invoice.Patient?.FullName ?? "Benh nhan",
+                InvoiceId = invoiceId
+            };
+
+            var paymentUrl = vnPayService.CreatePaymentUrl(paymentInfo, HttpContext);
+
+            return Json(new { success = true, paymentUrl = paymentUrl });
         }
     }
 

@@ -4,6 +4,7 @@
     
     var unpaidInvoices = ViewBag.UnpaidInvoices as IEnumerable<HTTTBenhVien.Models.Invoice>;
     var paidInvoices = ViewBag.PaidInvoices as IEnumerable<HTTTBenhVien.Models.Invoice>;
+    var emergencyInvoices = ViewBag.EmergencyInvoices as IEnumerable<HTTTBenhVien.Models.Invoice>;
 }
 
 <style>
@@ -161,6 +162,11 @@
                         <i class="fas fa-check-double mr-1"></i> Đã thu tiền hôm nay
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link text-danger font-weight-bold" id="emergency-tab" data-toggle="tab" href="#emergency" role="tab" aria-controls="emergency" aria-selected="false">
+                        <i class="fas fa-ambulance mr-1"></i> Nợ Cấp cứu <span class="badge badge-danger">@ViewBag.TotalEmergencyCount</span>
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="card-body">
@@ -253,6 +259,58 @@
                                                 <a href="@Url.Action("PrintInvoice", "CashierWorkspace", new { id = item.InvoiceId })" target="_blank" class="btn btn-sm btn-outline-info shadow-sm" title="In biên lai">
                                                     <i class="fas fa-print"></i> In HĐ
                                                 </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Tab: Nợ Cấp cứu -->
+                <div class="tab-pane fade" id="emergency" role="tabpanel" aria-labelledby="emergency-tab">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered dataTable" width="100%" cellspacing="0">
+                            <thead style="background-color: #fff5f5; color: #c82333;">
+                                <tr>
+                                    <th>Mã HĐ</th>
+                                    <th>Bệnh nhân (Cấp cứu)</th>
+                                    <th>SĐT</th>
+                                    <th>Chi tiết dịch vụ/thuốc</th>
+                                    <th>Tổng nợ tích lũy</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (emergencyInvoices != null)
+                                {
+                                    foreach (var item in emergencyInvoices)
+                                    {
+                                        <tr style="border-left: 4px solid #dc3545;">
+                                            <td class="font-weight-bold">#@item.InvoiceId</td>
+                                            <td class="font-weight-bold text-danger">@item.Patient?.FullName</td>
+                                            <td>@item.Patient?.Phone</td>
+                                            <td>
+                                                <ul class="mb-0 pl-3">
+                                                    @foreach(var detail in item.InvoiceDetails)
+                                                    {
+                                                        <li>@detail.ItemName <span class="text-muted">(x@detail.Quantity)</span></li>
+                                                    }
+                                                </ul>
+                                            </td>
+                                            <td class="font-weight-bold text-danger">@String.Format("{0:N0}", item.TotalAmount) đ</td>
+                                            <td class="text-center align-middle">
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <button type="button" class="btn btn-sm btn-danger shadow-sm px-3 py-2 font-weight-bold mr-2" 
+                                                            onclick="openPaymentModal(@item.InvoiceId, '@item.Patient?.FullName', @(item.TotalAmount ?? 0), @(item.BhytAmount ?? 0), @(item.DiscountAmount ?? 0))" 
+                                                            title="Thu nợ cấp cứu">
+                                                        <i class="fas fa-hand-holding-usd mr-1"></i> Thu nợ gộp
+                                                    </button>
+                                                    <a href="@Url.Action("PrintInvoice", "CashierWorkspace", new { id = item.InvoiceId })" target="_blank" class="btn btn-sm btn-outline-secondary font-weight-bold shadow-sm px-3 py-2" title="In báo thu">
+                                                        <i class="fas fa-print mr-1"></i> In báo thu
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     }

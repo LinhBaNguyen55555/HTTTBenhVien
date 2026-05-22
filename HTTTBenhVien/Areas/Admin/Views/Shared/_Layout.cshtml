@@ -121,6 +121,19 @@
                     </a>
                 </li>
             }
+            @if (User.IsInRole("Admin") || User.IsInRole("CapCuu") || User.IsInRole("Cấp cứu") || User.IsInRole("Emergency"))
+            {
+                <!-- ═══════ CẤP CỨU ═══════ -->
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading" style="color: #ff6b6b; font-weight: bold; letter-spacing: 0.5px;">🏥 KHOA CẤP CỨU</div>
+
+                <li class="nav-item @(currentController == "EmergencyWorkspace" ? "active" : "")">
+                    <a class="nav-link pb-1" href="@Url.Action("Index", "EmergencyWorkspace", new { area = "Admin" })">
+                        <i class="fas fa-fw fa-ambulance"></i>
+                        <span>Bàn cấp cứu & Triage</span>
+                    </a>
+                </li>
+            }
             @if (User.IsInRole("Lễ tân") || User.IsInRole("LeTan") || User.IsInRole("Receptionist"))
             {
                 <!-- ═══════ LỄ TÂN ═══════ -->

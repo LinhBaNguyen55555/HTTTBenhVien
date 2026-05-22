@@ -19,7 +19,14 @@ namespace HTTTBenhVien.Services
         {
             var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
+            
             var tick = DateTime.Now.Ticks.ToString();
+            if (model.InvoiceId > 0)
+            {
+                long randomPart = DateTime.Now.Ticks % 100000000;
+                tick = ((long)model.InvoiceId * 100000000 + randomPart).ToString();
+            }
+
             var pay = new VnPayLibrary();
             var urlCallBack = _configuration["PaymentCallBack:ReturnUrl"];
 

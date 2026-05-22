@@ -66,12 +66,15 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var paidRsIds = new List<int>();
             foreach (var rs in allRequests)
             {
-                if (paidInvoiceDetails.Any(id => id.Invoice.RecordId == rs.RecordId && id.ItemId == rs.ServiceId))
+                if (rs.Record?.IsEmergency == true || paidInvoiceDetails.Any(id => id.Invoice.RecordId == rs.RecordId && id.ItemId == rs.ServiceId))
                 {
                     paidRsIds.Add(rs.RsId);
                 }
             }
             ViewBag.PaidRsIds = paidRsIds;
+
+            var emergencyRsIds = allRequests.Where(r => r.Record?.IsEmergency == true).Select(r => r.RsId).ToList();
+            ViewBag.EmergencyRsIds = emergencyRsIds;
 
             // ─── Thống kê ───
             ViewBag.PendingCount = pending.Count;
@@ -104,20 +107,23 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AcceptRequest(int rsId)
         {
-            var rs = await _context.RecordServices.FindAsync(rsId);
+            var rs = await _context.RecordServices
+                .Include(r => r.Record)
+                .FirstOrDefaultAsync(r => r.RsId == rsId);
             if (rs == null)
             {
                 TempData["Error"] = "Không tìm thấy phiếu yêu cầu.";
                 return RedirectToAction(nameof(Index));
             }
 
-            // KIỂM TRA THANH TOÁN
-            var isPaid = await _context.InvoiceDetails
+            // KIỂM TRA THANH TOÁN (Bypass nếu là ca Cấp cứu)
+            bool isEmergency = rs.Record?.IsEmergency == true;
+            var isPaid = isEmergency || await _context.InvoiceDetails
                 .Include(id => id.Invoice)
                 .AnyAsync(id => id.Invoice.RecordId == rs.RecordId 
-                             && id.ItemType == "Dịch vụ" 
-                             && id.ItemId == rs.ServiceId 
-                             && id.Invoice.Status == "DaThanhToan");
+                              && id.ItemType == "Dịch vụ" 
+                              && id.ItemId == rs.ServiceId 
+                              && id.Invoice.Status == "DaThanhToan");
 
             if (!isPaid)
             {

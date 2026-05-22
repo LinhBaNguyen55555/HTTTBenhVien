@@ -25,6 +25,12 @@ public partial class MedicalRecord
     public decimal? Weight { get; set; }
     public int? SpO2 { get; set; }
 
+    // ── Cấp cứu (Emergency) ──
+    public bool? IsEmergency { get; set; }
+    public int? TriageLevel { get; set; }
+    public DateTime? TriageTime { get; set; }
+    public string? TriageNotes { get; set; }
+
     public virtual Employee Doctor { get; set; } = null!;
     public virtual IcdDictionary? IcdCodeNavigation { get; set; }
     public virtual Invoice? Invoice { get; set; }

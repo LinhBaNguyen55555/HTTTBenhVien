@@ -309,6 +309,11 @@ public partial class HtttbenhvienContext : DbContext
             entity.Property(e => e.Temperature).HasColumnType("decimal(4, 1)");
             entity.Property(e => e.Weight).HasColumnType("decimal(5, 1)");
 
+            entity.Property(e => e.IsEmergency).HasDefaultValueSql("((0))");
+            entity.Property(e => e.TriageLevel);
+            entity.Property(e => e.TriageTime).HasColumnType("datetime");
+            entity.Property(e => e.TriageNotes).HasMaxLength(1000);
+
             entity.HasOne(d => d.Doctor).WithMany(p => p.MedicalRecords)
                 .HasForeignKey(d => d.DoctorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)

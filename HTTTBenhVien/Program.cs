@@ -84,6 +84,10 @@ builder.Services.AddMemoryCache();
 // Connect VNPay API
 builder.Services.AddScoped<HTTTBenhVien.Services.IVnPayService, HTTTBenhVien.Services.VnPayService>();
 
+// Register HttpClient and AI Chatbot Service
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<HTTTBenhVien.Services.IGeminiChatService, HTTTBenhVien.Services.GeminiChatService>();
+
 // MVC
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
@@ -108,6 +112,36 @@ using (var scope = app.Services.CreateScope())
 
 async Task SeedData(HtttbenhvienContext context)
 {
+    // Auto-migration for emergency columns
+    try
+    {
+        await context.Database.ExecuteSqlRawAsync(@"
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'IsEmergency' AND Object_ID = OBJECT_ID('MedicalRecords'))
+            BEGIN
+                ALTER TABLE MedicalRecords ADD IsEmergency BIT NULL CONSTRAINT DF_MedicalRecords_IsEmergency DEFAULT 0;
+            END
+
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'TriageLevel' AND Object_ID = OBJECT_ID('MedicalRecords'))
+            BEGIN
+                ALTER TABLE MedicalRecords ADD TriageLevel INT NULL;
+            END
+
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'TriageTime' AND Object_ID = OBJECT_ID('MedicalRecords'))
+            BEGIN
+                ALTER TABLE MedicalRecords ADD TriageTime DATETIME NULL;
+            END
+
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = 'TriageNotes' AND Object_ID = OBJECT_ID('MedicalRecords'))
+            BEGIN
+                ALTER TABLE MedicalRecords ADD TriageNotes NVARCHAR(1000) NULL;
+            END
+        ");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error running emergency migration: " + ex.Message);
+    }
+
     if (!await context.Accounts.AnyAsync())
     {
         if (!await context.Departments.AnyAsync())
@@ -145,6 +179,7 @@ async Task SeedData(HtttbenhvienContext context)
                 new() { FullName = "Trần Thị Hương", Email = "huong.tt@benhvien.vn", Phone = "0902345678", DeptId = doctorDept?.DeptId, JobTitle = "Bác sĩ chuyên khoa II", Specialty = "Tim mạch" },
                 new() { FullName = "Lê Đình Phong", Email = "phong.ld@benhvien.vn", Phone = "0903456789", DeptId = nurseDept?.DeptId, JobTitle = "Lễ tân trưởng", Specialty = "" },
                 new() { FullName = "Phạm Thị Lan", Email = "lan.pt@benhvien.vn", Phone = "0904567890", DeptId = pharmacyDept?.DeptId, JobTitle = "Dược sĩ trưởng", Specialty = "Dược lâm sàng" },
+                new() { FullName = "Bác sĩ Cấp cứu", Email = "capcuu.bs@benhvien.vn", Phone = "0909999999", DeptId = deptList.FirstOrDefault(d => d.DeptName == "Khoa Cấp cứu")?.DeptId, JobTitle = "Bác sĩ Cấp cứu", Specialty = "Hồi sức cấp cứu" },
             };
             context.Employees.AddRange(emps);
             await context.SaveChangesAsync();
@@ -155,6 +190,8 @@ async Task SeedData(HtttbenhvienContext context)
         var doctor = empsList.FirstOrDefault(e => e.FullName == "Trần Thị Hương");
         var nurse = empsList.FirstOrDefault(e => e.FullName == "Lê Đình Phong");
         var pharm = empsList.FirstOrDefault(e => e.FullName == "Phạm Thị Lan");
+
+        var capcuu = empsList.FirstOrDefault(e => e.FullName == "Bác sĩ Cấp cứu");
 
         string HashPassword(string password)
         {
@@ -172,6 +209,8 @@ async Task SeedData(HtttbenhvienContext context)
             accounts.Add(new() { EmpId = nurse.EmpId, Username = "letan01", Password = HashPassword("123456"), RoleName = "LeTan", IsActive = true });
         if (pharm != null)
             accounts.Add(new() { EmpId = pharm.EmpId, Username = "duocsi01", Password = HashPassword("123456"), RoleName = "DuocSi", IsActive = true });
+        if (capcuu != null)
+            accounts.Add(new() { EmpId = capcuu.EmpId, Username = "capcuu01", Password = HashPassword("123456"), RoleName = "CapCuu", IsActive = true });
 
         context.Accounts.AddRange(accounts);
         await context.SaveChangesAsync();

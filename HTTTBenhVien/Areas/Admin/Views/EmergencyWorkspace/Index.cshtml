@@ -1,0 +1,705 @@
+@using HTTTBenhVien.Models
+@{
+    ViewData["Title"] = "Hệ thống Cấp cứu & Phân loại Triage - VinhUni";
+    var activeCount = ViewBag.ActiveEmergencyCount;
+    var avgWait = ViewBag.AvgWaitingTime;
+    var completedCount = ViewBag.CompletedTodayCount;
+    var transferredCount = ViewBag.TransferredTodayCount;
+
+    var triage1 = ViewBag.Triage1 as List<MedicalRecord> ?? new List<MedicalRecord>();
+    var triage2 = ViewBag.Triage2 as List<MedicalRecord> ?? new List<MedicalRecord>();
+    var triage3 = ViewBag.Triage3 as List<MedicalRecord> ?? new List<MedicalRecord>();
+    var triage4 = ViewBag.Triage4 as List<MedicalRecord> ?? new List<MedicalRecord>();
+    var triage5 = ViewBag.Triage5 as List<MedicalRecord> ?? new List<MedicalRecord>();
+
+    var doctors = ViewBag.Doctors as List<Employee> ?? new List<Employee>();
+    var departments = ViewBag.Departments as List<Department> ?? new List<Department>();
+}
+
+<!-- CSS Premium cho Khoa Cấp cứu -->
+<style>
+    :root {
+        --triage-1-red: #dc3545;
+        --triage-1-red-bg: #fff5f5;
+        --triage-1-red-border: #ffc9c9;
+        
+        --triage-2-orange: #fd7e14;
+        --triage-2-orange-bg: #fff9db;
+        --triage-2-orange-border: #ffe8cc;
+        
+        --triage-3-yellow: #f1c40f;
+        --triage-3-yellow-bg: #fef9e7;
+        --triage-3-yellow-border: #fdedc1;
+        
+        --triage-4-green: #28a745;
+        --triage-4-green-bg: #ebfbee;
+        --triage-4-green-border: #b2f2bb;
+        
+        --triage-5-blue: #007bff;
+        --triage-5-blue-bg: #e7f5ff;
+        --triage-5-blue-border: #a5d8ff;
+    }
+
+    .emergency-container {
+        font-family: 'Inter', 'Outfit', sans-serif;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding-bottom: 2rem;
+    }
+
+    /* Stat Cards with Glow Effects */
+    .stat-card-er {
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card-er:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+    .stat-card-er::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+    }
+    .stat-card-er.active-cases::before { background-color: var(--triage-1-red); }
+    .stat-card-er.wait-time::before { background-color: var(--triage-2-orange); }
+    .stat-card-er.completed-cases::before { background-color: var(--triage-4-green); }
+    .stat-card-er.transferred-cases::before { background-color: var(--triage-5-blue); }
+
+    /* Giant Red Pulsing ER Register Button */
+    .btn-er-register {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        font-weight: 700;
+        padding: 12px 28px;
+        border-radius: 50px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        animation: pulseRed 2s infinite;
+    }
+    .btn-er-register:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+        color: white;
+    }
+
+    @@keyframes pulseRed {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6); }
+        70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+
+    /* Kanban Board Styling */
+    .kanban-board {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        padding: 10px 0;
+        align-items: stretch;
+    }
+    .kanban-column {
+        flex: 1;
+        min-width: 280px;
+        background-color: #f1f3f5;
+        border-radius: 16px;
+        padding: 14px;
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
+    .kanban-column-header {
+        font-weight: 800;
+        font-size: 0.95rem;
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+        border-bottom: 2px solid rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .kanban-cards-wrapper {
+        flex-grow: 1;
+        min-height: 500px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* Kanban Card Designs */
+    .patient-card {
+        background: white;
+        border-radius: 12px;
+        padding: 14px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        transition: all 0.25s ease;
+        border-left: 5px solid transparent;
+        border-top: 1px solid rgba(0,0,0,0.02);
+        border-right: 1px solid rgba(0,0,0,0.02);
+        border-bottom: 1px solid rgba(0,0,0,0.02);
+    }
+    .patient-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    /* Card Glows & Keyframe Animations */
+    .card-triage-1 {
+        border-left-color: var(--triage-1-red);
+        background: var(--triage-1-red-bg);
+        border-color: var(--triage-1-red-border);
+        animation: cardGlowRed 1.5s infinite alternate;
+    }
+    .card-triage-2 {
+        border-left-color: var(--triage-2-orange);
+        background: var(--triage-2-orange-bg);
+        border-color: var(--triage-2-orange-border);
+        animation: cardGlowOrange 2.5s infinite alternate;
+    }
+    .card-triage-3 {
+        border-left-color: var(--triage-3-yellow);
+        background: var(--triage-3-yellow-bg);
+        border-color: var(--triage-3-yellow-border);
+    }
+    .card-triage-4 {
+        border-left-color: var(--triage-4-green);
+        background: var(--triage-4-green-bg);
+        border-color: var(--triage-4-green-border);
+    }
+    .card-triage-5 {
+        border-left-color: var(--triage-5-blue);
+        background: var(--triage-5-blue-bg);
+        border-color: var(--triage-5-blue-border);
+    }
+
+    @@keyframes cardGlowRed {
+        0% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.15); border-color: var(--triage-1-red-border); }
+        100% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.45); border-color: rgba(220, 53, 69, 0.5); }
+    }
+    @@keyframes cardGlowOrange {
+        0% { box-shadow: 0 0 3px rgba(253, 126, 20, 0.1); }
+        100% { box-shadow: 0 0 10px rgba(253, 126, 20, 0.3); }
+    }
+
+    /* Wait Time Badge with pulse icon */
+    .wait-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: #e9ecef;
+        color: #495057;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .wait-badge.over-limit {
+        background: #fff0f6;
+        color: #d6336c;
+        animation: pulseWarn 1s infinite alternate;
+    }
+
+    @@keyframes pulseWarn {
+        0% { opacity: 0.8; }
+        100% { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* Vitals mini display */
+    .vitals-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        background: rgba(0,0,0,0.02);
+        padding: 8px;
+        border-radius: 8px;
+        margin: 10px 0;
+        font-size: 0.78rem;
+    }
+    .vitals-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #495057;
+    }
+    .vitals-item strong {
+        color: #212529;
+    }
+
+    .glass-modal {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.25);
+    }
+</style>
+
+<div class="container-fluid emergency-container mt-4">
+    <!-- Header Area -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div>
+            <h1 class="h2 mb-1 fw-bold text-dark"><span class="mr-2">🚑</span> BÀN TRIAGE & TIẾP NHẬN CẤP CỨU</h1>
+            <p class="text-muted mb-0">Hệ thống phân loại y khoa 5 mức độ khẩn cấp tự động - Bệnh viện Đại học VinhUni</p>
+        </div>
+        <div>
+            <button class="btn btn-er-register" data-toggle="modal" data-target="#triageRegisterModal">
+                <i class="fas fa-plus-circle mr-2"></i> Tiếp nhận khẩn cấp (F2)
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card-er active-cases p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase text-muted font-weight-bold small">Đang cấp cứu</div>
+                        <div class="h3 mb-0 font-weight-bold text-dark">@activeCount</div>
+                    </div>
+                    <div class="h1 text-danger mb-0"><i class="fas fa-procedures"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card-er wait-time p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase text-muted font-weight-bold small">Thời gian chờ TB</div>
+                        <div class="h3 mb-0 font-weight-bold text-dark">@avgWait <span class="small font-weight-normal">phút</span></div>
+                    </div>
+                    <div class="h1 text-warning mb-0"><i class="fas fa-history"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card-er completed-cases p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase text-muted font-weight-bold small">Đã xuất viện hôm nay</div>
+                        <div class="h3 mb-0 font-weight-bold text-dark">@completedCount</div>
+                    </div>
+                    <div class="h1 text-success mb-0"><i class="fas fa-clipboard-check"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card-er transferred-cases p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase text-muted font-weight-bold small">Đã nhập/chuyển viện</div>
+                        <div class="h3 mb-0 font-weight-bold text-dark">@transferredCount</div>
+                    </div>
+                    <div class="h1 text-primary mb-0"><i class="fas fa-hospital-symbol"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Message Area -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Thành công!</strong> @Html.Raw(TempData["Success"])
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Lỗi!</strong> @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- Kanban Board 5 Columns -->
+    <div class="kanban-board">
+        
+        <!-- Column Level 1: Red -->
+        <div class="kanban-column">
+            <div class="kanban-column-header text-danger">
+                <span>🔴 Mức 1: Hồi sức</span>
+                <span class="badge badge-danger">@triage1.Count</span>
+            </div>
+            <div class="kanban-cards-wrapper" id="column-triage-1">
+                @foreach (var rec in triage1)
+                {
+                    @await Html.PartialAsync("_TriageCard", rec, new ViewDataDictionary(ViewData) { { "TriageClass", "card-triage-1" } })
+                }
+            </div>
+        </div>
+
+        <!-- Column Level 2: Orange -->
+        <div class="kanban-column">
+            <div class="kanban-column-header text-warning" style="color: #fd7e14 !important;">
+                <span>🟠 Mức 2: Cấp cứu</span>
+                <span class="badge badge-warning" style="background-color: #fd7e14; color: white;">@triage2.Count</span>
+            </div>
+            <div class="kanban-cards-wrapper" id="column-triage-2">
+                @foreach (var rec in triage2)
+                {
+                    @await Html.PartialAsync("_TriageCard", rec, new ViewDataDictionary(ViewData) { { "TriageClass", "card-triage-2" } })
+                }
+            </div>
+        </div>
+
+        <!-- Column Level 3: Yellow -->
+        <div class="kanban-column">
+            <div class="kanban-column-header" style="color: #d4ac0d !important;">
+                <span>🟡 Mức 3: Khẩn cấp</span>
+                <span class="badge badge-warning" style="background-color: #d4ac0d; color: white;">@triage3.Count</span>
+            </div>
+            <div class="kanban-cards-wrapper" id="column-triage-3">
+                @foreach (var rec in triage3)
+                {
+                    @await Html.PartialAsync("_TriageCard", rec, new ViewDataDictionary(ViewData) { { "TriageClass", "card-triage-3" } })
+                }
+            </div>
+        </div>
+
+        <!-- Column Level 4: Green -->
+        <div class="kanban-column">
+            <div class="kanban-column-header text-success">
+                <span>🟢 Mức 4: Ít khẩn</span>
+                <span class="badge badge-success">@triage4.Count</span>
+            </div>
+            <div class="kanban-cards-wrapper" id="column-triage-4">
+                @foreach (var rec in triage4)
+                {
+                    @await Html.PartialAsync("_TriageCard", rec, new ViewDataDictionary(ViewData) { { "TriageClass", "card-triage-4" } })
+                }
+            </div>
+        </div>
+
+        <!-- Column Level 5: Blue -->
+        <div class="kanban-column">
+            <div class="kanban-column-header text-primary">
+                <span>🔵 Mức 5: Không khẩn</span>
+                <span class="badge badge-primary">@triage5.Count</span>
+            </div>
+            <div class="kanban-cards-wrapper" id="column-triage-5">
+                @foreach (var rec in triage5)
+                {
+                    @await Html.PartialAsync("_TriageCard", rec, new ViewDataDictionary(ViewData) { { "TriageClass", "card-triage-5" } })
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL TIẾP NHẬN CẤP CỨU & TRIAGE KHẨN CẤP -->
+<!-- ========================================== -->
+<div class="modal fade" id="triageRegisterModal" tabindex="-1" role="dialog" aria-labelledby="triageRegisterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content glass-modal border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white border-0 py-3" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title font-weight-bold" id="triageRegisterModalLabel">
+                    <i class="fas fa-ambulance mr-2 animate-bounce"></i> TIẾP NHẬN & PHÂN LOẠI CẤP CỨU BAN ĐẦU
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="alert" aria-label="Close" onclick="$('#triageRegisterModal').modal('hide')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Triage" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4" style="max-height: 80vh; overflow-y: auto;">
+                    
+                    <!-- Toggle Anonymous -->
+                    <div class="card p-3 mb-4 border-0 shadow-sm" style="background: rgba(220, 53, 69, 0.03);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="font-weight-bold text-danger mb-1"><i class="fas fa-user-secret mr-2"></i> BỆNH NHÂN CHƯA XÁC ĐỊNH DANH TÍNH (ẨN DANH)</h6>
+                                <p class="text-muted small mb-0">Hệ thống sẽ tự động cấp mã số tạm CC-yyyyMMdd-xxx để bypass thủ tục hành chính.</p>
+                            </div>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="IsAnonymous" name="IsAnonymous" value="true" checked onchange="toggleIdentityForm()">
+                                <label class="custom-control-label font-weight-bold text-danger" for="IsAnonymous">Ẩn danh</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Administrative Form -->
+                    <div class="row mb-3">
+                        <div class="col-md-6" id="fullNameWrapper">
+                            <label class="font-weight-bold small text-muted">Họ và tên bệnh nhân <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg border-0 shadow-sm" id="FullName" name="FullName" placeholder="Nhập họ tên (hoặc tự sinh)" style="background: #f8f9fa;">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="font-weight-bold small text-muted">Giới tính <span class="text-danger">*</span></label>
+                            <select class="form-control form-control-lg border-0 shadow-sm" name="Gender" style="background: #f8f9fa;">
+                                <option value="true">Nam</option>
+                                <option value="false">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="font-weight-bold small text-muted">Tuổi ước lượng / Tuổi thực <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control form-control-lg border-0 shadow-sm" name="Age" placeholder="VD: 30" style="background: #f8f9fa;" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4" id="knownPatientFields" style="display: none;">
+                        <div class="col-md-6">
+                            <label class="font-weight-bold small text-muted">SĐT liên hệ (Nhập đúng để tìm hồ sơ cũ)</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control form-control-lg border-0 shadow-sm" id="Phone" name="Phone" placeholder="Số điện thoại" style="background: #f8f9fa;">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="button" onclick="searchExistingPatient()"><i class="fas fa-search"></i> Tim</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="font-weight-bold small text-muted">Địa chỉ cư trú</label>
+                            <input type="text" class="form-control form-control-lg border-0 shadow-sm" name="Address" placeholder="Địa chỉ" style="background: #f8f9fa;">
+                        </div>
+                    </div>
+
+                    <!-- Triage level & doctor -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="font-weight-bold small text-muted">Phân loại khẩn cấp (Triage Level) <span class="text-danger">*</span></label>
+                            <select class="form-control form-control-lg border-0 shadow-sm bg-danger text-white font-weight-bold" id="TriageLevel" name="TriageLevel" onchange="updateTriageColor()" style="border-radius: 8px;">
+                                <option value="1" class="bg-danger text-white">🔴 Mức 1 - Hồi sức (Báo động đỏ - khẩn cấp tối đa)</option>
+                                <option value="2" class="bg-warning text-dark">🟠 Mức 2 - Cấp cứu (Nguy kịch tiềm tàng)</option>
+                                <option value="3" class="bg-warning text-dark">🟡 Mức 3 - Khẩn cấp (Triệu chứng nặng)</option>
+                                <option value="4" class="bg-success text-white">🟢 Mức 4 - Ít khẩn cấp (Mạch/huyết áp ổn định)</option>
+                                <option value="5" class="bg-primary text-white">🔵 Mức 5 - Không khẩn (Triệu chứng nhẹ)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="font-weight-bold small text-muted">Bác sĩ tiếp nhận chính <span class="text-danger">*</span></label>
+                            <select class="form-control form-control-lg border-0 shadow-sm" name="DoctorId" style="background: #f8f9fa;">
+                                @foreach (var doc in doctors)
+                                {
+                                    <option value="@doc.EmpId">@doc.FullName (@doc.JobTitle - @doc.Specialty)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Symptoms notes -->
+                    <div class="form-group mb-4">
+                        <label class="font-weight-bold small text-muted">Triệu chứng lâm sàng chính / Cơ chế chấn thương <span class="text-danger">*</span></label>
+                        <textarea class="form-control border-0 shadow-sm" name="TriageNotes" rows="3" placeholder="Ví dụ: Đau ngực dữ dội, khó thở cấp, hôn mê do tai nạn xe máy, mất nhiều máu..." style="background: #f8f9fa; border-radius: 12px;" required></textarea>
+                    </div>
+
+                    <!-- Initial Vitals -->
+                    <h6 class="font-weight-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-heartbeat text-danger mr-2"></i> CHỈ SỐ SINH HIỆU LÂM SÀNG BAN ĐẦU</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="font-weight-bold small text-muted">Huyết áp (mmHg)</label>
+                            <input type="text" class="form-control border-0 shadow-sm text-center font-weight-bold" name="BloodPressure" placeholder="VD: 120/80" style="background: #f8f9fa;">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="font-weight-bold small text-muted">Mạch (Lần/phút)</label>
+                            <input type="number" class="form-control border-0 shadow-sm text-center font-weight-bold" name="PulseRate" placeholder="VD: 80" style="background: #f8f9fa;">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="font-weight-bold small text-muted">Nhiệt độ (°C)</label>
+                            <input type="number" step="0.1" class="form-control border-0 shadow-sm text-center font-weight-bold" name="Temperature" placeholder="VD: 37.0" style="background: #f8f9fa;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="font-weight-bold small text-muted">SpO2 (%)</label>
+                            <input type="number" class="form-control border-0 shadow-sm text-center font-weight-bold" name="SpO2" placeholder="VD: 98" style="background: #f8f9fa;">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="font-weight-bold small text-muted">Chiều cao (cm)</label>
+                            <input type="number" class="form-control border-0 shadow-sm text-center" name="Height" placeholder="cm" style="background: #f8f9fa;">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="font-weight-bold small text-muted">Cân nặng (kg)</label>
+                            <input type="number" step="0.1" class="form-control border-0 shadow-sm text-center" name="Weight" placeholder="kg" style="background: #f8f9fa;">
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer border-0 p-4" style="background: #f8f9fa; border-radius: 0 0 20px 20px;">
+                    <button type="button" class="btn btn-outline-secondary font-weight-bold px-4 py-2" style="border-radius: 12px;" onclick="$('#triageRegisterModal').modal('hide')">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-danger font-weight-bold px-4 py-2" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);">
+                        <i class="fas fa-check-circle mr-2"></i> NHẬN BỆNH NHÂN
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Triage Level Change Modal -->
+<div class="modal fade" id="quickTriageModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content glass-modal border-0 shadow">
+            <div class="modal-header bg-dark text-white border-0 py-3">
+                <h6 class="modal-title font-weight-bold"><i class="fas fa-exchange-alt mr-2"></i> THAY ĐỔI MỨC PHÂN LOẠI TRIAGE</h6>
+                <button type="button" class="close text-white" onclick="$('#quickTriageModal').modal('hide')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="UpdateTriage" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="quickTriageRecordId" name="recordId">
+                <div class="modal-body p-4">
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold small text-muted">Mức độ khẩn cấp mới</label>
+                        <select class="form-control form-control-lg font-weight-bold" name="triageLevel">
+                            <option value="1">🔴 Mức 1 - Hồi sức (Resuscitation)</option>
+                            <option value="2">🟠 Mức 2 - Cấp cứu (Emergency)</option>
+                            <option value="3">🟡 Mức 3 - Khẩn cấp (Urgent)</option>
+                            <option value="4">🟢 Mức 4 - Ít khẩn cấp (Less Urgent)</option>
+                            <option value="5">🔵 Mức 5 - Không khẩn (Non-Urgent)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold small text-muted">Lý do thay đổi / Triệu chứng tiến triển</label>
+                        <textarea class="form-control" name="notes" rows="2" placeholder="Ghi chú lý do chuyển mức độ khẩn..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="$('#quickTriageModal').modal('hide')">Hủy</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Xác nhận đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- JS LOGIC - REAL TIME TIMER & TRIAGE CONTROLS -->
+<!-- ========================================== -->
+<script>
+    // Toggle identity form
+    function toggleIdentityForm() {
+        var isAnon = document.getElementById("IsAnonymous").checked;
+        var knownFields = document.getElementById("knownPatientFields");
+        var fullNameInput = document.getElementById("FullName");
+
+        if (isAnon) {
+            knownFields.style.display = "none";
+            fullNameInput.placeholder = "Nhập họ tên (hoặc tự sinh)";
+            fullNameInput.required = false;
+        } else {
+            knownFields.style.display = "flex";
+            fullNameInput.placeholder = "Nhập họ và tên bệnh nhân";
+            fullNameInput.required = true;
+        }
+    }
+
+    // Interactive Triage level dropdown colors
+    function updateTriageColor() {
+        var level = document.getElementById("TriageLevel").value;
+        var dropdown = document.getElementById("TriageLevel");
+        
+        dropdown.className = "form-control form-control-lg border-0 shadow-sm font-weight-bold text-white ";
+        if (level == "1") dropdown.classList.add("bg-danger");
+        else if (level == "2") dropdown.className = "form-control form-control-lg border-0 shadow-sm font-weight-bold text-dark bg-warning";
+        else if (level == "3") dropdown.className = "form-control form-control-lg border-0 shadow-sm font-weight-bold text-dark bg-warning";
+        else if (level == "4") dropdown.classList.add("bg-success");
+        else if (level == "5") dropdown.classList.add("bg-primary");
+    }
+
+    // Set quick triage modal data
+    function openQuickTriageModal(recordId, currentLevel) {
+        document.getElementById("quickTriageRecordId").value = recordId;
+        var select = document.querySelector('#quickTriageModal select[name="triageLevel"]');
+        select.value = currentLevel;
+        $('#quickTriageModal').modal('show');
+    }
+
+    // Search patient phone
+    function searchExistingPatient() {
+        var phone = document.getElementById("Phone").value;
+        if (!phone) {
+            alert("Vui lòng nhập số điện thoại để tìm!");
+            return;
+        }
+        
+        $.ajax({
+            url: '/Admin/Patient/SearchByPhone?phone=' + phone,
+            type: 'GET',
+            success: function(data) {
+                if (data && data.success) {
+                    document.getElementById("FullName").value = data.fullName;
+                    // Auto-fill other fields if present in data
+                    alert("Tìm thấy bệnh nhân: " + data.fullName);
+                } else {
+                    alert("Không tìm thấy thông tin bệnh nhân cũ. Vui lòng nhập mới.");
+                }
+            },
+            error: function() {
+                alert("Lỗi khi tìm bệnh nhân.");
+            }
+        });
+    }
+
+    // Real-time counter for waiting time
+    document.addEventListener("DOMContentLoaded", function() {
+        // Init anonymous form state
+        toggleIdentityForm();
+        updateTriageColor();
+
+        // F2 Shortcut for quick register
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "F2") {
+                e.preventDefault();
+                $('#triageRegisterModal').modal('show');
+            }
+        });
+
+        // Run wait time calculations every second
+        setInterval(function() {
+            var elements = document.querySelectorAll(".wait-badge[data-triage-time]");
+            elements.forEach(function(el) {
+                var triageTimeStr = el.getAttribute("data-triage-time");
+                if (triageTimeStr) {
+                    var triageTime = new Date(triageTimeStr);
+                    var now = new Date();
+                    var diffMs = now - triageTime;
+                    
+                    if (diffMs > 0) {
+                        var diffMins = Math.floor(diffMs / 60000);
+                        var diffHrs = Math.floor(diffMins / 60);
+                        var remMins = diffMins % 60;
+                        
+                        var displayStr = "";
+                        if (diffHrs > 0) {
+                            displayStr = diffHrs + " giờ " + remMins + " phút";
+                        } else {
+                            displayStr = diffMins + " phút";
+                        }
+                        
+                        el.querySelector(".timer-span").textContent = displayStr;
+                        
+                        // Warn if waiting too long (e.g. Mức 1 > 5 phút, Mức 2 > 15 phút, Mức 3 > 30 phút, Mức 4 > 60 phút)
+                        var level = parseInt(el.getAttribute("data-triage-level"));
+                        var isOverLimit = false;
+                        
+                        if (level === 1 && diffMins > 2) isOverLimit = true;
+                        else if (level === 2 && diffMins > 10) isOverLimit = true;
+                        else if (level === 3 && diffMins > 30) isOverLimit = true;
+                        else if (level === 4 && diffMins > 60) isOverLimit = true;
+                        
+                        if (isOverLimit) {
+                            el.classList.add("over-limit");
+                            el.querySelector("i").className = "fas fa-exclamation-triangle text-danger";
+                        }
+                    }
+                }
+            });
+        }, 1000);
+    });
+</script>

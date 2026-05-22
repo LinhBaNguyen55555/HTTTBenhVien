@@ -53,6 +53,21 @@
     .badge-progress { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; }
     .badge-done { background: linear-gradient(135deg, #34d399, #059669); color: #fff; }
     .result-card { border-radius: 0.75rem; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1); }
+    
+    .animate-pulse-emergency {
+        animation: pulse-emergency-key 1.5s infinite;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    @@keyframes pulse-emergency-key {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .row-emergency {
+        background-color: #fff5f5 !important;
+        border-left: 5px solid #ef4444 !important;
+    }
 </style>
 
 <div class="container-fluid lab-bg py-4">
@@ -193,15 +208,26 @@
                                     foreach (var item in pendingRequests)
                                     {
                                         bool isPaid = paidRsIds.Contains(item.RsId);
-                                        <tr>
+                                        bool isEmergency = item.Record?.IsEmergency == true;
+                                        <tr class="@(isEmergency ? "row-emergency" : "")">
                                             <td class="font-weight-bold text-cyan">#@item.RsId</td>
-                                            <td class="font-weight-bold text-dark">@item.Record?.Patient?.FullName</td>
+                                            <td class="font-weight-bold text-dark">
+                                                @if (isEmergency)
+                                                {
+                                                    <span class="text-danger"><i class="fas fa-ambulance mr-1"></i></span>
+                                                }
+                                                @item.Record?.Patient?.FullName
+                                            </td>
                                             <td>
                                                 <span class="font-weight-bold">@item.Service?.ServiceName</span>
                                                 <br><small class="text-muted">@item.Service?.Description</small>
                                             </td>
                                             <td class="align-middle">
-                                                @if (isPaid)
+                                                @if (isEmergency)
+                                                {
+                                                    <span class="badge badge-danger px-2.5 py-1.5 rounded-pill shadow-sm animate-pulse-emergency" style="background: linear-gradient(135deg, #ef4444, #b91c1c);"><i class="fas fa-ambulance mr-1"></i>CẤP CỨU ƯU TIÊN</span>
+                                                }
+                                                else if (isPaid)
                                                 {
                                                     <span class="badge badge-success px-2.5 py-1.5 rounded-pill shadow-sm"><i class="fas fa-check-circle mr-1"></i>Đã thanh toán</span>
                                                 }
@@ -216,7 +242,7 @@
                                                 <form asp-action="AcceptRequest" method="post" style="display:inline;">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="rsId" value="@item.RsId" />
-                                                    @if (isPaid)
+                                                    @if (isPaid || isEmergency)
                                                     {
                                                         <button type="submit" class="btn btn-sm btn-cyan shadow-sm px-3 py-2 font-weight-bold"
                                                                 onclick="return confirm('Xác nhận nhận phiếu #@item.RsId để thực hiện?');">
