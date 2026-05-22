@@ -36,6 +36,10 @@ public partial class Patient
     public string? Occupation { get; set; }
     public string? WorkplaceOrSchool { get; set; }
 
+    public int? CreatedByPatientId { get; set; }
+    public virtual Patient? CreatedBy { get; set; }
+    public virtual ICollection<Patient> Relatives { get; set; } = new List<Patient>();
+
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     public virtual ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();

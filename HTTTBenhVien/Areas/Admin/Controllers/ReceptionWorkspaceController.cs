@@ -24,12 +24,36 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
 
-            // Thống kê hôm nay
-            var appointmentsToday = await _context.Appointments
+            // 0. Tự động hủy các lịch hẹn trễ quá ngày hoặc quá giờ làm việc (sau 21:00)
+            var now = DateTime.Now;
+            var isPastWorkingHours = now.Hour >= 21; // Sau 21:00
+            
+            var staleAppointments = await _context.Appointments
+                .Where(a => a.AppDate.HasValue && 
+                    ((a.AppDate.Value.Date < today) || (a.AppDate.Value.Date == today && isPastWorkingHours))
+                    && (a.Status == "Pending" || a.Status == "Chờ xác nhận" || a.Status == "New" || a.Status == "Mới" || a.Status == "Đang chờ" || a.Status == "ChoXacNhan" || a.Status == "Confirmed" || a.Status == "Đã xác nhận" || a.Status == "Xác nhận" || a.Status == "DaXacNhan"))
+                .ToListAsync();
+
+            if (staleAppointments.Any())
+            {
+                foreach (var app in staleAppointments)
+                {
+                    app.Status = "Cancelled";
+                    app.Notes = string.IsNullOrEmpty(app.Notes)
+                        ? "Tự động hủy do trễ hẹn qua ngày / quá giờ làm việc"
+                        : app.Notes + " | Tự động hủy do trễ hẹn qua ngày / quá giờ làm việc";
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            // Lấy tất cả lịch hẹn hôm nay (mọi trạng thái) cộng với lịch hẹn chờ xác nhận trong tương lai
+            var appointments = await _context.Appointments
                 .Include(a => a.Patient)
                 .Include(a => a.Doctor)
-                .Where(a => a.AppDate >= today && a.AppDate < tomorrow)
-                .OrderBy(a => a.TimeSlot)
+                .Where(a => (a.AppDate >= today && a.AppDate < tomorrow) 
+                         || ((a.Status == "Pending" || a.Status == "Chờ xác nhận" || a.Status == "New" || a.Status == "Mới" || a.Status == "Đang chờ" || a.Status == "ChoXacNhan") && a.AppDate >= today))
+                .OrderBy(a => a.AppDate)
+                .ThenBy(a => a.TimeSlot)
                 .ToListAsync();
 
             // Lấy danh sách bệnh nhân vãng lai đăng ký trực tiếp hôm nay
@@ -40,16 +64,20 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .OrderByDescending(m => m.VisitDate)
                 .ToListAsync();
 
+            // Thống kê dành riêng cho HÔM NAY (để các thẻ số liệu chính xác theo ngày)
+            var appsTodayOnly = appointments.Where(a => a.AppDate >= today && a.AppDate < tomorrow).ToList();
+
             ViewBag.WalkIns = walkinsToday;
             ViewBag.TotalWalkIns = walkinsToday.Count;
-            ViewBag.TotalAppointments = appointmentsToday.Count;
-            ViewBag.TotalToday = appointmentsToday.Count + walkinsToday.Count;
+            ViewBag.TotalAppointments = appsTodayOnly.Count;
+            ViewBag.TotalToday = appsTodayOnly.Count + walkinsToday.Count;
 
-            ViewBag.TotalPending = appointmentsToday.Count(a => a.Status == "Pending" || a.Status == "Chờ xác nhận" || a.Status == "New" || a.Status == "Mới" || a.Status == "Đang chờ");
-            ViewBag.TotalConfirmed = appointmentsToday.Count(a => a.Status == "Confirmed" || a.Status == "Đã xác nhận" || a.Status == "Xác nhận");
+            // Số lượng đang chờ xác nhận: Đếm tất cả lịch hẹn đang chờ từ hôm nay trở đi để không bỏ sót lịch tương lai
+            ViewBag.TotalPending = appointments.Count(a => a.Status == "Pending" || a.Status == "Chờ xác nhận" || a.Status == "New" || a.Status == "Mới" || a.Status == "Đang chờ" || a.Status == "ChoXacNhan");
+            ViewBag.TotalConfirmed = appsTodayOnly.Count(a => a.Status == "Confirmed" || a.Status == "Đã xác nhận" || a.Status == "Xác nhận" || a.Status == "DaXacNhan");
             // Cả lịch hẹn đã check-in và toàn bộ ca khám trực tiếp đều đã ở trạng thái Checked-In (Đã tiếp nhận vào phòng khám)
-            ViewBag.TotalCheckedIn = appointmentsToday.Count(a => a.Status == "CheckedIn" || a.Status == "Đã tiếp nhận" || a.Status == "Completed" || a.Status == "Hoàn thành") + walkinsToday.Count;
-            ViewBag.TotalCancelled = appointmentsToday.Count(a => a.Status == "Cancelled" || a.Status == "Đã hủy");
+            ViewBag.TotalCheckedIn = appsTodayOnly.Count(a => a.Status == "CheckedIn" || a.Status == "Đã tiếp nhận" || a.Status == "Completed" || a.Status == "Hoàn thành") + walkinsToday.Count;
+            ViewBag.TotalCancelled = appsTodayOnly.Count(a => a.Status == "Cancelled" || a.Status == "Đã hủy");
 
             // Lấy danh sách bác sĩ CÓ LỊCH LÀM VIỆC trong ngày hôm nay và đang mở nhận bệnh nhân
             var scheduledDoctors = await _context.DoctorSchedules
@@ -73,7 +101,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 ViewBag.Doctors = scheduledDoctors.Select(ds => (dynamic)new { EmpId = ds.EmpId, FullName = ds.FullName }).ToList();
             }
 
-            return View(appointmentsToday);
+            return View(appointments);
         }
 
         [HttpPost]
@@ -83,10 +111,72 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var appointment = await _context.Appointments.FindAsync(id);
             if (appointment != null)
             {
+                // Chuẩn hóa trạng thái tiếng Anh cho tính năng kiểm soát luồng
+                if (status == "Xác nhận" || status == "Đã xác nhận")
+                {
+                    status = "Confirmed";
+                }
+                else if (status == "Hủy" || status == "Hủy lịch")
+                {
+                    status = "Cancelled";
+                }
+                
                 appointment.Status = status;
                 await _context.SaveChangesAsync();
-                TempData["Success"] = $"Đã cập nhật trạng thái lịch hẹn thành: {status}";
+                TempData["Success"] = $"Đã cập nhật trạng thái lịch hẹn thành công!";
             }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelAppointment(int id, string reason = "Lễ tân hủy lịch do trễ hẹn")
+        {
+            var appointment = await _context.Appointments.FindAsync(id);
+            if (appointment != null)
+            {
+                appointment.Status = "Cancelled";
+                appointment.Notes = string.IsNullOrEmpty(appointment.Notes) 
+                    ? reason 
+                    : appointment.Notes + " | " + reason;
+                
+                _context.Appointments.Update(appointment);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã hủy lịch hẹn của bệnh nhân do trễ hẹn thành công!";
+            }
+            else
+            {
+                TempData["Error"] = "Không tìm thấy lịch hẹn.";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AutoConfirmAll()
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+
+            var pendingAppointments = await _context.Appointments
+                .Where(a => a.AppDate >= today 
+                    && (a.Status == "Pending" || a.Status == "Chờ xác nhận" || a.Status == "New" || a.Status == "Mới" || a.Status == "Đang chờ" || a.Status == "ChoXacNhan"))
+                .ToListAsync();
+
+            if (pendingAppointments.Any())
+            {
+                foreach (var app in pendingAppointments)
+                {
+                    app.Status = "Confirmed";
+                }
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã tự động xác thực hàng loạt thành công {pendingAppointments.Count} lịch hẹn khám trực tuyến hôm nay!";
+            }
+            else
+            {
+                TempData["Info"] = "Không tìm thấy lịch hẹn trực tuyến nào đang chờ xác nhận hôm nay.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

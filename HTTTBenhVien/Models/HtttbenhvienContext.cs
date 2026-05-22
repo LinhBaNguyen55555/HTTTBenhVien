@@ -372,6 +372,11 @@ public partial class HtttbenhvienContext : DbContext
             entity.Property(e => e.CitizenId).HasColumnName("CitizenID").HasMaxLength(20).IsUnicode(false);
             entity.Property(e => e.Occupation).HasMaxLength(200);
             entity.Property(e => e.WorkplaceOrSchool).HasMaxLength(500);
+            entity.Property(e => e.CreatedByPatientId).HasColumnName("CreatedByPatientId");
+
+            entity.HasOne(d => d.CreatedBy).WithMany(p => p.Relatives)
+                .HasForeignKey(d => d.CreatedByPatientId)
+                .HasConstraintName("FK_Patients_CreatedBy");
         });
 
         modelBuilder.Entity<Prescription>(entity =>

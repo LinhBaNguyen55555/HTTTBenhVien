@@ -25,27 +25,89 @@
 
                     <div class="card shadow-sm">
                         <div class="card-body p-4">
-                            <form method="post" asp-action="Index">
+                            <form method="post" asp-action="Index" id="bookingForm">
                                 @Html.AntiForgeryToken()
+                                <input type="hidden" name="BookingType" id="BookingType" value="self" />
+                                <input type="hidden" name="SelectedRelativeId" id="SelectedRelativeId" value="" />
 
-                                <h5 class="mb-3"><i class="fas fa-user me-2 text-primary"></i> Thông tin bệnh nhân</h5>
+                                <!-- Booking Type Selector (Cards) -->
+                                <div class="booking-type-selector mb-4">
+                                    <label class="form-label fw-bold mb-3 d-block"><i class="fas fa-hospital-user text-primary me-2"></i>Bạn muốn đặt lịch khám cho ai?</label>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="card booking-type-card active shadow-sm h-100 border-2" data-type="self" style="cursor: pointer; border-color: #0d6efd; transition: all 0.2s;">
+                                                <div class="card-body d-flex align-items-center p-3">
+                                                    <div class="icon-box text-primary rounded-circle p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #e7f1ff;">
+                                                        <i class="fas fa-user-check fs-5"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1 fw-bold">Đặt lịch khám cho chính mình</h6>
+                                                        <small class="text-muted" style="font-size: 0.8rem;">Sử dụng thông tin tài khoản của bạn</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card booking-type-card shadow-sm h-100 border-2" data-type="relative" style="cursor: pointer; border-color: #f1f3f5; transition: all 0.2s;">
+                                                <div class="card-body d-flex align-items-center p-3">
+                                                    <div class="icon-box text-success rounded-circle p-3 me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #eafbea;">
+                                                        <i class="fas fa-users fs-5"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1 fw-bold">Đặt lịch khám cho người thân</h6>
+                                                        <small class="text-muted" style="font-size: 0.8rem;">Nhập hoặc chọn người thân của bạn</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Relative Selection Dropdown -->
+                                <div class="form-group mb-4 d-none" id="relativeSelectGroup">
+                                    <label class="form-label fw-bold"><i class="fas fa-user-friends text-success me-2"></i>Chọn người thân đã lưu</label>
+                                    <select id="relativeSelect" class="form-select border-2">
+                                        <option value="">-- Thêm người thân mới --</option>
+                                        @if (ViewBag.Relatives != null)
+                                        {
+                                            foreach (var rel in (IEnumerable<HTTTBenhVien.Models.Patient>)ViewBag.Relatives)
+                                            {
+                                                <option value="@rel.PatientId" 
+                                                        data-fullname="@rel.FullName" 
+                                                        data-phone="@rel.Phone" 
+                                                        data-email="@rel.Email"
+                                                        data-dob="@(rel.Dob?.ToString("yyyy-MM-dd"))"
+                                                        data-gender="@(rel.Gender.ToString().ToLower())"
+                                                        data-citizenid="@rel.CitizenId"
+                                                        data-bhyt="@rel.BhytCode"
+                                                        data-address="@rel.Address"
+                                                        data-occupation="@rel.Occupation"
+                                                        data-workplace="@rel.WorkplaceOrSchool">@rel.FullName - @rel.Phone</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap border-top pt-4">
+                                    <h5 class="mb-2 fw-bold text-dark"><i class="fas fa-address-card me-2 text-primary"></i> Thông tin hành chính bệnh nhân</h5>
+                                </div>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Họ tên bệnh nhân <span class="text-danger">*</span></label>
-                                            <input type="text" asp-for="Patient.FullName" class="form-control" placeholder="Nhập họ tên đầy đủ" required>
+                                            <input type="text" asp-for="Patient.FullName" class="form-control shadow-sm" placeholder="Nhập họ tên đầy đủ" required>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-                                            <input type="tel" asp-for="Patient.Phone" class="form-control" placeholder="0xxx xxx xxx" required>
+                                            <input type="tel" asp-for="Patient.Phone" class="form-control shadow-sm" placeholder="0xxx xxx xxx" required>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Email</label>
-                                            <input type="email" asp-for="Patient.Email" class="form-control" placeholder="email@example.com">
+                                            <input type="email" asp-for="Patient.Email" class="form-control shadow-sm" placeholder="email@example.com">
                                         </div>
                                     </div>
                                 </div>
@@ -53,13 +115,13 @@
                                     <div class="col-md-3">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Ngày sinh</label>
-                                            <input type="date" asp-for="Patient.Dob" class="form-control">
+                                            <input type="date" asp-for="Patient.Dob" class="form-control shadow-sm">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Giới tính</label>
-                                            <select asp-for="Patient.Gender" class="form-control">
+                                            <select asp-for="Patient.Gender" class="form-control shadow-sm">
                                                 <option value="true">Nam</option>
                                                 <option value="false">Nữ</option>
                                             </select>
@@ -68,13 +130,13 @@
                                     <div class="col-md-3">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Số CCCD / CMND</label>
-                                            <input type="text" asp-for="Patient.CitizenId" class="form-control" placeholder="VD: 0123456789xx">
+                                            <input type="text" asp-for="Patient.CitizenId" class="form-control shadow-sm" placeholder="VD: 0123456789xx">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Mã thẻ BHYT</label>
-                                            <input type="text" asp-for="Patient.BhytCode" class="form-control" placeholder="VD: GD4950...">
+                                            <input type="text" asp-for="Patient.BhytCode" class="form-control shadow-sm" placeholder="VD: GD4950...">
                                         </div>
                                     </div>
                                 </div>
@@ -82,19 +144,19 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Địa chỉ thường trú</label>
-                                            <input type="text" asp-for="Patient.Address" class="form-control" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/TP">
+                                            <input type="text" asp-for="Patient.Address" class="form-control shadow-sm" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/TP">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Nghề nghiệp</label>
-                                            <input type="text" asp-for="Patient.Occupation" class="form-control" placeholder="VD: Sinh viên...">
+                                            <input type="text" asp-for="Patient.Occupation" class="form-control shadow-sm" placeholder="VD: Sinh viên...">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group mb-3">
                                             <label class="form-label">Nơi làm việc / Trường</label>
-                                            <input type="text" asp-for="Patient.WorkplaceOrSchool" class="form-control" placeholder="Tên cơ quan/trường">
+                                            <input type="text" asp-for="Patient.WorkplaceOrSchool" class="form-control shadow-sm" placeholder="Tên cơ quan/trường">
                                         </div>
                                     </div>
                                 </div>
@@ -265,6 +327,135 @@
             // Gọi lọc khi thay đổi ngày hoặc ngay khi load trang
             $('#AppDate').change(filterTimeSlots);
             filterTimeSlots();
+
+            // --- Xử lý Đặt lịch khám cho Chính mình / Người thân ---
+            
+            // Lưu lại thông tin gốc của tài khoản chính (được load sẵn từ server)
+            var mainAccountData = {
+                fullName: $('#Patient_FullName').val() || '',
+                phone: $('#Patient_Phone').val() || '',
+                email: $('#Patient_Email').val() || '',
+                dob: $('#Patient_Dob').val() || '',
+                gender: $('#Patient_Gender').val() || 'true',
+                citizenId: $('#Patient_CitizenId').val() || '',
+                bhytCode: $('#Patient_BhytCode').val() || '',
+                address: $('#Patient_Address').val() || '',
+                occupation: $('#Patient_Occupation').val() || '',
+                workplaceOrSchool: $('#Patient_WorkplaceOrSchool').val() || ''
+            };
+
+            function setFieldsReadOnly(isReadOnly) {
+                var fields = [
+                    '#Patient_FullName', '#Patient_Phone', '#Patient_Email', 
+                    '#Patient_Dob', '#Patient_CitizenId', '#Patient_BhytCode', 
+                    '#Patient_Address', '#Patient_Occupation', '#Patient_WorkplaceOrSchool'
+                ];
+                fields.forEach(function(selector) {
+                    if (isReadOnly) {
+                        $(selector).attr('readonly', true).css('background-color', '#f8f9fa');
+                    } else {
+                        $(selector).removeAttr('readonly').css('background-color', '');
+                    }
+                });
+
+                // Xử lý select Giới tính
+                if (isReadOnly) {
+                    $('#Patient_Gender').css({
+                        'pointer-events': 'none',
+                        'background-color': '#f8f9fa'
+                    });
+                } else {
+                    $('#Patient_Gender').css({
+                        'pointer-events': '',
+                        'background-color': ''
+                    });
+                }
+            }
+
+            // Thiết lập mặc định ban đầu là Đặt cho chính mình
+            setFieldsReadOnly(true);
+
+            $('.booking-type-card').click(function() {
+                var type = $(this).data('type');
+                
+                // Cập nhật giao diện card hoạt động
+                $('.booking-type-card').removeClass('active').css('border-color', '#f1f3f5');
+                $(this).addClass('active');
+                if (type === 'self') {
+                    $(this).css('border-color', '#0d6efd');
+                    $('#BookingType').val('self');
+                    $('#SelectedRelativeId').val(''); // Reset selected relative ID when booking for self
+                    $('#relativeSelectGroup').addClass('d-none');
+                    
+                    // Điền lại thông tin chính mình và khóa lại
+                    fillPatientFields(mainAccountData);
+                    setFieldsReadOnly(true);
+                } else {
+                    $(this).css('border-color', '#198754'); // Màu xanh lá cho người thân
+                    $('#BookingType').val('relative');
+                    $('#relativeSelectGroup').removeClass('d-none');
+                    
+                    // Mở khóa các trường để chỉnh sửa hoặc nhập mới
+                    setFieldsReadOnly(false);
+                    
+                    // Kích hoạt thay đổi dropdown người thân để cập nhật trường dữ liệu
+                    $('#relativeSelect').trigger('change');
+                }
+            });
+
+            // Xử lý khi chọn dropdown người thân đã lưu
+            $('#relativeSelect').change(function() {
+                var selectedOption = $(this).find('option:selected');
+                var val = $(this).val();
+
+                // Cập nhật SelectedRelativeId
+                $('#SelectedRelativeId').val(val);
+
+                if (val === "") {
+                    // Thêm người thân mới -> Xóa sạch các trường để điền mới
+                    var emptyData = {
+                        fullName: '',
+                        phone: '',
+                        email: '',
+                        dob: '',
+                        gender: 'true',
+                        citizenId: '',
+                        bhytCode: '',
+                        address: '',
+                        occupation: '',
+                        workplaceOrSchool: ''
+                    };
+                    fillPatientFields(emptyData);
+                } else {
+                    // Chọn người thân đã lưu -> Tự động điền dữ liệu
+                    var relativeData = {
+                        fullName: selectedOption.data('fullname') || '',
+                        phone: selectedOption.data('phone') || '',
+                        email: selectedOption.data('email') || '',
+                        dob: selectedOption.data('dob') || '',
+                        gender: selectedOption.data('gender') === 'false' ? 'false' : 'true',
+                        citizenId: selectedOption.data('citizenid') || '',
+                        bhytCode: selectedOption.data('bhyt') || '',
+                        address: selectedOption.data('address') || '',
+                        occupation: selectedOption.data('occupation') || '',
+                        workplaceOrSchool: selectedOption.data('workplace') || ''
+                    };
+                    fillPatientFields(relativeData);
+                }
+            });
+
+            function fillPatientFields(data) {
+                $('#Patient_FullName').val(data.fullName);
+                $('#Patient_Phone').val(data.phone);
+                $('#Patient_Email').val(data.email);
+                $('#Patient_Dob').val(data.dob);
+                $('#Patient_Gender').val(data.gender);
+                $('#Patient_CitizenId').val(data.citizenId);
+                $('#Patient_BhytCode').val(data.bhytCode);
+                $('#Patient_Address').val(data.address);
+                $('#Patient_Occupation').val(data.occupation);
+                $('#Patient_WorkplaceOrSchool').val(data.workplaceOrSchool);
+            }
         });
     </script>
 }

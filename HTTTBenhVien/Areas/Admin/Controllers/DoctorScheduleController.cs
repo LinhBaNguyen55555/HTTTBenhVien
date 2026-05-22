@@ -43,8 +43,8 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
 
             var doctors = await _context.Employees
-                .Where(e => e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor"))
-                .Select(e => new { e.EmpId, Display = e.FullName + " (" + e.Specialty + ")" })
+                .Where(e => (e.JobTitle != null && (e.JobTitle.Contains("Bác sĩ") || e.JobTitle.Contains("Doctor"))) || (e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor")))
+                .Select(e => new { e.EmpId, Display = e.FullName + " (" + (e.Specialty ?? "N/A") + ")" })
                 .ToListAsync();
             
             ViewData["DoctorId"] = new SelectList(doctors, "EmpId", "Display", doctorId);
@@ -85,7 +85,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             if (!User.IsInRole("Admin")) return RedirectToAction("AccessDenied", "Account");
 
             var doctors = _context.Employees
-                .Where(e => e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor"))
+                .Where(e => (e.JobTitle != null && (e.JobTitle.Contains("Bác sĩ") || e.JobTitle.Contains("Doctor"))) || (e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor")))
                 .Select(e => new { e.EmpId, Display = e.FullName + " (" + (e.Specialty ?? "N/A") + ")" })
                 .ToList();
             
@@ -124,7 +124,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
 
             var doctors = _context.Employees
-                .Where(e => e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor"))
+                .Where(e => (e.JobTitle != null && (e.JobTitle.Contains("Bác sĩ") || e.JobTitle.Contains("Doctor"))) || (e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor")))
                 .Select(e => new { e.EmpId, Display = e.FullName + " (" + (e.Specialty ?? "N/A") + ")" })
                 .ToList();
             ViewData["DoctorId"] = new SelectList(doctors, "EmpId", "Display", doctorSchedule.DoctorId);
@@ -142,7 +142,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             if (doctorSchedule == null) return NotFound();
 
             var doctors = _context.Employees
-                .Where(e => e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor"))
+                .Where(e => (e.JobTitle != null && (e.JobTitle.Contains("Bác sĩ") || e.JobTitle.Contains("Doctor"))) || (e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor")))
                 .Select(e => new { e.EmpId, Display = e.FullName + " (" + (e.Specialty ?? "N/A") + ")" })
                 .ToList();
             ViewData["DoctorId"] = new SelectList(doctors, "EmpId", "Display", doctorSchedule.DoctorId);
@@ -191,7 +191,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
 
             var doctors = _context.Employees
-                .Where(e => e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor"))
+                .Where(e => (e.JobTitle != null && (e.JobTitle.Contains("Bác sĩ") || e.JobTitle.Contains("Doctor"))) || (e.Account != null && (e.Account.RoleName == "Bác sĩ" || e.Account.RoleName == "BacSi" || e.Account.RoleName == "Doctor")))
                 .Select(e => new { e.EmpId, Display = e.FullName + " (" + (e.Specialty ?? "N/A") + ")" })
                 .ToList();
             ViewData["DoctorId"] = new SelectList(doctors, "EmpId", "Display", doctorSchedule.DoctorId);

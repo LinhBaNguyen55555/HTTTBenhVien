@@ -38,10 +38,33 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             var today = DateTime.Today;
 
-            // 1. Lấy tất cả lịch hẹn hôm nay của bác sĩ này
+            // 0. Tự động hủy các lịch hẹn trễ quá ngày hoặc quá giờ làm việc (sau 21:00)
+            var now = DateTime.Now;
+            var isPastWorkingHours = now.Hour >= 21; // Sau 21:00
+            
+            var staleAppointments = await _context.Appointments
+                .Where(a => a.AppDate.HasValue && 
+                    ((a.AppDate.Value.Date < today) || (a.AppDate.Value.Date == today && isPastWorkingHours))
+                    && (a.Status == "Pending" || a.Status == "Chờ xác nhận" || a.Status == "New" || a.Status == "Mới" || a.Status == "Đang chờ" || a.Status == "ChoXacNhan" || a.Status == "Confirmed" || a.Status == "Đã xác nhận" || a.Status == "Xác nhận" || a.Status == "DaXacNhan"))
+                .ToListAsync();
+
+            if (staleAppointments.Any())
+            {
+                foreach (var app in staleAppointments)
+                {
+                    app.Status = "Cancelled";
+                    app.Notes = string.IsNullOrEmpty(app.Notes)
+                        ? "Tự động hủy do trễ hẹn qua ngày / quá giờ làm việc"
+                        : app.Notes + " | Tự động hủy do trễ hẹn qua ngày / quá giờ làm việc";
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            // 1. Lấy tất cả lịch hẹn hôm nay của bác sĩ này (chỉ hiển thị các lịch hẹn đã xác nhận/tiếp nhận)
             var appointments = await _context.Appointments
                 .Include(a => a.Patient)
-                .Where(a => a.DoctorId == empId && a.AppDate != null && a.AppDate.Value.Date == today && a.Status != "Huy" && a.Status != "Cancelled")
+                .Where(a => a.DoctorId == empId && a.AppDate != null && a.AppDate.Value.Date == today 
+                    && a.Status != "Huy" && a.Status != "Cancelled" && a.Status != "ChoXacNhan" && a.Status != "Pending" && a.Status != "Chờ xác nhận")
                 .OrderBy(a => a.TimeSlot)
                 .ToListAsync();
 
@@ -62,6 +85,27 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 var record = medicalRecords.FirstOrDefault(m => m.AppointmentId == app.AppId);
                 bool isExamined = record != null && (!string.IsNullOrEmpty(record.Diagnosis) || !string.IsNullOrEmpty(record.Conclusion));
 
+                // Tính toán xem có trễ hẹn không
+                bool isLate = false;
+                if (!isExamined && app.AppDate.HasValue)
+                {
+                    if (app.AppDate.Value.Date < today)
+                    {
+                        isLate = true;
+                    }
+                    else if (app.AppDate.Value.Date == today && !string.IsNullOrEmpty(app.TimeSlot))
+                    {
+                        var rawSlot = app.TimeSlot.Split('-')[0].Trim();
+                        if (TimeSpan.TryParse(rawSlot, out var slotTime))
+                        {
+                            if (DateTime.Now.TimeOfDay > slotTime)
+                            {
+                                isLate = true;
+                            }
+                        }
+                    }
+                }
+
                 queue.Add(new PatientQueueItem
                 {
                     AppId = app.AppId,
@@ -74,7 +118,10 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                     Reason = app.Reason,
                     Type = "Lịch hẹn",
                     IsExamined = isExamined,
-                    RegisterTime = app.CreatedDate ?? today
+                    RegisterTime = app.CreatedDate ?? today,
+                    IsLate = isLate,
+                    Status = app.Status,
+                    AppDate = app.AppDate
                 });
             }
 
@@ -744,6 +791,39 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Examine), new { appId = AppointmentId, recordId = RecordId });
         }
+
+        // POST: Admin/DoctorWorkspace/CancelAppointment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelAppointment(int id, string reason = "Bác sĩ hủy lịch do trễ hẹn")
+        {
+            int empId = GetCurrentEmpId();
+            if (empId == 0) return RedirectToAction("Login", "Account");
+
+            var appointment = await _context.Appointments.FindAsync(id);
+            if (appointment != null)
+            {
+                // Verify this appointment belongs to this doctor
+                if (appointment.DoctorId != empId && !User.IsInRole("Admin"))
+                {
+                    return Forbid();
+                }
+
+                appointment.Status = "Cancelled";
+                appointment.Notes = string.IsNullOrEmpty(appointment.Notes) 
+                    ? reason 
+                    : appointment.Notes + " | " + reason;
+                
+                _context.Appointments.Update(appointment);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã hủy lịch hẹn của bệnh nhân do trễ hẹn thành công!";
+            }
+            else
+            {
+                TempData["Error"] = "Không tìm thấy lịch hẹn.";
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     // Helper ViewModels cho hàng đợi khám và theo dõi cận lâm sàng
@@ -760,6 +840,9 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         public string Type { get; set; } // "Lịch hẹn" or "Khám trực tiếp"
         public bool IsExamined { get; set; }
         public DateTime RegisterTime { get; set; }
+        public bool IsLate { get; set; }
+        public string? Status { get; set; }
+        public DateTime? AppDate { get; set; }
     }
 
     public class LabTrackingItem

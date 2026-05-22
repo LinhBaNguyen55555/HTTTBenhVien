@@ -54,7 +54,8 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <div class="form-group form-check mt-4">
-                        <input class="form-check-input" asp-for="IsAvailable" type="checkbox" id="isAvailableCheck" checked />
+                        <input class="form-check-input" type="checkbox" name="IsAvailable" value="true" id="isAvailableCheck" @(Model?.IsAvailable == true ? "checked" : "") />
+                        <input type="hidden" name="IsAvailable" value="false" />
                         <label class="form-check-label font-weight-bold" for="isAvailableCheck">
                             Đang mở nhận bệnh nhân
                         </label>

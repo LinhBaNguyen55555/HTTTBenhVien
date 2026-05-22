@@ -3,6 +3,7 @@
     ViewData["Title"] = "Không gian Lễ tân";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     var doctors = ViewBag.Doctors as IEnumerable<dynamic>;
+    var today = DateTime.Today;
 }
 
 <style>
@@ -43,6 +44,17 @@
     }
     .table-hover tbody tr:hover {
         background-color: #fff2eb;
+    }
+    @@keyframes pulse-late {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5); transform: scale(1); }
+        50% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); transform: scale(1.03); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); transform: scale(1); }
+    }
+    .badge-pulse-danger {
+        animation: pulse-late 1.8s infinite ease-in-out;
+        background-color: #dc3545;
+        color: white;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
     }
 </style>
 
@@ -92,6 +104,15 @@
                             <div class="text-xs font-weight-bold text-uppercase mb-1">Đang chờ xác nhận</div>
                             <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalPending</div>
                             <span class="small" style="opacity: 0.8;">(Chỉ tính lịch hẹn)</span>
+                            @if (ViewBag.TotalPending > 0)
+                            {
+                                <form asp-action="AutoConfirmAll" method="post" class="mt-2">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-light text-primary font-weight-bold shadow-sm w-100 py-1" style="border-radius: 0.4rem; font-size: 0.75rem;">
+                                        <i class="fas fa-magic mr-1 animate-pulse"></i> Tự động xác thực nhanh
+                                    </button>
+                                </form>
+                            }
                         </div>
                         <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
                     </div>
@@ -166,6 +187,23 @@
                             <tbody>
                                 @foreach (var item in Model)
                                 {
+                                    bool isPendingOrConfirmed = item.Status == "Pending" || item.Status == "Chờ xác nhận" || item.Status == "New" || item.Status == "Mới" || item.Status == "Đang chờ" || item.Status == "ChoXacNhan" || item.Status == "Confirmed" || item.Status == "Đã xác nhận" || item.Status == "Xác nhận" || item.Status == "DaXacNhan";
+                                    bool isLate = false;
+                                    if (isPendingOrConfirmed && item.AppDate.HasValue)
+                                    {
+                                        if (item.AppDate.Value.Date < today)
+                                        {
+                                            isLate = true;
+                                        }
+                                        else if (item.AppDate.Value.Date == today && !string.IsNullOrEmpty(item.TimeSlot))
+                                        {
+                                            var rawSlot = item.TimeSlot.Split('-')[0].Trim();
+                                            if (TimeSpan.TryParse(rawSlot, out var slotTime) && DateTime.Now.TimeOfDay > slotTime)
+                                            {
+                                                isLate = true;
+                                            }
+                                        }
+                                    }
                                     <tr>
                                         <td class="font-weight-bold text-dark">
                                             @(item.AppDate?.ToString("dd/MM")) <br/>
@@ -176,11 +214,11 @@
                                         <td>@(item.Doctor != null ? item.Doctor.FullName : "Chưa xếp")</td>
                                         <td>@item.Reason</td>
                                         <td>
-                                            @if (item.Status == "Pending" || item.Status == "Chờ xác nhận" || item.Status == "New" || item.Status == "Mới" || item.Status == "Đang chờ")
+                                            @if (item.Status == "Pending" || item.Status == "Chờ xác nhận" || item.Status == "New" || item.Status == "Mới" || item.Status == "Đang chờ" || item.Status == "ChoXacNhan")
                                             {
                                                 <span class="badge badge-warning px-3 py-2">Chờ xác nhận</span>
                                             }
-                                            else if (item.Status == "Confirmed" || item.Status == "Đã xác nhận" || item.Status == "Xác nhận")
+                                            else if (item.Status == "Confirmed" || item.Status == "Đã xác nhận" || item.Status == "Xác nhận" || item.Status == "DaXacNhan")
                                             {
                                                 <span class="badge badge-info px-3 py-2">Đã xác nhận</span>
                                             }
@@ -192,30 +230,50 @@
                                             {
                                                 <span class="badge badge-danger px-3 py-2">Đã hủy</span>
                                             }
+                                            @if (isLate && item.Status != "Cancelled" && item.Status != "CheckedIn" && item.Status != "Đã tiếp nhận" && item.Status != "Completed" && item.Status != "Hoàn thành")
+                                            {
+                                                <br/>
+                                                <span class="badge badge-pulse-danger px-2 py-1 mt-1 font-weight-bold" style="font-size: 0.72rem; border-radius: 4px; display: inline-block;">
+                                                    <i class="fas fa-exclamation-triangle mr-1"></i>Trễ hẹn
+                                                </span>
+                                            }
                                         </td>
                                         <td class="text-center align-middle">
-                                            @if (item.Status == "Pending" || item.Status == "Chờ xác nhận" || item.Status == "New" || item.Status == "Mới" || item.Status == "Đang chờ")
+                                            @if (item.Status == "Pending" || item.Status == "Chờ xác nhận" || item.Status == "New" || item.Status == "Mới" || item.Status == "Đang chờ" || item.Status == "ChoXacNhan")
                                             {
                                                 <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
                                                     <input type="hidden" name="id" value="@item.AppId" />
                                                     <input type="hidden" name="status" value="Confirmed" />
-                                                    <button type="submit" class="btn btn-sm btn-info shadow-sm" title="Xác nhận lịch hẹn">
-                                                        <i class="fas fa-check"></i> Xác nhận
+                                                    <button type="submit" class="btn btn-sm btn-info shadow-sm font-weight-bold" title="Xác nhận lịch hẹn">
+                                                        <i class="fas fa-check mr-1"></i> Xác nhận
                                                     </button>
                                                 </form>
-                                                <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                                <form asp-action="CancelAppointment" method="post" class="d-inline" onsubmit="return confirmCancel(this);">
+                                                    @Html.AntiForgeryToken()
                                                     <input type="hidden" name="id" value="@item.AppId" />
-                                                    <input type="hidden" name="status" value="Cancelled" />
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Hủy lịch">
-                                                        <i class="fas fa-times"></i>
+                                                    <input type="hidden" name="reason" value="" class="cancel-reason-input" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm ml-1" title="Hủy lịch">
+                                                        <i class="fas fa-times"></i> Hủy
                                                     </button>
                                                 </form>
                                             }
-                                            else if (item.Status == "Confirmed" || item.Status == "Đã xác nhận" || item.Status == "Xác nhận")
+                                            else if (item.Status == "Confirmed" || item.Status == "Đã xác nhận" || item.Status == "Xác nhận" || item.Status == "DaXacNhan")
                                             {
-                                                <button type="button" class="btn btn-sm btn-warm shadow-sm" onclick="openCheckInModal(@item.AppId, '@item.Patient?.FullName')" title="Check-in & Chuyển phòng">
+                                                <button type="button" class="btn btn-sm btn-warm shadow-sm font-weight-bold" onclick="openCheckInModal(@item.AppId, '@item.Patient?.FullName')" title="Check-in & Chuyển phòng">
                                                     <i class="fas fa-sign-in-alt mr-1"></i> Tiếp nhận
                                                 </button>
+                                                @if (isLate)
+                                                {
+                                                    <form asp-action="CancelAppointment" method="post" class="d-inline ml-1" onsubmit="return confirmCancelLate(this);">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@item.AppId" />
+                                                        <input type="hidden" name="reason" value="Bệnh nhân trễ giờ hẹn khám - Lễ tân hủy lịch" />
+                                                        <button type="submit" class="btn btn-sm btn-danger shadow-sm font-weight-bold" title="Hủy do trễ hẹn">
+                                                            <i class="fas fa-calendar-times mr-1"></i> Hủy do trễ
+                                                        </button>
+                                                    </form>
+                                                }
                                             }
                                         </td>
                                     </tr>
@@ -427,6 +485,20 @@
             $('#checkinAppointmentId').val(id);
             $('#checkinPatientName').text(name);
             $('#modalCheckIn').modal('show');
+        }
+
+        function confirmCancel(form) {
+            var reason = prompt("Nhập lý do hủy lịch hẹn:", "Bệnh nhân yêu cầu hủy");
+            if (reason === null) return false; // Bấm Hủy (Cancel)
+            if (reason.trim() === "") {
+                reason = "Lễ tân hủy lịch";
+            }
+            $(form).find('.cancel-reason-input').val(reason);
+            return true;
+        }
+
+        function confirmCancelLate(form) {
+            return confirm("Bệnh nhân này đã quá giờ hẹn khám. Bạn có chắc chắn muốn HỦY lịch hẹn này do trễ giờ?");
         }
 
         $(document).ready(function() {

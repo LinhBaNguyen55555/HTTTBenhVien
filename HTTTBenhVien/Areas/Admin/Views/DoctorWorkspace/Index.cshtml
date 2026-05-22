@@ -265,6 +265,13 @@
                                                 <span class="badge badge-light p-2 text-dark border">
                                                     <i class="far fa-clock mr-1 text-primary"></i> @item.TimeSlot
                                                 </span>
+                                                @if (item.IsLate)
+                                                {
+                                                    <br/>
+                                                    <span class="badge badge-danger pulse-badge px-2 py-1 mt-1 font-weight-bold" style="font-size: 0.72rem; border-radius: 4px; display: inline-block;">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>Trễ hẹn
+                                                    </span>
+                                                }
                                             </td>
                                             <td>
                                                 <div class="font-weight-bold text-dark">@item.PatientName</div>
@@ -296,10 +303,23 @@
                                                 }
                                             </td>
                                             <td class="text-center">
-                                                <a href="@Url.Action("Examine", "DoctorWorkspace", new { appId = item.AppId, recordId = item.RecordId, area = "Admin" })" 
-                                                   class="btn btn-sm @(item.IsExamined ? "btn-outline-secondary" : "btn-primary") btn-examine shadow-sm">
-                                                    @(item.IsExamined ? "Xem lại" : "Khám ngay") <i class="fas @(item.IsExamined ? "fa-eye" : "fa-arrow-right") ml-1"></i>
-                                                </a>
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <a href="@Url.Action("Examine", "DoctorWorkspace", new { appId = item.AppId, recordId = item.RecordId, area = "Admin" })" 
+                                                       class="btn btn-sm @(item.IsExamined ? "btn-outline-secondary" : "btn-primary") btn-examine shadow-sm">
+                                                        @(item.IsExamined ? "Xem lại" : "Khám ngay") <i class="fas @(item.IsExamined ? "fa-eye" : "fa-arrow-right") ml-1"></i>
+                                                    </a>
+                                                    @if (!item.IsExamined && item.AppId.HasValue && item.IsLate)
+                                                    {
+                                                        <form asp-action="CancelAppointment" method="post" class="d-inline ml-2" onsubmit="return confirmCancelLate(this);">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="id" value="@item.AppId" />
+                                                            <input type="hidden" name="reason" value="Bác sĩ hủy lịch do bệnh nhân trễ ca hẹn khám" />
+                                                            <button type="submit" class="btn btn-sm btn-danger btn-examine shadow-sm" title="Hủy ca do trễ giờ">
+                                                                <i class="fas fa-calendar-times mr-1"></i> Hủy do trễ
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
                                             </td>
                                         </tr>
                                         stt++;
@@ -414,3 +434,11 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function confirmCancelLate(form) {
+            return confirm("Bệnh nhân này đã quá giờ hẹn khám. Bác sĩ có chắc chắn muốn HỦY lịch hẹn này và loại bỏ bệnh nhân khỏi danh sách hàng đợi?");
+        }
+    </script>
+}

@@ -26,6 +26,75 @@
 
     <link href="~/assets/css/main.css" rel="stylesheet">
     <link href="~/assets/css/_news_article.css" rel="stylesheet">
+    <style>
+        /* Styling for Topbar Notification Bell */
+        #bellNotificationWrapper {
+            display: inline-block;
+        }
+        #bellNotificationBtn {
+            transition: color 0.3s, transform 0.2s;
+            cursor: pointer;
+        }
+        #bellNotificationBtn:hover {
+            color: #00d2ff !important;
+            transform: scale(1.1);
+        }
+        #bellNotificationDropdown {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+            border: 1px solid rgba(0,0,0,0.08) !important;
+            animation: dropdownFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        #bellNotificationDropdown:not(.d-none) {
+            display: block !important;
+        }
+        @@keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .noti-item-custom {
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .noti-item-custom:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        .noti-item-custom.noti-read {
+            opacity: 0.65;
+            background-color: #fafafa;
+        }
+        .noti-item-custom.noti-read:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        .bg-soft-success {
+            background-color: #eafbea;
+            color: #28a745;
+        }
+        .animate-bell {
+            display: inline-block;
+        }
+        #bellNotificationWrapper:hover .animate-bell {
+            animation: topbarBellRing 0.8s ease-in-out;
+        }
+        @@keyframes topbarBellRing {
+            0%, 100% { transform: rotate(0); }
+            15% { transform: rotate(15deg); }
+            30% { transform: rotate(-15deg); }
+            45% { transform: rotate(10deg); }
+            60% { transform: rotate(-10deg); }
+            75% { transform: rotate(4deg); }
+            90% { transform: rotate(-4deg); }
+        }
+        .pulse-badge {
+            animation: badgePulse 2s infinite;
+        }
+        @@keyframes badgePulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+    </style>
 </head>
 
 <body class="index-page">
@@ -81,6 +150,34 @@
                         </a>
                     }
                     <div class="social-links d-none d-md-flex align-items-center ms-3 border-start ps-3">
+                        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
+                        {
+                            <!-- Patient Notification Bell -->
+                            <div class="dropdown me-1 position-relative" id="bellNotificationWrapper" style="line-height: normal;">
+                                <a href="#" class="position-relative d-flex align-items-center" id="bellNotificationBtn" role="button" style="color: #ffffff; padding: 6px; text-decoration: none; line-height: normal !important; margin-left: 0;">
+                                    <i class="fas fa-bell fs-6 animate-bell"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-primary d-none" id="bellNotificationBadge" style="font-size: 0.625rem; padding: 0.25em 0.45em; z-index: 10; line-height: 1;">
+                                        0
+                                    </span>
+                                </a>
+                                <!-- Dropdown list -->
+                                <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-0 d-none" id="bellNotificationDropdown" style="width: 360px; right: 0; top: 130%; z-index: 1100; position: absolute; line-height: normal;">
+                                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4" style="line-height: normal;">
+                                        <span class="fw-bold text-dark"><i class="fas fa-bell text-primary me-2"></i>Thông báo y khoa</span>
+                                        <span class="badge bg-soft-success text-success rounded-pill px-2 py-1" style="font-size: 0.7rem; line-height: 1.2;" id="bellNotificationCountText">0 mới</span>
+                                    </div>
+                                    <div class="dropdown-body-custom" id="bellNotificationList" style="max-height: 300px; overflow-y: auto; line-height: normal;">
+                                        <div class="p-4 text-center text-muted" style="line-height: normal;">
+                                            <i class="fas fa-spinner fa-spin fa-2x mb-2 text-primary"></i>
+                                            <p class="mb-0 small">Đang tải thông báo...</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 border-top text-center bg-light rounded-bottom-4" style="line-height: normal;">
+                                        <a href="/Profile/Index" class="btn btn-link btn-sm text-decoration-none fw-bold p-1 text-primary" style="font-size: 0.8rem; line-height: normal !important;">Xem tất cả lịch hẹn</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                         <a href="#!" class="facebook"><i class="bi bi-facebook"></i></a>
                         <a href="#!" class="youtube"><i class="bi bi-youtube"></i></a>
                     </div>
@@ -210,6 +307,53 @@
 
     <div id="preloader"></div>
 
+    <!-- Beautiful Notification Details Modal -->
+    <div class="modal fade" id="notiDetailsModal" tabindex="-1" aria-labelledby="notiDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden" style="background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);">
+                <div class="p-4 text-center text-white position-relative" style="background: linear-gradient(135deg, #0d6efd 0%, #00d2ff 100%);">
+                    <div class="bg-white rounded-circle p-2 mx-auto mb-3 d-flex align-items-center justify-content-center shadow" style="width: 65px; height: 65px;">
+                        <i class="fas fa-check-circle text-success fa-2x"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold mb-1" id="notiDetailsModalLabel">CHI TIẾT THÔNG BÁO Y KHOA</h5>
+                    <p class="mb-0 small text-white-50">Đã được xác thực từ xa thành công</p>
+                    <button type="button" class="btn-close btn-close-white position-absolute" data-bs-dismiss="modal" aria-label="Close" style="top: 20px; right: 20px;"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="card bg-light border-0 rounded-3 p-3 mb-3">
+                        <div class="row g-2">
+                            <div class="col-5 text-muted small fw-semibold">BỆNH NHÂN:</div>
+                            <div class="col-7 fw-bold text-dark text-end" id="notiPatientName">--</div>
+                            
+                            <div class="col-5 text-muted small fw-semibold">NGÀY HẸN:</div>
+                            <div class="col-7 fw-bold text-dark text-end" id="notiAppDate">--</div>
+                            
+                            <div class="col-5 text-muted small fw-semibold">KHUNG GIỜ:</div>
+                            <div class="col-7 text-primary fw-bold text-end" id="notiTimeSlot">--</div>
+                            
+                            <div class="col-5 text-muted small fw-semibold">BÁC SĨ KHÁM:</div>
+                            <div class="col-7 fw-bold text-dark text-end" id="notiDoctorName">--</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-start gap-3 p-3 rounded-3" style="background: rgba(40, 167, 69, 0.08); border-left: 4px solid #28a745;">
+                        <div class="text-success pt-1"><i class="fas fa-hospital-user fa-lg animate-bounce"></i></div>
+                        <div>
+                            <h6 class="text-success fw-bold mb-1" style="font-size: 0.95rem;">Không cần làm thủ tục tại quầy!</h6>
+                            <p class="mb-0 text-muted small" style="line-height: 1.45; font-size: 0.85rem;">
+                                Lịch khám này của quý khách đã được tiếp nhận và xác thực tự động trên hệ thống. 
+                                Vui lòng di chuyển trực tiếp tới phòng khám của <strong><span id="notiDoctorRoomName">Bác sĩ</span></strong> trước giờ hẹn 10-15 phút để vào gặp Bác sĩ luôn mà không cần phải chờ ở quầy tiếp đón Lễ tân!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 border-top bg-light text-center">
+                    <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-dismiss="modal">Tôi đã hiểu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/assets/vendor/php-email-form/validate.js"></script>
@@ -218,6 +362,203 @@
     <script src="~/assets/vendor/purecounter/purecounter_vanilla.js"></script>
     <script src="~/assets/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="~/assets/js/main.js"></script>
+
+    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
+    {
+        <script>
+            (function() {
+                var bellWrapper = document.getElementById('bellNotificationWrapper');
+                var bellBtn = document.getElementById('bellNotificationBtn');
+                var bellDropdown = document.getElementById('bellNotificationDropdown');
+                var bellBadge = document.getElementById('bellNotificationBadge');
+                var bellList = document.getElementById('bellNotificationList');
+                var bellCountText = document.getElementById('bellNotificationCountText');
+
+                if (!bellBtn || !bellDropdown) return;
+
+                var currentNotifications = [];
+
+                function getReadIds() {
+                    try {
+                        return JSON.parse(localStorage.getItem('read_notifications') || '[]');
+                    } catch (e) {
+                        return [];
+                    }
+                }
+
+                function markAsRead(id) {
+                    var readIds = getReadIds();
+                    if (!readIds.includes(id)) {
+                        readIds.push(id);
+                        localStorage.setItem('read_notifications', JSON.stringify(readIds));
+                    }
+                }
+
+                function escapeHtml(str) {
+                    if (!str) return '';
+                    return str.toString()
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#039;");
+                }
+
+                // Register event listeners immediately so that click works even if fetching fails
+                bellBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var isHidden = bellDropdown.classList.contains('d-none');
+                    if (isHidden) {
+                        bellDropdown.classList.remove('d-none');
+                    } else {
+                        bellDropdown.classList.add('d-none');
+                    }
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!bellDropdown.contains(e.target) && !bellBtn.contains(e.target)) {
+                        bellDropdown.classList.add('d-none');
+                    }
+                });
+
+                function loadNotifications() {
+                    fetch('/Profile/GetNotifications')
+                        .then(function(response) {
+                            if (!response.ok) {
+                                throw new Error('HTTP error status ' + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(function(res) {
+                            if (res && res.success && Array.isArray(res.data)) {
+                                currentNotifications = res.data;
+                                var readIds = getReadIds();
+                                
+                                // Count only UNREAD notifications for the badge
+                                var unreadCount = 0;
+                                currentNotifications.forEach(function(item) {
+                                    if (!readIds.includes(item.appointmentId)) {
+                                        unreadCount++;
+                                    }
+                                });
+                                
+                                // Update badge
+                                if (unreadCount > 0) {
+                                    bellBadge.textContent = unreadCount;
+                                    bellBadge.classList.remove('d-none');
+                                    bellBadge.classList.add('pulse-badge');
+                                    bellCountText.textContent = unreadCount + " mới";
+                                } else {
+                                    bellBadge.classList.add('d-none');
+                                    bellBadge.classList.remove('pulse-badge');
+                                    bellCountText.textContent = "0 mới";
+                                }
+
+                                // Render items
+                                if (currentNotifications.length > 0) {
+                                    var html = '';
+                                    currentNotifications.forEach(function(item, idx) {
+                                        var pName = escapeHtml(item.patientName || '');
+                                        var dName = escapeHtml(item.doctorName || 'Bác sĩ phòng khám');
+                                        var appDate = escapeHtml(item.date || '');
+                                        var appTime = escapeHtml(item.time || '');
+                                        var isRead = readIds.includes(item.appointmentId);
+                                        var readClass = isRead ? 'noti-read' : '';
+
+                                        var iconStyle = isRead ? 'background-color: #f0f0f0; color: #6c757d;' : 'background-color: #eafbea; color: #28a745;';
+                                        var checkIconClass = isRead ? 'fa-check text-secondary' : 'fa-check-circle text-success';
+                                        var textClass = isRead ? 'text-secondary' : 'text-success fw-bold';
+                                        var runIcon = isRead ? 'fa-check-double me-1' : 'fa-running me-1';
+                                        var runText = isRead ? 'Đã xem chi tiết' : 'Đến thẳng phòng khám';
+
+                                        html += `
+                                        <div class="noti-item-custom p-3 border-bottom position-relative ${readClass}" data-index="${idx}">
+                                            <div class="d-flex gap-3">
+                                                <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px; ${iconStyle}">
+                                                    <i class="fas ${checkIconClass} fa-lg"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">Lịch hẹn được xác thực!</h6>
+                                                    <p class="text-muted mb-1 small" style="line-height: 1.4; font-size: 0.78rem;">
+                                                        Bệnh nhân <strong>${pName}</strong> có lịch khám vào <strong>${appDate}</strong> (${appTime}) đã được bộ phận tiếp nhận xác thực từ xa thành công.
+                                                    </p>
+                                                    <div class="d-flex align-items-center justify-content-between mt-1">
+                                                        <span class="${textClass}" style="font-size: 0.75rem;"><i class="fas ${runIcon}"></i>${runText}</span>
+                                                        <span class="text-muted" style="font-size: 0.7rem;"><i class="far fa-clock me-1"></i>Hôm nay</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>`;
+                                    });
+                                    bellList.innerHTML = html;
+
+                                    // Add click event to each item to view details
+                                    bellList.querySelectorAll('.noti-item-custom').forEach(function(el) {
+                                        el.addEventListener('click', function() {
+                                            var idx = parseInt(this.getAttribute('data-index'), 10);
+                                            var data = currentNotifications[idx];
+                                            if (data) {
+                                                // Fill detail modal
+                                                document.getElementById('notiPatientName').textContent = data.patientName || '';
+                                                document.getElementById('notiAppDate').textContent = data.date || '';
+                                                document.getElementById('notiTimeSlot').textContent = data.time || '';
+                                                document.getElementById('notiDoctorName').textContent = data.doctorName || 'Bác sĩ phòng khám';
+                                                document.getElementById('notiDoctorRoomName').textContent = data.doctorName || 'Bác sĩ phòng khám';
+
+                                                // Mark as read in localStorage
+                                                markAsRead(data.appointmentId);
+
+                                                // Open modal using Bootstrap API safely
+                                                var modalEl = document.getElementById('notiDetailsModal');
+                                                if (modalEl) {
+                                                    var myModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                                                    myModal.show();
+                                                }
+
+                                                // Close dropdown
+                                                bellDropdown.classList.add('d-none');
+
+                                                // Re-load notifications to update styling & badge in real-time
+                                                loadNotifications();
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    bellList.innerHTML = `
+                                    <div class="p-4 text-center text-muted">
+                                        <i class="fas fa-bell-slash fa-2x mb-2 text-gray-300"></i>
+                                        <p class="mb-0 small">Bạn không có thông báo mới nào.</p>
+                                    </div>`;
+                                }
+                            } else {
+                                throw new Error('Invalid response format');
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error('Error loading notifications:', error);
+                            if (bellList) {
+                                bellList.innerHTML = `
+                                <div class="p-4 text-center text-danger">
+                                    <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+                                    <p class="mb-0 small">Lỗi tải thông báo.</p>
+                                </div>`;
+                            }
+                        });
+                }
+
+                // Initial load
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", loadNotifications);
+                } else {
+                    loadNotifications();
+                }
+
+                // Poll every 15s to be responsive
+                setInterval(loadNotifications, 15000);
+            })();
+        </script>
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
 
