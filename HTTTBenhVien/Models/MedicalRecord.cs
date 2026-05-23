@@ -31,6 +31,11 @@ public partial class MedicalRecord
     public DateTime? TriageTime { get; set; }
     public string? TriageNotes { get; set; }
 
+    // ── Chỉ định Nhập viện (Inpatient Admission) ──
+    public int? TargetDeptId { get; set; }
+    public virtual Department? TargetDept { get; set; }
+    public string? AdmissionNotes { get; set; }
+
     public virtual Employee Doctor { get; set; } = null!;
     public virtual IcdDictionary? IcdCodeNavigation { get; set; }
     public virtual Invoice? Invoice { get; set; }

@@ -220,6 +220,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 record = await _context.MedicalRecords
                     .Include(m => m.Patient)
                     .Include(m => m.Invoice)
+                    .Include(m => m.TargetDept)
                     .Include(m => m.Prescriptions)
                         .ThenInclude(p => p.PrescriptionDetails)
                             .ThenInclude(d => d.Medicine)
@@ -233,6 +234,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 record = await _context.MedicalRecords
                     .Include(m => m.Patient)
                     .Include(m => m.Invoice)
+                    .Include(m => m.TargetDept)
                     .Include(m => m.Prescriptions)
                         .ThenInclude(p => p.PrescriptionDetails)
                             .ThenInclude(d => d.Medicine)
@@ -266,6 +268,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                     record = await _context.MedicalRecords
                         .Include(m => m.Patient)
                         .Include(m => m.Invoice)
+                        .Include(m => m.TargetDept)
                         .Include(m => m.Prescriptions)
                         .Include(m => m.RecordServices)
                         .FirstOrDefaultAsync(m => m.RecordId == record.RecordId);
@@ -277,6 +280,10 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.IcdCodes = await _context.IcdDictionaries.Where(i => i.IsActive == true).ToListAsync();
             ViewBag.Medicines = await _context.Medicines.Where(m => m.IsActive != false).OrderBy(m => m.MedicineName).ToListAsync();
             ViewBag.MedicalServices = await _context.MedicalServices.OrderBy(s => s.ServiceName).ToListAsync();
+            ViewBag.ClinicalDepartments = await _context.Departments
+                .Where(d => d.DeptTypeId == 1 && d.DeptId != 1)
+                .OrderBy(d => d.DeptName)
+                .ToListAsync();
             return View(record);
         }
 
@@ -304,7 +311,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         // POST: Admin/DoctorWorkspace/SaveRecord
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveRecord([Bind("RecordId,PatientId,DoctorId,AppointmentId,Symptoms,Diagnosis,Conclusion,RecordType,IcdCode,Notes,BloodPressure,PulseRate,Temperature,Height,Weight,SpO2")] MedicalRecord record)
+        public async Task<IActionResult> SaveRecord([Bind("RecordId,PatientId,DoctorId,AppointmentId,Symptoms,Diagnosis,Conclusion,RecordType,IcdCode,Notes,BloodPressure,PulseRate,Temperature,Height,Weight,SpO2,TargetDeptId,AdmissionNotes")] MedicalRecord record)
         {
             ModelState.Remove("Doctor");
             ModelState.Remove("Patient");
@@ -318,8 +325,25 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 if (record.RecordId == 0)
                 {
                     record.VisitDate = DateTime.Now;
+                    if (record.RecordType != "Nhập viện")
+                    {
+                        record.TargetDeptId = null;
+                        record.AdmissionNotes = null;
+                    }
                     _context.Add(record);
-                    TempData["Success"] = "Đã lưu bệnh án thành công!";
+                    
+                    if (record.RecordType == "Nhập viện")
+                    {
+                        var deptName = await _context.Departments
+                            .Where(d => d.DeptId == record.TargetDeptId)
+                            .Select(d => d.DeptName)
+                            .FirstOrDefaultAsync() ?? "Khoa điều trị";
+                        TempData["Success"] = $"Đã gửi yêu cầu nhập viện thành công đến {deptName}!";
+                    }
+                    else
+                    {
+                        TempData["Success"] = "Đã lưu bệnh án thành công!";
+                    }
                 }
                 else
                 {
@@ -339,8 +363,31 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                         existing.SpO2 = record.SpO2;
                         existing.RecordType = record.RecordType;
                         
+                        if (record.RecordType == "Nhập viện")
+                        {
+                            existing.TargetDeptId = record.TargetDeptId;
+                            existing.AdmissionNotes = record.AdmissionNotes;
+                        }
+                        else
+                        {
+                            existing.TargetDeptId = null;
+                            existing.AdmissionNotes = null;
+                        }
+                        
                         _context.Update(existing);
-                        TempData["Success"] = "Đã cập nhật bệnh án thành công!";
+                        
+                        if (record.RecordType == "Nhập viện")
+                        {
+                            var deptName = await _context.Departments
+                                .Where(d => d.DeptId == record.TargetDeptId)
+                                .Select(d => d.DeptName)
+                                .FirstOrDefaultAsync() ?? "Khoa điều trị";
+                            TempData["Success"] = $"Đã gửi yêu cầu nhập viện thành công đến {deptName}!";
+                        }
+                        else
+                        {
+                            TempData["Success"] = "Đã cập nhật bệnh án thành công!";
+                        }
                     }
                 }
 
@@ -753,6 +800,28 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             if (record == null) return NotFound();
 
             // Xác minh quyền sở hữu hoặc quyền admin
+            if (record.DoctorId != empId && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
+            return View(record);
+        }
+
+        // GET: Admin/DoctorWorkspace/PrintAdmissionSlip
+        public async Task<IActionResult> PrintAdmissionSlip(int recordId)
+        {
+            int empId = GetCurrentEmpId();
+            if (empId == 0) return RedirectToAction("Login", "Account");
+
+            var record = await _context.MedicalRecords
+                .Include(m => m.Patient)
+                .Include(m => m.Doctor)
+                .Include(m => m.TargetDept)
+                .FirstOrDefaultAsync(m => m.RecordId == recordId);
+
+            if (record == null) return NotFound();
+
             if (record.DoctorId != empId && !User.IsInRole("Admin"))
             {
                 return Forbid();

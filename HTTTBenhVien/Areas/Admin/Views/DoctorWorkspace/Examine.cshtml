@@ -196,6 +196,27 @@
                             </div>
                         </div>
 
+                        <!-- Khối phụ khi chọn Nhập viện -->
+                        <div id="inpatientAdmissionContainer" class="card p-3 mb-3 border-left-info shadow-sm" style="display: none; background-color: #f0f9ff; border-radius: 8px;">
+                            <h6 class="font-weight-bold text-info"><i class="fas fa-hospital-user mr-2"></i> Chỉ định nhập viện điều trị nội trú</h6>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold text-dark"><i class="fas fa-hospital mr-1"></i>Khoa nội trú tiếp nhận</label>
+                                        <select asp-for="TargetDeptId" class="form-control font-weight-bold text-info" asp-items="@(new SelectList(ViewBag.ClinicalDepartments, "DeptId", "DeptName"))">
+                                            <option value="">-- Chọn khoa tiếp nhận --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold text-dark"><i class="fas fa-comment-medical mr-1"></i>Lý do nhập viện / Lời dặn chi tiết</label>
+                                        <input asp-for="AdmissionNotes" class="form-control" placeholder="Ví dụ: Theo dõi suy ruột thừa cấp, nghỉ ngơi tĩnh dưỡng..." />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="font-weight-bold text-dark">Kết luận / Hướng xử lý (Plan)</label>
                             <textarea asp-for="Conclusion" class="form-control" rows="2" placeholder="Kê đơn, cho về, hoặc nhập viện..."></textarea>
@@ -203,8 +224,14 @@
 
                         <hr class="mt-4 mb-4" />
 
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary btn-lg shadow-sm px-5" style="border-radius: 30px;">
+                        <div class="d-flex justify-content-end align-items-center">
+                            @if (Model.RecordId > 0)
+                            {
+                                <a id="btn-print-admission" href="@Url.Action("PrintAdmissionSlip", "DoctorWorkspace", new { recordId = Model.RecordId })" target="_blank" class="btn btn-info btn-lg shadow-sm mr-3 px-4" style="border-radius: 30px; @(Model.RecordType == "Nhập viện" ? "" : "display: none;")">
+                                    <i class="fas fa-print mr-2"></i> In Giấy Nhập Viện
+                                </a>
+                            }
+                            <button type="submit" id="btn-submit-record" class="btn btn-primary btn-lg shadow-sm px-5" style="border-radius: 30px;">
                                 <i class="fas fa-save mr-2"></i> Lưu Bệnh Án
                             </button>
                         </div>
@@ -1016,6 +1043,32 @@
                     width: '100%',
                     dropdownParent: $(this).closest('.modal')
                 });
+            });
+
+            // Logic for Inpatient Admission Fields toggle
+            function toggleInpatientFields() {
+                var selectedVal = $('#RecordType').val();
+                if (selectedVal === 'Nhập viện') {
+                    $('#inpatientAdmissionContainer').slideDown(300);
+                    $('#TargetDeptId').prop('required', true);
+                    $('#btn-submit-record').html('<i class="fas fa-paper-plane mr-2"></i> Gửi Yêu Cầu Nhập Viện');
+                    $('#btn-submit-record').removeClass('btn-primary').addClass('btn-info');
+                    $('#btn-print-admission').show();
+                } else {
+                    $('#inpatientAdmissionContainer').slideUp(300);
+                    $('#TargetDeptId').prop('required', false);
+                    $('#btn-submit-record').html('<i class="fas fa-save mr-2"></i> Lưu Bệnh Án');
+                    $('#btn-submit-record').removeClass('btn-info').addClass('btn-primary');
+                    $('#btn-print-admission').hide();
+                }
+            }
+
+            // Run on load to set initial state
+            toggleInpatientFields();
+
+            // Run on change
+            $('#RecordType').on('change', function() {
+                toggleInpatientFields();
             });
 
             // JavaScript for Edit Record Service Modal

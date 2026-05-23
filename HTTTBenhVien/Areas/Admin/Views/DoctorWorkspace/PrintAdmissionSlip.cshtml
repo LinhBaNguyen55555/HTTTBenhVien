@@ -1,0 +1,285 @@
+@model HTTTBenhVien.Models.MedicalRecord
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <title>Giấy chỉ định nhập viện - BA-@Model.RecordId</title>
+    <link href="~/admin/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .print-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 35px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            position: relative;
+        }
+        .header-tbl {
+            width: 100%;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header-tbl td {
+            vertical-align: top;
+        }
+        .hospital-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f766e;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin: 25px 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #111827;
+        }
+        .sub-title {
+            font-size: 12px;
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 25px;
+            color: #4b5563;
+        }
+        .info-section {
+            margin-bottom: 20px;
+        }
+        .info-section table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .info-section td {
+            padding: 6px 4px;
+            vertical-align: top;
+        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .font-weight-bold { font-weight: bold; }
+        
+        .admission-card {
+            border: 2px solid #0284c7;
+            background-color: #f0f9ff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 25px 0;
+        }
+        
+        .admission-card h3 {
+            margin-top: 0;
+            color: #0369a1;
+            font-size: 16px;
+            font-weight: bold;
+            border-bottom: 1px solid #bae6fd;
+            padding-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .admission-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admission-details td {
+            padding: 6px 0;
+            vertical-align: top;
+        }
+
+        .warning-notice {
+            clear: both;
+            border: 1px dashed #0284c7;
+            background-color: #f0f9ff;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin: 25px 0;
+            font-style: italic;
+            color: #0369a1;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+        
+        .footer-signatures {
+            width: 100%;
+            margin-top: 40px;
+            clear: both;
+        }
+        .footer-signatures td {
+            width: 50%;
+            text-align: center;
+            vertical-align: top;
+        }
+        .print-btn-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn-print {
+            padding: 10px 24px;
+            background-color: #0284c7;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-print:hover {
+            background-color: #0369a1;
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+        }
+        @@media print {
+            .print-btn-container { display: none; }
+            .print-box { box-shadow: none; border: none; padding: 0; }
+            body { padding: 0; }
+            .admission-card {
+                border: 1px solid #000;
+                background-color: transparent;
+            }
+            .admission-card h3 {
+                color: #000;
+                border-bottom: 1px solid #000;
+            }
+            .warning-notice {
+                border: 1px dashed #000;
+                background-color: transparent;
+                color: #000;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-btn-container">
+        <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> IN GIẤY CHỈ ĐỊNH</button>
+    </div>
+
+    <div class="print-box">
+        <table class="header-tbl">
+            <tr>
+                <td style="width: 65%;">
+                    <h2 class="hospital-name">BỆNH VIỆN VINHUNI HIS</h2>
+                    <p style="margin: 4px 0 0 0; font-size: 13px;">Địa chỉ: 182 Lê Duẩn, TP Vinh, Nghệ An</p>
+                    <p style="margin: 4px 0 0 0; font-size: 13px;">Hotline: 1900 1234 - Website: www.vinhunihis.vn</p>
+                </td>
+                <td style="width: 35%; text-align: right; font-size: 13px;">
+                    <p style="margin:0;">Mã Bệnh Án: <strong>BA-@Model.RecordId</strong></p>
+                    <p style="margin: 4px 0 0 0;">Khoa Khám: <strong>Khoa Khám Bệnh</strong></p>
+                    <p style="margin: 4px 0 0 0;">Ngày chỉ định: @(Model.VisitDate?.ToString("dd/MM/yyyy HH:mm") ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm"))</p>
+                </td>
+            </tr>
+        </table>
+
+        <div class="title">GIẤY CHỈ ĐỊNH NHẬP VIỆN</div>
+        <div class="sub-title">(Điều trị nội trú)</div>
+
+        <div class="info-section">
+            <table>
+                <tr>
+                    <td style="width: 20%; font-weight: bold;">Họ tên bệnh nhân:</td>
+                    <td style="width: 46%; text-transform: uppercase; font-weight: bold;">@Model.Patient?.FullName</td>
+                    <td style="width: 14%; font-weight: bold;">Ngày sinh:</td>
+                    <td style="width: 20%;">@(Model.Patient?.Dob?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Giới tính:</td>
+                    <td>@(Model.Patient?.Gender == true ? "Nam" : "Nữ")</td>
+                    <td style="font-weight: bold;">Điện thoại:</td>
+                    <td>@Model.Patient?.Phone</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Địa chỉ:</td>
+                    <td colspan="3">@Model.Patient?.Address</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Mã thẻ BHYT:</td>
+                    <td colspan="3">@(string.IsNullOrEmpty(Model.Patient?.BhytCode) ? "Không sử dụng BHYT" : Model.Patient.BhytCode)</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="border-top: 1px solid #ddd; padding-top: 10px; margin-top: 5px;"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Triệu chứng lâm sàng:</td>
+                    <td colspan="3">@Model.Symptoms</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Chẩn đoán lâm sàng:</td>
+                    <td colspan="3">
+                        <strong>@Model.Diagnosis</strong>
+                        @if (!string.IsNullOrEmpty(Model.IcdCode))
+                        {
+                            <span>(Mã ICD-10: @Model.IcdCode)</span>
+                        }
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="admission-card">
+            <h3>Thông tin chỉ định nhập viện</h3>
+            <div class="admission-details">
+                <table>
+                    <tr>
+                        <td style="width: 30%; font-weight: bold; font-size: 15px;">Khoa tiếp nhận điều trị:</td>
+                        <td style="width: 70%; font-size: 16px; font-weight: bold; color: #0284c7;">
+                            @(Model.TargetDept?.DeptName ?? "N/A")
+                        </td>
+                    </tr>
+                    @if (Model.TargetDept != null && !string.IsNullOrEmpty(Model.TargetDept.Location))
+                    {
+                        <tr>
+                            <td style="font-weight: bold;">Địa điểm khoa:</td>
+                            <td>@Model.TargetDept?.Location</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td style="font-weight: bold;">Hướng xử lý tiếp theo:</td>
+                        <td>Điều trị nội trú tại buồng bệnh được phân công</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Lý do nhập viện / Lời dặn:</td>
+                        <td style="font-style: italic;">
+                            @(string.IsNullOrEmpty(Model.AdmissionNotes) ? "Nhập viện theo dõi và điều trị nội trú theo chỉ định của Bác sĩ." : Model.AdmissionNotes)
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="warning-notice">
+            <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+            LƯU Ý: Người nhà bệnh nhân vui lòng cầm Giấy chỉ định này đến QUẦY TIẾP NHẬN NỘI TRÚ (Tầng 1 - Tòa Hành chính) để làm thủ tục nhận buồng giường và tạm ứng viện phí!
+        </div>
+
+        <table class="footer-signatures">
+            <tr>
+                <td>
+                    <p style="margin-bottom: 50px;"><strong>BỆNH NHÂN / NGƯỜI NHÀ</strong><br><span style="font-size: 11px; font-style: italic; font-weight: normal;">(Ký và ghi rõ họ tên)</span></p>
+                    <p style="font-weight: bold; margin-top: 50px;">@Model.Patient?.FullName</p>
+                </td>
+                <td>
+                    <p style="margin-bottom: 50px;">Ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year<br><strong>BÁC SĨ CHỈ ĐỊNH</strong><br><span style="font-size: 11px; font-style: italic; font-weight: normal;">(Ký và ghi rõ họ tên)</span></p>
+                    <p style="font-weight: bold; margin-top: 50px;">@Model.Doctor?.FullName</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

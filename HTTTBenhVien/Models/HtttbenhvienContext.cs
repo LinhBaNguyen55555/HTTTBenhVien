@@ -313,6 +313,8 @@ public partial class HtttbenhvienContext : DbContext
             entity.Property(e => e.TriageLevel);
             entity.Property(e => e.TriageTime).HasColumnType("datetime");
             entity.Property(e => e.TriageNotes).HasMaxLength(1000);
+            entity.Property(e => e.TargetDeptId).HasColumnName("TargetDeptId");
+            entity.Property(e => e.AdmissionNotes).HasMaxLength(1000);
 
             entity.HasOne(d => d.Doctor).WithMany(p => p.MedicalRecords)
                 .HasForeignKey(d => d.DoctorId)
@@ -327,6 +329,10 @@ public partial class HtttbenhvienContext : DbContext
                 .HasForeignKey(d => d.PatientId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Rec_Patient");
+
+            entity.HasOne(d => d.TargetDept).WithMany()
+                .HasForeignKey(d => d.TargetDeptId)
+                .HasConstraintName("FK_MedicalRecords_Departments");
         });
 
         modelBuilder.Entity<MedicalService>(entity =>
