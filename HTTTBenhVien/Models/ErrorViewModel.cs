@@ -1,4 +1,4 @@
-namespace HTTTBenhVien.Models
+﻿namespace HTTTBenhVien.Models
 {
     public class ErrorViewModel
     {

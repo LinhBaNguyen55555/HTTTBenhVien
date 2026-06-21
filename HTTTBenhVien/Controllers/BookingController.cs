@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
@@ -116,20 +116,20 @@ public class BookingController : Controller
         }
         else if (model.Patient != null)
         {
-            // Xác định bệnh nhân thực tế của lịch khám (người thân)
+
             Patient? targetPatient = null;
 
-            // Kiểm tra xem họ có chọn người thân đã lưu từ dropdown không
+
             int.TryParse(Request.Form["SelectedRelativeId"], out var selectedRelativeId);
 
             if (selectedRelativeId > 0)
             {
-                // Xác nhận người thân này thuộc quyền quản lý của tài khoản đăng nhập để tránh khai thác bảo mật
+
                 targetPatient = await _context.Patients
                     .FirstOrDefaultAsync(p => p.PatientId == selectedRelativeId && p.CreatedByPatientId == loggedInPatientId);
             }
 
-            // Nếu chưa lưu hoặc không tìm thấy theo ID, tìm theo SĐT hoặc CCCD nhưng GIỚI HẠN chỉ tìm trong các người thân của tài khoản hiện tại
+
             if (targetPatient == null)
             {
                 if (!string.IsNullOrWhiteSpace(model.Patient.Phone))
@@ -147,7 +147,7 @@ public class BookingController : Controller
 
             if (targetPatient != null)
             {
-                // Cập nhật thông tin bổ sung cho bệnh nhân trùng khớp (không đè giá trị rỗng)
+
                 if (!string.IsNullOrWhiteSpace(model.Patient.FullName)) targetPatient.FullName = model.Patient.FullName;
                 if (!string.IsNullOrWhiteSpace(model.Patient.Phone)) targetPatient.Phone = model.Patient.Phone;
                 if (!string.IsNullOrWhiteSpace(model.Patient.Email)) targetPatient.Email = model.Patient.Email;
@@ -159,7 +159,7 @@ public class BookingController : Controller
                 if (model.Patient.Dob.HasValue) targetPatient.Dob = model.Patient.Dob;
                 targetPatient.Gender = model.Patient.Gender;
 
-                // Gắn liên kết người thân nếu chưa có và không phải là chính mình (bảo vệ tuyệt đối)
+
                 if (targetPatient.CreatedByPatientId == null && targetPatient.PatientId != loggedInPatientId)
                 {
                     targetPatient.CreatedByPatientId = loggedInPatientId;
@@ -172,7 +172,7 @@ public class BookingController : Controller
             }
             else
             {
-                // Tạo một hồ sơ bệnh nhân hoàn toàn MỚI cho người thân (không trùng SĐT và CCCD dưới tài khoản hiện tại)
+
                 var newPatient = new Patient
                 {
                     PatientCode = "BN" + DateTime.Now.ToString("yyMMddHHmmss") + new Random().Next(10, 99).ToString(),
@@ -186,7 +186,7 @@ public class BookingController : Controller
                     BhytCode = model.Patient.BhytCode,
                     Dob = model.Patient.Dob,
                     Gender = model.Patient.Gender,
-                    CreatedByPatientId = loggedInPatientId // Thiết lập liên kết người thân với tài khoản chính
+                    CreatedByPatientId = loggedInPatientId 
                 };
 
                 _context.Patients.Add(newPatient);
@@ -227,10 +227,10 @@ public class BookingController : Controller
         }
         catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx && (sqlEx.Number == 2627 || sqlEx.Number == 2601))
         {
-            // Tự động sửa chữa CSDL nếu vi phạm UNIQUE constraint (đặc biệt là cột CitizenID hoặc BHYT_Code trống)
+
             await TryFixPatientsUniqueConstraintsAsync();
             
-            // Thử lưu lại lần nữa
+
             await _context.SaveChangesAsync();
         }
     }
@@ -326,7 +326,7 @@ public class BookingController : Controller
         }
         catch (Exception)
         {
-            // Bỏ qua nếu có lỗi
+
         }
     }
 }

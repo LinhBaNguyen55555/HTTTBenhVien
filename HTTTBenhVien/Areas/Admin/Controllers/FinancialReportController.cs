@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
@@ -69,7 +69,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var totalDiscount = paidInvoices.Sum(i => (i.BhytAmount ?? 0) + (i.DiscountAmount ?? 0));
             var totalTransactions = paidInvoices.Count;
 
-            // Nợ (Luôn lấy toàn thời gian)
+
             var totalUnpaid = await _context.Invoices
                 .Where(i => i.Status == "ChuaThanhToan" || i.Status == "Chưa thanh toán" || i.Status == "Pending" || i.Status == "Mới" || i.Status == "New" || i.Status == "Unpaid")
                 .SumAsync(i => i.TotalAmount ?? 0);

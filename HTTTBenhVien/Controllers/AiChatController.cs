@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +25,7 @@ namespace HTTTBenhVien.Controllers
 
             try
             {
-                // Gọi sang Service kết nối Gemini để nhận câu trả lời thực tế hoặc giả lập
+
                 string reply = await _geminiChatService.ChatWithAiAsync(request.Message, request.History);
                 
                 return Json(new { success = true, reply = reply });

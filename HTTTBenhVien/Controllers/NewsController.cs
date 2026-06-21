@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
 
@@ -60,7 +60,7 @@ public class NewsController : Controller
 
         if (article == null) return NotFound();
 
-        // Tăng lượt xem
+
         article.ViewCount = (article.ViewCount ?? 0) + 1;
         await _context.SaveChangesAsync();
 

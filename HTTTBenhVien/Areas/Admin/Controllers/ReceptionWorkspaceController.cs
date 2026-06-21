@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
@@ -24,9 +24,9 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
 
-            // 0. Tự động hủy các lịch hẹn trễ quá ngày hoặc quá giờ làm việc (sau 21:00)
+
             var now = DateTime.Now;
-            var isPastWorkingHours = now.Hour >= 21; // Sau 21:00
+            var isPastWorkingHours = now.Hour >= 21;
             
             var staleAppointments = await _context.Appointments
                 .Where(a => a.AppDate.HasValue && 
@@ -46,7 +46,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            // Lấy tất cả lịch hẹn hôm nay (mọi trạng thái) cộng với lịch hẹn chờ xác nhận trong tương lai
+
             var appointments = await _context.Appointments
                 .Include(a => a.Patient)
                 .Include(a => a.Doctor)
@@ -56,7 +56,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .ThenBy(a => a.TimeSlot)
                 .ToListAsync();
 
-            // Lấy danh sách bệnh nhân vãng lai đăng ký trực tiếp hôm nay
+
             var walkinsToday = await _context.MedicalRecords
                 .Include(m => m.Patient)
                 .Include(m => m.Doctor)
@@ -64,7 +64,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .OrderByDescending(m => m.VisitDate)
                 .ToListAsync();
 
-            // Thống kê dành riêng cho HÔM NAY (để các thẻ số liệu chính xác theo ngày)
+
             var appsTodayOnly = appointments.Where(a => a.AppDate >= today && a.AppDate < tomorrow).ToList();
 
             ViewBag.WalkIns = walkinsToday;
@@ -72,14 +72,14 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.TotalAppointments = appsTodayOnly.Count;
             ViewBag.TotalToday = appsTodayOnly.Count + walkinsToday.Count;
 
-            // Số lượng đang chờ xác nhận: Đếm tất cả lịch hẹn đang chờ từ hôm nay trở đi để không bỏ sót lịch tương lai
+
             ViewBag.TotalPending = appointments.Count(a => a.Status == "Pending" || a.Status == "Chờ xác nhận" || a.Status == "New" || a.Status == "Mới" || a.Status == "Đang chờ" || a.Status == "ChoXacNhan");
             ViewBag.TotalConfirmed = appsTodayOnly.Count(a => a.Status == "Confirmed" || a.Status == "Đã xác nhận" || a.Status == "Xác nhận" || a.Status == "DaXacNhan");
-            // Cả lịch hẹn đã check-in và toàn bộ ca khám trực tiếp đều đã ở trạng thái Checked-In (Đã tiếp nhận vào phòng khám)
+
             ViewBag.TotalCheckedIn = appsTodayOnly.Count(a => a.Status == "CheckedIn" || a.Status == "Đã tiếp nhận" || a.Status == "Completed" || a.Status == "Hoàn thành") + walkinsToday.Count;
             ViewBag.TotalCancelled = appsTodayOnly.Count(a => a.Status == "Cancelled" || a.Status == "Đã hủy");
 
-            // Lấy danh sách bác sĩ CÓ LỊCH LÀM VIỆC trong ngày hôm nay và đang mở nhận bệnh nhân
+
             var scheduledDoctors = await _context.DoctorSchedules
                 .Include(ds => ds.Doctor)
                 .Where(ds => ds.WorkDate.Date == today && ds.IsAvailable == true)
@@ -89,7 +89,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             if (scheduledDoctors == null || !scheduledDoctors.Any())
             {
-                // Nếu chưa xếp lịch hôm nay, dự phòng tải toàn bộ danh sách Bác sĩ phòng khám để Lễ tân luôn thao tác được
+
                 var allDoctors = await _context.Employees
                     .Where(e => e.JobTitle == "Bác sĩ")
                     .Select(e => new { EmpId = e.EmpId, FullName = e.FullName + " (Bác sĩ phòng khám)" })
@@ -111,7 +111,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var appointment = await _context.Appointments.FindAsync(id);
             if (appointment != null)
             {
-                // Chuẩn hóa trạng thái tiếng Anh cho tính năng kiểm soát luồng
+
                 if (status == "Xác nhận" || status == "Đã xác nhận")
                 {
                     status = "Confirmed";
@@ -191,7 +191,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Tạo bệnh án mới
+
             var record = new MedicalRecord
             {
                 PatientId = appointment.PatientId,
@@ -204,7 +204,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             _context.MedicalRecords.Add(record);
             
-            // Đổi trạng thái lịch hẹn
+
             appointment.Status = "CheckedIn";
             _context.Appointments.Update(appointment);
 
@@ -220,12 +220,12 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             int DoctorId, string Reason, string? CitizenId, string? Address, string? Email, 
             string? Occupation, string? WorkplaceOrSchool, string? BhytCode)
         {
-            // Kiểm tra xem bệnh nhân đã tồn tại qua SĐT chưa
+
             var patient = await _context.Patients.FirstOrDefaultAsync(p => p.Phone == PhoneNumber);
             
             if (patient == null)
             {
-                // Tạo bệnh nhân mới với đầy đủ thông tin hành chính
+
                 patient = new Patient
                 {
                     FullName = FullName,
@@ -244,7 +244,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
             else
             {
-                // Cập nhật thông tin mới cho bệnh nhân đã tồn tại (nếu có giá trị mới)
+
                 patient.FullName = FullName;
                 patient.Gender = Gender == "Nam";
                 patient.Dob = DateOfBirth;
@@ -258,7 +258,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            // Trực tiếp tạo Bệnh án (Không cần qua Appointment)
+
             var record = new MedicalRecord
             {
                 PatientId = patient.PatientId,

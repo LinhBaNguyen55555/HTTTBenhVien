@@ -69,7 +69,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ModelState.Remove("Room");
             if (ModelState.IsValid)
             {
-                // Mặc định giường mới trống
+
                 if (bed.IsOccupied == null) bed.IsOccupied = false;
                 
                 _context.Add(bed);

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
@@ -26,7 +26,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         {
             var today = DateTime.Today;
 
-            // Lấy danh sách hóa đơn
+
             var invoices = await _context.Invoices
                 .Include(i => i.Patient)
                 .Include(i => i.InvoiceDetails)
@@ -37,7 +37,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var paidTodayInvoices = invoices.Where(i => (i.Status == "DaThanhToan" || i.Status == "Đã thanh toán" || i.Status == "Paid" || i.Status == "Hoàn thành" || i.Status == "Completed") && i.PaymentDate.HasValue && i.PaymentDate.Value.Date == today).ToList();
             var emergencyInvoices = invoices.Where(i => i.Status == "CapCuu_ChuaThanhToan").ToList();
 
-            // Tính toán doanh thu
+
             ViewBag.TotalUnpaidCount = unpaidInvoices.Count;
             ViewBag.TotalUnpaidAmount = unpaidInvoices.Sum(i => i.TotalAmount ?? 0);
             
@@ -74,7 +74,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Tính toán lại số tiền
+
             invoice.BhytAmount = bhytAmount;
             invoice.DiscountAmount = discountAmount;
             
@@ -84,11 +84,11 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             invoice.PatientAmount = finalAmount > 0 ? finalAmount : 0;
 
             // ═══════════════════════════════════════
-            // Nếu chọn VNPay → Redirect sang cổng thanh toán
+
             // ═══════════════════════════════════════
             if (paymentMethod == "VNPay")
             {
-                // Lưu tạm thông tin vào Session trước khi redirect
+
                 HttpContext.Session.SetInt32("VnPay_InvoiceId", invoiceId);
                 HttpContext.Session.SetString("VnPay_BhytAmount", bhytAmount.ToString());
                 HttpContext.Session.SetString("VnPay_DiscountAmount", discountAmount.ToString());
@@ -106,7 +106,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
 
             // ═══════════════════════════════════════
-            // Thanh toán thường (Tiền mặt, Chuyển khoản, Thẻ)
+
             // ═══════════════════════════════════════
             invoice.Status = "DaThanhToan";
             invoice.PaymentDate = DateTime.Now;
@@ -120,7 +120,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════
-        // VNPay Callback - Xử lý kết quả thanh toán từ VNPay trả về
+
         // ═══════════════════════════════════════
         [HttpGet]
         public async Task<IActionResult> PaymentCallbackVnpay()
@@ -179,7 +179,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                     _context.Invoices.Update(invoice);
                     await _context.SaveChangesAsync();
 
-                    // Xóa session tạm nếu có
+
                     HttpContext.Session.Remove("VnPay_InvoiceId");
                     HttpContext.Session.Remove("VnPay_BhytAmount");
                     HttpContext.Session.Remove("VnPay_DiscountAmount");

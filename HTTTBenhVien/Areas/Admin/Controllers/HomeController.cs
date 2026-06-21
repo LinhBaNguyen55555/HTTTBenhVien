@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
@@ -29,7 +29,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.TotalPatients = await _context.Patients.CountAsync();
             ViewBag.TotalEmployees = await _context.Employees.CountAsync();
             
-            // Filter doctors by JobTitle (e.g., contains "Bác sĩ" or "Doctor")
+
             ViewBag.TotalDoctors = await _context.Employees
                 .CountAsync(e => e.JobTitle.Contains("Bác sĩ") || e.JobTitle.Contains("Doctor"));
 

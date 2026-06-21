@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
 
@@ -48,7 +48,7 @@ public class SpecialtyController : Controller
         var services = await _context.MedicalServices
             .ToListAsync();
 
-        // Lọc dịch vụ theo khoa
+
         var deptName = dept.DeptName?.Trim() ?? "";
         List<MedicalService> relatedServices;
         string serviceSectionTitle;
@@ -56,7 +56,7 @@ public class SpecialtyController : Controller
         if (deptName.IndexOf("Xét", StringComparison.OrdinalIgnoreCase) >= 0 &&
             deptName.IndexOf("nghiệm", StringComparison.OrdinalIgnoreCase) >= 0)
         {
-            // Khoa Xét nghiệm
+
             relatedServices = services
                 .Where(s => s.ServiceName != null && (
                     s.ServiceName.Contains("Xét nghiệm")))
@@ -66,7 +66,7 @@ public class SpecialtyController : Controller
         else if (deptName.IndexOf("Chẩn", StringComparison.OrdinalIgnoreCase) >= 0 &&
                  deptName.IndexOf("hình", StringComparison.OrdinalIgnoreCase) >= 0)
         {
-            // Khoa Chẩn đoán hình ảnh
+
             relatedServices = services
                 .Where(s => s.ServiceName != null && (
                     s.ServiceName.Contains("Siêu âm") ||
@@ -81,13 +81,13 @@ public class SpecialtyController : Controller
         }
         else if (deptName.IndexOf("Dược", StringComparison.OrdinalIgnoreCase) >= 0)
         {
-            // Khoa Dược - hiển thị tất cả dịch vụ
+
             relatedServices = services.ToList();
             serviceSectionTitle = "Dịch vụ y tế liên quan";
         }
         else
         {
-            // Các khoa khác - hiển thị tất cả
+
             relatedServices = services.ToList();
             serviceSectionTitle = "Dịch vụ y tế liên quan";
         }

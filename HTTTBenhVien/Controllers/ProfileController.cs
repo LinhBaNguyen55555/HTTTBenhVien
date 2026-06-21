@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -184,7 +184,7 @@ public class ProfileController : Controller
         var loggedInPatientId = GetPatientId();
         if (loggedInPatientId == 0) return Json(new { success = false, message = "Chưa đăng nhập" });
 
-        // Lấy tất cả PatientId của tài khoản chính và các tài khoản người thân liên kết
+
         var patientIds = await _context.Patients
             .Where(p => p.PatientId == loggedInPatientId || p.CreatedByPatientId == loggedInPatientId)
             .Select(p => p.PatientId)

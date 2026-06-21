@@ -1,4 +1,4 @@
-using HTTTBenhVien.Models;
+﻿using HTTTBenhVien.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +11,7 @@ builder.Services.AddDbContext<HtttbenhvienContext>(options =>
 });
 
 // ═══════════════════════════════════════════════════════
-// Bỏ qua Authentication tạm thời (Dev Mode)
+
 var devMode = builder.Configuration.GetValue<bool>("DevMode:BypassAuth", false);
 // ═══════════════════════════════════════════════════════
 
@@ -24,7 +24,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Admin/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
-        // Xử lý chuyển hướng dựa trên khu vực truy cập
+
         options.Events.OnRedirectToLogin = context =>
         {
             if (devMode)
@@ -78,7 +78,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("PatientOnly", policy => policy.RequireRole("Patient"));
 });
 
-// Đăng ký IMemoryCache cho session
+
 builder.Services.AddMemoryCache();
 
 // Connect VNPay API
@@ -386,17 +386,17 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Session phải đăng ký TRƯỚC dev auth bypass
+
 app.UseSession();
 
 if (devMode)
 {
     app.Use(async (context, next) =>
     {
-        // Tự động tạo ClaimsPrincipal giả nếu chưa đăng nhập
+
         if (context.User.Identity?.IsAuthenticated != true)
         {
-            // Mặc định là Admin, có thể thay đổi bằng query string: ?role=BacSi
+
             var selectedRole = context.Request.Query["role"].FirstOrDefault() ?? "Admin";
             
             // Map query string value to actual role

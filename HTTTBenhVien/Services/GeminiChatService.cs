@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -61,7 +61,7 @@ namespace HTTTBenhVien.Services
 
         public async Task<string> ChatWithAiAsync(string userMessage, List<ChatMessageDto> chatHistory)
         {
-            // 1. Kiểm tra cấu hình API Key
+
             bool isKeyConfigured = !string.IsNullOrWhiteSpace(_apiKey) && 
                                   !_apiKey.Contains("YOUR_GEMINI_API_KEY_HERE") && 
                                   _apiKey.Length > 10;
@@ -73,10 +73,10 @@ namespace HTTTBenhVien.Services
 
             try
             {
-                // 2. Thu thập ngữ cảnh động từ Database
+
                 string hospitalContext = await BuildHospitalContextAsync();
 
-                // 3. Chuẩn bị System Instruction
+
                 string systemInstruction = "Bạn là trợ lý ảo chuyên trách giải đáp Câu hỏi thường gặp (FAQ) của Bệnh viện Đại học VinhUni (VinhUni HIS).\n" +
                                            "QUY TẮC PHẠM VI TRẢ LỜI BẮT BUỘC:\n" +
                                            "- Bạn CHỈ ĐƯỢC PHÉP trả lời các thông tin nằm trong dữ liệu bệnh viện được cung cấp dưới đây (khoa phòng, danh sách bác sĩ, lịch trực, hướng dẫn đặt lịch khám, quy trình cấp cứu).\n" +
@@ -89,10 +89,10 @@ namespace HTTTBenhVien.Services
                                            "- Luôn khuyên bệnh nhân đến gặp bác sĩ trực tiếp để có chẩn đoán chính xác.\n" +
                                            "- Với các trường hợp khẩn cấp, hướng dẫn họ chuyển ngay đến 'Khoa Cấp cứu' hoạt động 24/7 tại Tầng trệt.";
 
-                // 4. Định hình Payload gửi sang Gemini API (Chuẩn API Gemini 1.5)
+
                 var contents = new List<object>();
 
-                // Thêm lịch sử trò chuyện
+
                 if (chatHistory != null)
                 {
                     foreach (var chat in chatHistory)
@@ -105,7 +105,7 @@ namespace HTTTBenhVien.Services
                     }
                 }
 
-                // Thêm tin nhắn hiện tại
+
                 contents.Add(new
                 {
                     role = "user",
@@ -126,7 +126,7 @@ namespace HTTTBenhVien.Services
                     }
                 };
 
-                // 5. Gửi Request sang Gemini API với cơ chế tự động thử lại (Retry) khi bị giới hạn tần suất (429)
+
                 string url = $"https://generativelanguage.googleapis.com/v1beta/models/{_modelName}:generateContent?key={_apiKey}";
                 var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
                 string jsonPayload = JsonSerializer.Serialize(payload, jsonOptions);
@@ -149,7 +149,7 @@ namespace HTTTBenhVien.Services
                     {
                         Console.WriteLine($"Gemini API rate limited (429). Thử lại sau {delaySeconds} giây... (Lần {i + 1}/{maxRetries})");
                         await Task.Delay(delaySeconds * 1000);
-                        delaySeconds *= 2; // Tăng gấp đôi thời gian chờ
+                        delaySeconds *= 2; 
                         continue;
                     }
                     
@@ -165,7 +165,7 @@ namespace HTTTBenhVien.Services
 
                 string responseString = await response.Content.ReadAsStringAsync();
                 
-                // 6. Parse kết quả trả về từ Gemini
+
                 using var doc = JsonDocument.Parse(responseString);
                 var candidates = doc.RootElement.GetProperty("candidates");
                 if (candidates.GetArrayLength() > 0)
@@ -188,14 +188,14 @@ namespace HTTTBenhVien.Services
             }
         }
 
-        // Tạo ngữ cảnh động từ Database của Bệnh viện
+
         private async Task<string> BuildHospitalContextAsync()
         {
             try
             {
                 var sb = new StringBuilder();
 
-                // Lấy thông tin Khoa phòng
+
                 var departments = await _context.Departments.AsNoTracking().ToListAsync();
                 sb.AppendLine("1. DANH SÁCH CÁC KHOA LÂM SÀNG & CẬN LÂM SÀNG ĐANG HOẠT ĐỘNG:");
                 if (departments.Any())
@@ -211,7 +211,7 @@ namespace HTTTBenhVien.Services
                 }
                 sb.AppendLine();
 
-                // Lấy danh sách Bác sĩ
+
                 var doctors = await _context.Employees.AsNoTracking()
                     .Where(e => e.JobTitle != null && (e.JobTitle.Contains("Bác sĩ") || e.JobTitle.Contains("Doctor")))
                     .ToListAsync();
@@ -229,7 +229,7 @@ namespace HTTTBenhVien.Services
                 }
                 sb.AppendLine();
 
-                // Lấy lịch trình hôm nay
+
                 var schedules = await _context.DoctorSchedules
                     .Include(ds => ds.Doctor)
                     .Where(s => s.WorkDate >= DateTime.Today)
@@ -253,7 +253,7 @@ namespace HTTTBenhVien.Services
                 }
                 sb.AppendLine();
 
-                // Hướng dẫn quy trình đặt lịch & cấp cứu
+
                 sb.AppendLine("4. THÔNG TIN TIỆN ÍCH DỊCH VỤ:");
                 sb.AppendLine("- Địa chỉ bệnh viện: Số 192 Lê Duẩn, Thành phố Vinh, Nghệ An (Bên trong khuôn viên Đại học Vinh).");
                 sb.AppendLine("- Hotline đặt lịch: 1900-123-456");
@@ -269,7 +269,7 @@ namespace HTTTBenhVien.Services
             }
         }
 
-        // Chế độ Giả lập / Xử lý Ngoại lệ thông minh dựa trên Database thực tế
+
         private async Task<string> GetSmartOfflineResponseAsync(string userMessage, string notice)
         {
             string msg = userMessage.ToLower();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -75,7 +75,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         // GET: Admin/LichKham/Create
         public async Task<IActionResult> Create()
         {
-            // Lấy các ca trực từ hôm nay trở đi
+
             var schedules = await _context.DoctorSchedules
                 .Include(s => s.Doctor)
                 .Where(s => s.WorkDate >= DateTime.Today && s.IsAvailable == true)
@@ -132,11 +132,11 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                     appointment.DoctorId = schedule.DoctorId;
                     appointment.AppDate = schedule.WorkDate;
 
-                    // Xếp số thứ tự
+
                     int currentCount = await _context.Appointments.CountAsync(a => a.ScheduleId == schedule.ScheduleId);
                     int queueNumber = currentCount + 1;
                     
-                    // Lưu số thứ tự vào TimeSlot hoặc Notes để hiển thị
+
                     appointment.Notes = $"[STT: {queueNumber}] {appointment.Notes}";
                 }
 

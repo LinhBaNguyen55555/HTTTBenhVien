@@ -1,14 +1,14 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 namespace HTTTBenhVien.Helpers;
 
 /// <summary>
-/// Trả về sidebar menu và workspace info dựa trên Role của user đang đăng nhập
+
 /// </summary>
 public static class RoleNavigationHelper
 {
     /// <summary>
-    /// Lấy Workspace hiện tại của user
+
     /// </summary>
     public static WorkspaceInfo GetCurrentWorkspace(ClaimsPrincipal user)
     {
@@ -82,7 +82,7 @@ public static class RoleNavigationHelper
     }
 
     /// <summary>
-    /// Lấy Role thực của user (dùng để filter menu)
+
     /// </summary>
     public static string GetUserRole(ClaimsPrincipal user)
     {
@@ -92,18 +92,18 @@ public static class RoleNavigationHelper
     }
 
     /// <summary>
-    /// Kiểm tra user có role cụ thể không
+
     /// </summary>
     public static bool HasRole(ClaimsPrincipal user, params string[] roles)
     {
         var userRole = GetUserRole(user);
-        // Admin thấy tất cả
+
         if (userRole == "Admin") return true;
         return roles.Contains(userRole);
     }
 
     /// <summary>
-    /// Lấy sidebar menu cho Doctor (Bác sĩ lâm sàng)
+
     /// </summary>
     public static List<MenuItem> GetDoctorMenu()
     {
@@ -126,7 +126,7 @@ public static class RoleNavigationHelper
     }
 
     /// <summary>
-    /// Lấy sidebar menu cho Technician (Kỹ thuật viên)
+
     /// </summary>
     public static List<MenuItem> GetTechnicianMenu()
     {
@@ -146,7 +146,7 @@ public static class RoleNavigationHelper
     }
 
     /// <summary>
-    /// Lấy sidebar menu cho Pharmacist (Dược sĩ)
+
     /// </summary>
     public static List<MenuItem> GetPharmacistMenu()
     {
@@ -167,7 +167,7 @@ public static class RoleNavigationHelper
     }
 
     /// <summary>
-    /// Lấy sidebar menu cho Cashier (Thu ngân)
+
     /// </summary>
     public static List<MenuItem> GetCashierMenu()
     {
@@ -188,7 +188,7 @@ public static class RoleNavigationHelper
     }
 
     /// <summary>
-    /// Lấy sidebar menu cho Receptionist (Lễ tân)
+
     /// </summary>
     public static List<MenuItem> GetReceptionistMenu()
     {
@@ -210,7 +210,7 @@ public static class RoleNavigationHelper
     }
 
     /// <summary>
-    /// Lấy sidebar menu cho Admin (Quản trị viên)
+
     /// </summary>
     public static List<MenuItem> GetAdminMenu()
     {
@@ -249,7 +249,7 @@ public static class RoleNavigationHelper
     }
 
     /// <summary>
-    /// Lấy sidebar menu theo role của user
+
     /// </summary>
     public static List<MenuItem> GetSidebarMenu(ClaimsPrincipal user)
     {
@@ -266,7 +266,7 @@ public static class RoleNavigationHelper
     }
 
     /// <summary>
-    /// Lấy danh sách tất cả workspace (dùng cho workspace switcher)
+
     /// </summary>
     public static List<WorkspaceInfo> GetAllWorkspaces()
     {

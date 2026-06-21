@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
@@ -31,7 +31,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // DASHBOARD CẤP CỨU: Triage Kanban & Thống kê
+
         // ═══════════════════════════════════════════════════════
         public async Task<IActionResult> Index()
         {
@@ -40,7 +40,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             var today = DateTime.Today;
 
-            // 1. Lấy tất cả hồ sơ bệnh án cấp cứu đang hoạt động (IsEmergency == true và hóa đơn nợ cấp cứu)
+
             var activeRecords = await _context.MedicalRecords
                 .Include(m => m.Patient)
                 .Include(m => m.Invoice)
@@ -51,11 +51,11 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .ThenBy(m => m.TriageTime)
                 .ToListAsync();
 
-            // 2. Thống kê
-            // Tổng số bệnh nhân cấp cứu hiện tại
+
+
             ViewBag.ActiveEmergencyCount = activeRecords.Count;
 
-            // Thời gian chờ trung bình (tính từ lúc TriageTime đến Hiện tại, đơn vị phút)
+
             double avgWaitTime = 0;
             var timedRecords = activeRecords.Where(m => m.TriageTime.HasValue).ToList();
             if (timedRecords.Any())
@@ -64,7 +64,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
             ViewBag.AvgWaitingTime = Math.Round(avgWaitTime, 1);
 
-            // Đã xử lý (Discharged hoặc Chuyển khoa/viện hôm nay)
+
             var completedTodayCount = await _context.MedicalRecords
                 .Include(m => m.Invoice)
                 .Where(m => m.IsEmergency == true 
@@ -74,7 +74,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .CountAsync();
             ViewBag.CompletedTodayCount = completedTodayCount;
 
-            // Đã chuyển khoa/viện hôm nay
+
             var transferredTodayCount = await _context.MedicalRecords
                 .Include(m => m.Invoice)
                 .Where(m => m.IsEmergency == true 
@@ -84,7 +84,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .CountAsync();
             ViewBag.TransferredTodayCount = transferredTodayCount;
 
-            // 3. Danh sách bác sĩ trực cấp cứu hoặc tất cả bác sĩ
+
             var doctors = await _context.Employees
                 .Where(e => e.JobTitle.Contains("Bác sĩ") || e.Specialty.Contains("Cấp cứu") || (e.Dept != null && e.Dept.DeptName.Contains("Cấp cứu")))
                 .ToListAsync();
@@ -95,12 +95,12 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
             ViewBag.Doctors = doctors;
 
-            // Phân nhóm activeRecords theo 5 mức TriageLevel
-            var triage1 = activeRecords.Where(r => r.TriageLevel == 1).ToList(); // Hồi sức
-            var triage2 = activeRecords.Where(r => r.TriageLevel == 2).ToList(); // Cấp cứu
-            var triage3 = activeRecords.Where(r => r.TriageLevel == 3).ToList(); // Khẩn cấp
-            var triage4 = activeRecords.Where(r => r.TriageLevel == 4).ToList(); // Ít khẩn
-            var triage5 = activeRecords.Where(r => r.TriageLevel == 5).ToList(); // Không khẩn
+
+            var triage1 = activeRecords.Where(r => r.TriageLevel == 1).ToList(); 
+            var triage2 = activeRecords.Where(r => r.TriageLevel == 2).ToList(); 
+            var triage3 = activeRecords.Where(r => r.TriageLevel == 3).ToList(); 
+            var triage4 = activeRecords.Where(r => r.TriageLevel == 4).ToList(); 
+            var triage5 = activeRecords.Where(r => r.TriageLevel == 5).ToList(); 
 
             ViewBag.Triage1 = triage1;
             ViewBag.Triage2 = triage2;
@@ -108,7 +108,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.Triage4 = triage4;
             ViewBag.Triage5 = triage5;
 
-            // Danh sách khoa lâm sàng để chuyển khoa (Nhập viện)
+
             ViewBag.Departments = await _context.Departments
                 .Where(d => d.DeptName != "Khoa Cấp cứu" && !d.DeptName.Contains("Hành chính"))
                 .ToListAsync();
@@ -117,7 +117,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // TIẾP NHẬN & PHÂN LOẠI CẤP CỨU MỚI (Triage)
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -131,7 +131,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             if (IsAnonymous)
             {
-                // Sinh mã ẩn danh CC-yyyyMMdd-xxx
+
                 var codePrefix = "CC-" + DateTime.Today.ToString("yyyyMMdd") + "-";
                 var lastPatient = await _context.Patients
                     .Where(p => p.PatientCode.StartsWith(codePrefix))
@@ -164,7 +164,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
             else
             {
-                // Bệnh nhân đã xác định danh tính
+
                 if (!string.IsNullOrEmpty(Phone))
                 {
                     patient = await _context.Patients.FirstOrDefaultAsync(p => p.Phone == Phone);
@@ -204,7 +204,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
             }
 
-            // Tạo hồ sơ bệnh án cấp cứu
+
             var timestamp = DateTime.Now;
             var record = new MedicalRecord
             {
@@ -225,19 +225,19 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 SpO2 = SpO2
             };
 
-            // Ghi nhận lịch sử sinh hiệu ban đầu
+
             var timeStr = timestamp.ToString("yyyy-MM-ddTHH:mm:ss");
             record.VitalSigns = $"{BloodPressure ?? ""}|{PulseRate?.ToString() ?? ""}|{Temperature?.ToString() ?? ""}|{SpO2?.ToString() ?? ""}|{timeStr}";
 
             _context.MedicalRecords.Add(record);
             await _context.SaveChangesAsync();
 
-            // Auto-tạo Invoice nợ cấp cứu
+
             var invoice = new Invoice
             {
                 PatientId = patient.PatientId,
                 RecordId = record.RecordId,
-                TotalAmount = 150000, // Phí khám mặc định
+                TotalAmount = 150000, 
                 BhytAmount = 0,
                 DiscountAmount = 0,
                 PatientAmount = 150000,
@@ -249,7 +249,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
 
-            // Thêm chi tiết tiền khám cấp cứu
+
             var examFee = new InvoiceDetail
             {
                 InvoiceId = invoice.InvoiceId,
@@ -268,7 +268,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // CẬP NHẬT MỨC TRIAGE (Độ khẩn cấp)
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -294,7 +294,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // KHÁM CẤP CỨU CHI TIẾT
+
         // ═══════════════════════════════════════════════════════
         public async Task<IActionResult> Examine(int recordId)
         {
@@ -319,7 +319,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.Medicines = await _context.Medicines.Where(m => m.IsActive != false).OrderBy(m => m.MedicineName).ToListAsync();
             ViewBag.MedicalServices = await _context.MedicalServices.OrderBy(s => s.ServiceName).ToListAsync();
             
-            // Lấy danh sách khoa để chuyển khoa
+
             ViewBag.Departments = await _context.Departments
                 .Where(d => d.DeptName != "Khoa Cấp cứu" && !d.DeptName.Contains("Hành chính"))
                 .ToListAsync();
@@ -328,7 +328,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // LƯU THÔNG TIN KHÁM CẤP CỨU & SINH HIỆU MỚI
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -350,7 +350,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             existing.IcdCode = IcdCode;
             existing.Notes = Notes;
 
-            // Cập nhật trị số sinh hiệu hiện tại
+
             existing.BloodPressure = BloodPressure;
             existing.PulseRate = PulseRate;
             existing.Temperature = Temperature;
@@ -358,7 +358,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             existing.Weight = Weight;
             existing.SpO2 = SpO2;
 
-            // Ghi nhận vào lịch sử sinh hiệu VitalSigns (Trend chart)
+
             if (!string.IsNullOrEmpty(BloodPressure) || PulseRate.HasValue || Temperature.HasValue || SpO2.HasValue)
             {
                 var timeStr = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
@@ -382,7 +382,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // CHỈ ĐỊNH DỊCH VỤ CẬN LÂM SÀNG KHẨN CẤP
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -404,14 +404,14 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 DoctorId = empId,
                 ServiceId = ServiceId,
                 ExecuteDate = DateTime.Now,
-                Status = "Chờ thực hiện", // Hoặc ChoThucHien
+                Status = "Chờ thực hiện", 
                 ResultValue = Note
             };
 
             _context.RecordServices.Add(rs);
             await _context.SaveChangesAsync();
 
-            // Thêm vào hóa đơn nợ cấp cứu
+
             var invoice = await GetOrCreateEmergencyInvoiceAsync(record.PatientId, RecordId);
             var service = await _context.MedicalServices.FindAsync(ServiceId);
             if (service != null)
@@ -440,7 +440,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // KÊ ĐƠN THUỐC CẤP CỨU KHẨN CẤP
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -691,7 +691,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // CHUYỂN KHOA NHẬP VIỆN / CHUYỂN VIỆN TUYẾN TRÊN
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -731,7 +731,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             _context.Update(record);
             await _context.SaveChangesAsync();
 
-            // Chốt hóa đơn cấp cứu: Chuyển "CapCuu_ChuaThanhToan" -> "ChuaThanhToan"
+
             var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.RecordId == recordId && i.Status == "CapCuu_ChuaThanhToan");
             if (invoice != null)
             {
@@ -746,7 +746,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // CẬP NHẬT DANH TÍNH BỆNH NHÂN (Khi đã xác định)
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -777,7 +777,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // XUẤT VIỆN / CHO VỀ / TỬ VONG
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -797,7 +797,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             _context.Update(record);
             await _context.SaveChangesAsync();
 
-            // Chốt hóa đơn cấp cứu: Chuyển "CapCuu_ChuaThanhToan" -> "ChuaThanhToan"
+
             var invoice = await _context.Invoices.FirstOrDefaultAsync(i => i.RecordId == recordId && i.Status == "CapCuu_ChuaThanhToan");
             if (invoice != null)
             {
@@ -873,21 +873,21 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
             else if (invoice.Status != "CapCuu_ChuaThanhToan" && invoice.Status != "DaThanhToan" && invoice.Status != "Huy")
             {
-                // Nếu hóa đơn đã tồn tại nhưng có trạng thái khác, chuyển về trạng thái nợ cấp cứu để tiếp tục cấp cứu trước thanh toán sau.
+
                 invoice.Status = "CapCuu_ChuaThanhToan";
                 _context.Update(invoice);
                 await _context.SaveChangesAsync();
             }
             else if (invoice.Status == "DaThanhToan")
             {
-                // Nếu hóa đơn cấp cứu đã đóng tiền nhưng bác sĩ cấp cứu lại bổ sung thêm thuốc/dịch vụ mới,
-                // chuyển trạng thái về nợ cấp cứu để thu ngân có thể thu thêm phần chênh lệch phát sinh sau.
+
+
                 invoice.Status = "CapCuu_ChuaThanhToan";
                 _context.Update(invoice);
                 await _context.SaveChangesAsync();
             }
 
-            // Đảm bảo có tiền khám lâm sàng
+
             bool hasClinicalExamFee = await _context.InvoiceDetails
                 .AnyAsync(id => id.Invoice.RecordId == recordId && id.ItemType == "Tiền khám");
 

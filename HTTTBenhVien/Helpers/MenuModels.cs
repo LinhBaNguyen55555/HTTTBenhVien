@@ -1,7 +1,7 @@
-namespace HTTTBenhVien.Helpers;
+﻿namespace HTTTBenhVien.Helpers;
 
 /// <summary>
-/// Định nghĩa cấu trúc một mục menu trong sidebar
+
 /// </summary>
 public class MenuItem
 {
@@ -19,7 +19,7 @@ public class MenuItem
 }
 
 /// <summary>
-/// Định nghĩa cấu trúc một workspace
+
 /// </summary>
 public class WorkspaceInfo
 {

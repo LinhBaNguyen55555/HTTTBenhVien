@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -404,7 +404,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             bool isUpdated = false;
 
-            // Cập nhật thông tin nhân viên
+
             if (account.Emp != null)
             {
                 account.Emp.FullName = FullName;
@@ -413,7 +413,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 account.Emp.Gender = Gender;
                 isUpdated = true;
 
-                // Xử lý upload Avatar
+
                 if (AvatarFile != null && AvatarFile.Length > 0)
                 {
                     var fileExtension = System.IO.Path.GetExtension(AvatarFile.FileName);
@@ -436,7 +436,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
             }
 
-            // Xử lý đổi mật khẩu
+
             if (!string.IsNullOrEmpty(OldPassword) || !string.IsNullOrEmpty(NewPassword))
             {
                 if (string.IsNullOrEmpty(OldPassword) || string.IsNullOrEmpty(NewPassword))

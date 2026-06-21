@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace HTTTBenhVien.Models;
@@ -16,7 +16,7 @@ public partial class Prescription
     public string? Note { get; set; }
 
     /// <summary>
-    /// Trạng thái đơn thuốc: ChoCapPhat, DaCapPhat, Huy
+
     /// </summary>
     public string? Status { get; set; }
 

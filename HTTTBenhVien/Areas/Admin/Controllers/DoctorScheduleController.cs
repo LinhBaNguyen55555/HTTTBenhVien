@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +22,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // GET: Admin/DoctorSchedule
-        // Dành cho Admin và Lễ tân
+
         public async Task<IActionResult> Index(DateTime? filterDate, int? doctorId)
         {
             if (!User.IsInRole("Admin") && !User.IsInRole("Lễ tân") && !User.IsInRole("LeTan") && !User.IsInRole("Receptionist"))
@@ -55,7 +55,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // GET: Admin/DoctorSchedule/Personal
-        // Dành cho Bác sĩ
+
         public async Task<IActionResult> Personal()
         {
             if (!User.IsInRole("Bác sĩ") && !User.IsInRole("BacSi") && !User.IsInRole("Doctor"))

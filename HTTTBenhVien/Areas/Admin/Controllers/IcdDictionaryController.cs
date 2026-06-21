@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -25,7 +25,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewData["CurrentFilter"] = searchString;
             ViewData["ChapterFilter"] = chapterFilter;
 
-            // Lấy danh sách các chương để đưa vào dropdown filter
+
             ViewBag.Chapters = await _context.IcdDictionaries
                 .Where(i => i.Chapter != null)
                 .Select(i => i.Chapter)
@@ -64,7 +64,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                // Kiểm tra mã bệnh đã tồn tại chưa
+
                 if (await _context.IcdDictionaries.AnyAsync(i => i.IcdCode == icdDictionary.IcdCode))
                 {
                     ModelState.AddModelError("IcdCode", "Mã bệnh này đã tồn tại trong hệ thống.");

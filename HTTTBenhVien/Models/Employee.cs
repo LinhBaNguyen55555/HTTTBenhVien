@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,10 +14,10 @@ public partial class Employee
     public string? Email { get; set; }
     public string? Phone { get; set; }
 
-    // Cột AvatarUrl trong SQL (lưu tên ảnh, VD: doctor1.jpg)
+
     public string? AvatarUrl { get; set; }
 
-    // Computed property trả về đường dẫn đầy đủ
+
     [NotMapped]
     public string AvatarUrlFull
     {

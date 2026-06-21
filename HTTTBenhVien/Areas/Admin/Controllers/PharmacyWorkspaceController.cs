@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
@@ -21,11 +21,11 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // TRANG CHỦ: Dashboard Dược & Vật tư
+
         // ═══════════════════════════════════════════════════════
         public async Task<IActionResult> Index()
         {
-            // ─── Thống kê Thuốc ───
+
             var medicines = await _context.Medicines.ToListAsync();
             ViewBag.TotalMedicines = medicines.Count;
             ViewBag.LowStockMedicines = medicines.Where(m => m.StockQuantity <= 50).ToList();
@@ -36,7 +36,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.ExpiredCount = ViewBag.ExpiredMedicines.Count;
             ViewBag.TotalStockValue = medicines.Sum(m => m.Price * m.StockQuantity);
 
-            // ─── Thống kê Vật tư ───
+
             var supplies = await _context.MedicalSupplies.ToListAsync();
             ViewBag.TotalSupplies = supplies.Count;
             ViewBag.LowStockSupplies = supplies.Where(s => s.StockQuantity <= 20).ToList();
@@ -44,7 +44,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.ExpiringSupplies = supplies.Where(s => s.ExpiryDate.HasValue && s.ExpiryDate.Value <= DateTime.Now.AddDays(90)).ToList();
             ViewBag.ExpiringSupplyCount = ViewBag.ExpiringSupplies.Count;
 
-            // ─── Đơn thuốc chờ cấp phát ───
+
             var pendingPrescriptions = await _context.Prescriptions
                 .Include(p => p.Record).ThenInclude(r => r.Patient)
                 .Include(p => p.Doctor)
@@ -53,7 +53,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .OrderByDescending(p => p.CreateDate)
                 .ToListAsync();
             
-            // Xác thực trạng thái thanh toán & Số tiền cần thu tại quầy Dược
+
             var recordIds = pendingPrescriptions.Select(p => p.RecordId).Distinct().ToList();
             var invoices = await _context.Invoices
                 .Include(i => i.InvoiceDetails)
@@ -67,7 +67,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             {
                 var medIds = p.PrescriptionDetails.Select(pd => pd.MedicineId).ToList();
                 
-                // Trạng thái thanh toán của Thuốc trong hồ sơ này
+
                 bool isPaid = invoices.Any(i => i.RecordId == p.RecordId 
                                             && i.Status == "DaThanhToan" 
                                             && i.InvoiceDetails.Any(d => d.ItemType == "Thuốc" && medIds.Contains(d.ItemId ?? 0)));
@@ -77,7 +77,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
                 else
                 {
-                    // Lấy số tiền chưa thanh toán tương ứng với Thuốc trong record
+
                     var unpaidInvoice = invoices.FirstOrDefault(i => i.RecordId == p.RecordId 
                                                 && i.Status != "DaThanhToan" 
                                                 && i.Status != "Huy"
@@ -103,7 +103,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             ViewBag.PaidPrescriptionIds = paidPrescriptionIds;
             ViewBag.UnpaidAmounts = unpaidAmounts;
 
-            // ─── Đơn thuốc đã cấp hôm nay ───
+
             var today = DateTime.Today;
             var dispensedToday = await _context.Prescriptions
                 .Include(p => p.Record).ThenInclude(r => r.Patient)
@@ -119,7 +119,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // CẤP PHÁT THUỐC (Nhanh): Xác nhận đã phát thuốc (chỉ dành cho đơn ĐÃ đóng tiền)
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -135,7 +135,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // 1. Kiểm tra trạng thái thanh toán trước khi cấp phát nhanh
+
             var medIds = prescription.PrescriptionDetails.Select(pd => pd.MedicineId).ToList();
             bool isPaid = await _context.InvoiceDetails
                 .Include(id => id.Invoice)
@@ -150,7 +150,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // 2. Kiểm tra tồn kho trước khi cấp
+
             var insufficientItems = new List<string>();
             foreach (var detail in prescription.PrescriptionDetails)
             {
@@ -171,7 +171,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // 3. Trừ tồn kho
+
             foreach (var detail in prescription.PrescriptionDetails)
             {
                 var medicine = await _context.Medicines.FindAsync(detail.MedicineId);
@@ -182,7 +182,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
             }
 
-            // 4. Cập nhật trạng thái đơn thuốc
+
             prescription.Status = "DaCapPhat";
 
             _context.Prescriptions.Update(prescription);
@@ -193,7 +193,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // THU TIỀN VÀ CẤP PHÁT (Thanh toán tại quầy Dược)
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -210,7 +210,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // 1. Kiểm tra tồn kho trước khi thanh toán & cấp phát
+
             var insufficientItems = new List<string>();
             foreach (var detail in prescription.PrescriptionDetails)
             {
@@ -231,7 +231,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // 2. Tìm hóa đơn chưa thanh toán chứa Thuốc của đơn này
+
             var medIds = prescription.PrescriptionDetails.Select(pd => pd.MedicineId).ToList();
             var invoice = await _context.Invoices
                 .Include(i => i.InvoiceDetails)
@@ -249,7 +249,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
             else
             {
-                // Nếu chưa có hóa đơn, tự tạo hóa đơn đã thanh toán để đảm bảo doanh thu thống nhất
+
                 decimal total = 0;
                 foreach (var detail in prescription.PrescriptionDetails)
                 {
@@ -287,7 +287,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
             }
 
-            // 3. Trừ tồn kho thuốc
+
             foreach (var detail in prescription.PrescriptionDetails)
             {
                 var medicine = await _context.Medicines.FindAsync(detail.MedicineId);
@@ -298,7 +298,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
             }
 
-            // 4. Cập nhật trạng thái đơn thuốc
+
             prescription.Status = "DaCapPhat";
             _context.Prescriptions.Update(prescription);
             
@@ -309,7 +309,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // IN PHIẾU XUẤT THUỐC
+
         // ═══════════════════════════════════════════════════════
         public async Task<IActionResult> PrintPrescription(int id)
         {

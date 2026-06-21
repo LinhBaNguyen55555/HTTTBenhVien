@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using HTTTBenhVien.Models;
@@ -21,13 +21,13 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // TRANG CHỦ: Dashboard Cận lâm sàng
+
         // ═══════════════════════════════════════════════════════
         public async Task<IActionResult> Index()
         {
             var today = DateTime.Today;
 
-            // Tất cả phiếu dịch vụ cận lâm sàng
+
             var allRequests = await _context.RecordServices
                 .Include(rs => rs.Record).ThenInclude(r => r.Patient)
                 .Include(rs => rs.Service)
@@ -35,7 +35,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .OrderByDescending(rs => rs.RsId)
                 .ToListAsync();
 
-            // ─── Phân loại trạng thái ───
+
             var pending = allRequests.Where(r =>
                 r.Status == "ChoThucHien" || r.Status == "Chờ thực hiện" ||
                 r.Status == "Pending" || r.Status == "New" || r.Status == "Mới" ||
@@ -54,7 +54,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 r.Status == "HoanThanh" || r.Status == "Hoàn thành" ||
                 r.Status == "Completed" || r.Status == "Done" || r.Status == "DaCoKetQua").ToList();
 
-            // ─── Truy vấn Trạng thái Thanh toán cận lâm sàng ───
+
             var recordIds = allRequests.Select(r => r.RecordId).Distinct().ToList();
             var paidInvoiceDetails = await _context.InvoiceDetails
                 .Include(id => id.Invoice)
@@ -76,14 +76,14 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             var emergencyRsIds = allRequests.Where(r => r.Record?.IsEmergency == true).Select(r => r.RsId).ToList();
             ViewBag.EmergencyRsIds = emergencyRsIds;
 
-            // ─── Thống kê ───
+
             ViewBag.PendingCount = pending.Count;
             ViewBag.InProgressCount = inProgress.Count;
             ViewBag.CompletedTodayCount = completedToday.Count;
             ViewBag.TotalCompletedCount = completedAll.Count;
             ViewBag.TotalRequestsToday = allRequests.Count(r => r.ExecuteDate.HasValue && r.ExecuteDate.Value.Date == today);
 
-            // ─── Thống kê theo loại dịch vụ (Top 5) ───
+
             var serviceStats = allRequests
                 .GroupBy(r => r.Service?.ServiceName ?? "Không xác định")
                 .Select(g => new { Name = g.Key, Count = g.Count() })
@@ -101,7 +101,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // NHẬN PHIẾU: Chuyển trạng thái từ "Chờ" → "Đang thực hiện"
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -116,7 +116,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // KIỂM TRA THANH TOÁN (Bypass nếu là ca Cấp cứu)
+
             bool isEmergency = rs.Record?.IsEmergency == true;
             var isPaid = isEmergency || await _context.InvoiceDetails
                 .Include(id => id.Invoice)
@@ -141,7 +141,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // TRẢ KẾT QUẢ: Nhập kết quả + Chuyển trạng thái → "Hoàn thành"
+
         // ═══════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -167,7 +167,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ═══════════════════════════════════════════════════════
-        // IN PHIẾU KẾT QUẢ
+
         // ═══════════════════════════════════════════════════════
         public async Task<IActionResult> PrintResult(int id)
         {

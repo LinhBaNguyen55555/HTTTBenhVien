@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace HTTTBenhVien.Models;
@@ -25,13 +25,13 @@ public partial class MedicalRecord
     public decimal? Weight { get; set; }
     public int? SpO2 { get; set; }
 
-    // ── Cấp cứu (Emergency) ──
+
     public bool? IsEmergency { get; set; }
     public int? TriageLevel { get; set; }
     public DateTime? TriageTime { get; set; }
     public string? TriageNotes { get; set; }
 
-    // ── Chỉ định Nhập viện (Inpatient Admission) ──
+
     public int? TargetDeptId { get; set; }
     public virtual Department? TargetDept { get; set; }
     public string? AdmissionNotes { get; set; }

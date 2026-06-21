@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
@@ -56,7 +56,7 @@ public class AccountController : Controller
                         FullName = model.FullName,
                         Phone = model.PhoneNumber,
                         PatientCode = "BN" + DateTime.Now.ToString("yyMMddHHmmss"),
-                        Dob = new DateTime(2000, 1, 1) // Gán giá trị mặc định để tránh lỗi NOT NULL trong DB
+                        Dob = new DateTime(2000, 1, 1) 
                     };
                     _context.Patients.Add(existingPatient);
                     await _context.SaveChangesAsync();

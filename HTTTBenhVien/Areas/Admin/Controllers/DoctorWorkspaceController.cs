@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -40,9 +40,9 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             var today = DateTime.Today;
 
-            // 0. Tự động hủy các lịch hẹn trễ quá ngày hoặc quá giờ làm việc (sau 21:00)
+
             var now = DateTime.Now;
-            var isPastWorkingHours = now.Hour >= 21; // Sau 21:00
+            var isPastWorkingHours = now.Hour >= 21;
             
             var staleAppointments = await _context.Appointments
                 .Where(a => a.AppDate.HasValue && 
@@ -62,7 +62,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            // 1. Lấy tất cả lịch hẹn hôm nay của bác sĩ này (chỉ hiển thị các lịch hẹn đã xác nhận/tiếp nhận)
+
             var appointments = await _context.Appointments
                 .Include(a => a.Patient)
                 .Where(a => a.DoctorId == empId && a.AppDate != null && a.AppDate.Value.Date == today 
@@ -70,7 +70,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .OrderBy(a => a.TimeSlot)
                 .ToListAsync();
 
-            // 2. Lấy tất cả bệnh án hôm nay của bác sĩ này (bao gồm cả vãng lai và đã khám)
+
             var medicalRecords = await _context.MedicalRecords
                 .Include(m => m.Patient)
                 .Include(m => m.RecordServices)
@@ -78,16 +78,16 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 .Where(m => m.DoctorId == empId && m.VisitDate != null && m.VisitDate.Value.Date == today)
                 .ToListAsync();
 
-            // 3. Xây dựng hàng đợi chờ khám thống nhất (Chưa có chuẩn đoán/kết luận lâm sàng)
+
             var queue = new List<PatientQueueItem>();
 
-            // A. Thêm bệnh nhân từ lịch hẹn
+
             foreach (var app in appointments)
             {
                 var record = medicalRecords.FirstOrDefault(m => m.AppointmentId == app.AppId);
                 bool isExamined = record != null && (!string.IsNullOrEmpty(record.Diagnosis) || !string.IsNullOrEmpty(record.Conclusion));
 
-                // Tính toán xem có trễ hẹn không
+
                 bool isLate = false;
                 if (!isExamined && app.AppDate.HasValue)
                 {
@@ -127,7 +127,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 });
             }
 
-            // B. Thêm bệnh nhân vãng lai khám trực tiếp (AppointmentId == null)
+
             var walkIns = medicalRecords.Where(m => m.AppointmentId == null).ToList();
             foreach (var w in walkIns)
             {
@@ -149,14 +149,14 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 });
             }
 
-            // Sắp xếp queue: Những ai chưa khám lên trước, đã khám xếp sau; sau đó xếp theo thời gian đăng ký/TimeSlot
+
             var sortedQueue = queue
                 .OrderBy(q => q.IsExamined)
                 .ThenBy(q => q.TimeSlot)
                 .ThenBy(q => q.RegisterTime)
                 .ToList();
 
-            // 4. Phân hệ Theo dõi Cận lâm sàng hôm nay
+
             var labRecords = medicalRecords.Where(m => m.RecordServices.Any()).ToList();
 
             var waitingLab = new List<LabTrackingItem>();
@@ -192,7 +192,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
             }
 
-            // Thống kê & Dữ liệu
+
             ViewBag.Queue = sortedQueue;
             ViewBag.WaitingLab = waitingLab;
             ViewBag.CompletedLab = completedLab;
@@ -230,7 +230,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
             else if (appId.HasValue && appId.Value > 0)
             {
-                // Tìm xem đã có bệnh án chưa
+
                 record = await _context.MedicalRecords
                     .Include(m => m.Patient)
                     .Include(m => m.Invoice)
@@ -250,7 +250,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
                     if (appointment == null) return NotFound();
 
-                    // Tự động tạo và lưu bệnh án mới để có RecordId cho kê đơn/chỉ định
+
                     record = new MedicalRecord
                     {
                         AppointmentId = appointment.AppId,
@@ -264,7 +264,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                     _context.MedicalRecords.Add(record);
                     await _context.SaveChangesAsync();
 
-                    // Tải lại đầy đủ quan hệ
+
                     record = await _context.MedicalRecords
                         .Include(m => m.Patient)
                         .Include(m => m.Invoice)
@@ -391,7 +391,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                     }
                 }
 
-                // Tự động xác nhận lịch hẹn khi bác sĩ đã khám và lưu bệnh án
+
                 if (record.AppointmentId.HasValue && record.AppointmentId.Value > 0)
                 {
                     var appointment = await _context.Appointments.FindAsync(record.AppointmentId.Value);
@@ -404,12 +404,12 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
                 await _context.SaveChangesAsync();
 
-                // Tự động sinh hóa đơn/tiền khám lâm sàng khi bác sĩ lưu bệnh án
+
                 var hasClsServices = await _context.RecordServices.AnyAsync(rs => rs.RecordId == record.RecordId);
                 var invoice = await GetOrCreateActiveInvoiceAsync(record.PatientId, record.RecordId);
                 
-                // Nếu bệnh nhân không có chỉ định cận lâm sàng nào, tự động đổi trạng thái hóa đơn từ ChuaChot sang ChuaThanhToan
-                // để quầy thu ngân có thể lập tức nhìn thấy và thu tiền khám.
+
+
                 if (!hasClsServices && invoice != null && invoice.Status == "ChuaChot")
                 {
                     invoice.Status = "ChuaThanhToan";
@@ -746,15 +746,15 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
             }
             else if (invoice.Status == "DaThanhToan" || invoice.Status == "Huy")
             {
-                // Nếu hóa đơn đã được thanh toán hoặc bị hủy trước đó nhưng bác sĩ lại lưu bệnh án hoặc kê thêm dịch vụ/đơn thuốc mới,
-                // chuyển trạng thái về "ChuaChot" để hệ thống tiếp tục cho phép thu thêm phần phát sinh.
+
+
                 invoice.Status = "ChuaChot";
                 _context.Update(invoice);
                 await _context.SaveChangesAsync();
             }
 
-            // Kiểm tra xem đã có hóa đơn nào (đã thanh toán hoặc chưa thanh toán, không tính hóa đơn đã hủy)
-            // của bệnh án này chứa khoản mục "Tiền khám" hay chưa để tránh tính phí trùng lặp.
+
+
             bool hasClinicalExamFee = await _context.InvoiceDetails
                 .AnyAsync(id => id.Invoice.RecordId == recordId 
                              && id.Invoice.Status != "Huy" 
@@ -766,7 +766,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 {
                     InvoiceId = invoice.InvoiceId,
                     ItemType = "Tiền khám",
-                    ItemId = 0, // Id = 0 đại diện cho tiền khám lâm sàng tự động
+                    ItemId = 0, 
                     ItemName = "Tiền khám lâm sàng",
                     Quantity = 1,
                     UnitPrice = 150000
@@ -799,7 +799,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
 
             if (record == null) return NotFound();
 
-            // Xác minh quyền sở hữu hoặc quyền admin
+
             if (record.DoctorId != empId && !User.IsInRole("Admin"))
             {
                 return Forbid();
@@ -848,14 +848,14 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Examine), new { appId = appId, recordId = recordId });
             }
 
-            // 1. Kiểm tra xem chỉ định đã được thực hiện chưa
+
             if (rs.Status != "Chờ thực hiện" && rs.Status != "ChoThucHien")
             {
                 TempData["Error"] = "Chỉ định này đã hoặc đang được thực hiện, không thể xóa!";
                 return RedirectToAction(nameof(Examine), new { appId = appId, recordId = recordId });
             }
 
-            // 2. Kiểm tra xem đã thanh toán chưa
+
             var isPaid = await _context.InvoiceDetails
                 .Include(id => id.Invoice)
                 .AnyAsync(id => id.Invoice.RecordId == rs.RecordId 
@@ -873,7 +873,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Examine), new { appId = appId, recordId = recordId });
             }
 
-            // 3. Tiến hành xóa chi tiết trong hóa đơn (nếu có hóa đơn chưa thanh toán)
+
             var invoice = await _context.Invoices
                 .Include(i => i.InvoiceDetails)
                 .FirstOrDefaultAsync(i => i.RecordId == rs.RecordId 
@@ -891,7 +891,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 {
                     _context.InvoiceDetails.Remove(detail);
                     
-                    // Trừ số tiền tương ứng
+
                     var servicePrice = detail.UnitPrice * detail.Quantity ?? 0;
                     invoice.TotalAmount -= servicePrice;
                     invoice.PatientAmount = invoice.TotalAmount - (invoice.BhytAmount ?? 0) - (invoice.DiscountAmount ?? 0);
@@ -901,7 +901,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 }
             }
 
-            // 4. Xóa RecordService khỏi database
+
             _context.RecordServices.Remove(rs);
             await _context.SaveChangesAsync();
 
@@ -933,7 +933,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Examine), new { appId = appId, recordId = recordId });
             }
 
-            // Kiểm tra xem đã thanh toán chưa
+
             var isPaid = await _context.InvoiceDetails
                 .Include(id => id.Invoice)
                 .AnyAsync(id => id.Invoice.RecordId == rs.RecordId 
@@ -951,7 +951,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Examine), new { appId = appId, recordId = recordId });
             }
 
-            // Nếu thay đổi dịch vụ cận lâm sàng
+
             if (rs.ServiceId != ServiceId)
             {
                 var oldService = await _context.MedicalServices.FindAsync(rs.ServiceId);
@@ -1109,7 +1109,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
 
         // ==========================================
-        // Dịch vụ Thanh toán tại bàn khám (VietQR & VNPay)
+
         // ==========================================
 
         [HttpGet]
@@ -1205,7 +1205,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         }
     }
 
-    // Helper ViewModels cho hàng đợi khám và theo dõi cận lâm sàng
+
     public class PatientQueueItem
     {
         public int? AppId { get; set; }
@@ -1216,7 +1216,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         public bool? Gender { get; set; }
         public string TimeSlot { get; set; }
         public string Reason { get; set; }
-        public string Type { get; set; } // "Lịch hẹn" or "Khám trực tiếp"
+        public string Type { get; set; } 
         public bool IsExamined { get; set; }
         public DateTime RegisterTime { get; set; }
         public bool IsLate { get; set; }
@@ -1233,7 +1233,7 @@ namespace HTTTBenhVien.Areas.Admin.Controllers
         public string Phone { get; set; }
         public bool? Gender { get; set; }
         public string OrderedServices { get; set; }
-        public string LabStatus { get; set; } // "Đang chờ kết quả" or "Đã có kết quả"
+        public string LabStatus { get; set; } 
         public bool AllCompleted { get; set; }
     }
 }
